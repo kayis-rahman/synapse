@@ -18,23 +18,38 @@ class EmbeddingService:
             except Exception:
                 self._model = None
 
-    def embed(self, texts):
+    def embed(self, texts, batch_size=32):
         vectors = []
-        for t in texts:
+        uncached_texts = []
+        uncached_indices = []
+        for i, t in enumerate(texts):
             if self.use_cache and t in self._cache:
                 vectors.append(self._cache[t])
-                continue
-            vec = None
+            else:
+                uncached_texts.append(t)
+                uncached_indices.append(i)
+                vectors.append(None)  # Placeholder
+
+        if uncached_texts:
             if self._model is not None:
                 try:
-                    vec = self._model.encode(t, convert_to_numpy=True).tolist()
+                    # Batch encode
+                    batch_vectors = self._model.encode(uncached_texts, batch_size=batch_size, convert_to_numpy=True).tolist()
+                    for idx, vec in zip(uncached_indices, batch_vectors):
+                        if self.use_cache:
+                            self._cache[texts[idx]] = vec
+                        vectors[idx] = vec
                 except Exception:
-                    vec = None
-            if vec is None:
-                vec = self._fallback_embed(t)
-            if self.use_cache:
-                self._cache[t] = vec
-            vectors.append(vec)
+                    pass  # Fall back to individual
+
+            # Fallback for any failures
+            for i in uncached_indices:
+                if vectors[i] is None:
+                    vec = self._fallback_embed(texts[i])
+                    if self.use_cache:
+                        self._cache[texts[i]] = vec
+                    vectors[i] = vec
+
         return vectors
 
     def _fallback_embed(self, text, dim=128):

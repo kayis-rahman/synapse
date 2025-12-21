@@ -31,8 +31,18 @@ def infer_tags(file_path, tag_mappings):
             tags.update(value)
     return tags
 
+def parse_tags(tags_str):
+    """Parse tags string like 'project:pi-rag,service:docs' into dict."""
+    tags = {}
+    if tags_str:
+        for pair in tags_str.split(','):
+            if ':' in pair:
+                key, value = pair.split(':', 1)
+                tags[key.strip()] = value.strip()
+    return tags
+
 def chunk_text(text, chunk_size=500):
-    """Split text into chunks."""
+    """Split text into chunks of approximately chunk_size characters."""
     words = text.split()
     chunks = []
     current = ""
@@ -40,7 +50,9 @@ def chunk_text(text, chunk_size=500):
         if len(current) + len(word) + 1 > chunk_size:
             if current:
                 chunks.append(current.strip())
-            current = word
+                current = word
+            else:
+                chunks.append(word)
         else:
             current += " " + word
     if current:
@@ -137,6 +149,32 @@ def query_memory(query, config_path, filters=None):
     for doc, score, meta in results[:5]:
         print(f"  Score: {score:.3f} | Tags: {meta.get('project', 'N/A')}/{meta.get('service', 'N/A')}/{meta.get('feature', 'N/A')} | Text: {doc[:100]}...")
 
+def learn(text, config_path, tags):
+    """Add user-provided text to memory for learning."""
+    config = load_config(config_path)
+    index_path = config.get("index_path", "./rag_index")
+    store = VectorStore(index_path)
+    store.load()
+
+    chunks = chunk_text(text, config.get("chunk_size", 500))
+    if not chunks:
+        print("No text to learn.")
+        return
+
+    embedding_service = EmbeddingService()
+    vectors = embedding_service.embed(chunks)
+
+    # Tags: user-provided + project
+    full_tags = {"project": config["project"], "source": "user"}
+    full_tags.update(tags)
+
+    metadata = [full_tags.copy() for _ in chunks]
+
+    store.add(chunks, vectors, metadata)
+    store.save()
+
+    print(f"Learned {len(chunks)} chunks from user input.")
+
 def stats(config_path):
     """Show memory stats."""
     config = load_config(config_path)
@@ -145,6 +183,8 @@ def stats(config_path):
     store.load()
     print(f"Total chunks: {len(store.docs)}")
     print(f"Total files: {len(set(meta.get('file_path') for meta in store.metadata if meta.get('file_path')))}")
+    user_chunks = sum(1 for meta in store.metadata if meta.get('source') == 'user')
+    print(f"User-learned chunks: {user_chunks}")
     services = set(meta.get('service') for meta in store.metadata if meta.get('service'))
     features = set(meta.get('feature') for meta in store.metadata if meta.get('feature'))
     print(f"Services: {', '.join(services)}")
@@ -166,6 +206,12 @@ def main():
     query_parser.add_argument('--config', required=True, help="Path to config JSON.")
     query_parser.add_argument('--filters', help="Filters as key:value,key2:value2")
 
+    # Learn command
+    learn_parser = subparsers.add_parser('learn', help='Add text to memory for learning')
+    learn_parser.add_argument('text', help="Text to learn.")
+    learn_parser.add_argument('--config', required=True, help="Path to config JSON.")
+    learn_parser.add_argument('--tags', help="Tags as key:value,key2:value2")
+
     # Stats command
     stats_parser = subparsers.add_parser('stats', help='Show memory stats')
     stats_parser.add_argument('--config', required=True, help="Path to config JSON.")
@@ -181,6 +227,9 @@ def main():
                     k, v = pair.split(':', 1)
                     filters[k.strip()] = v.strip()
         query_memory(args.query, args.config, filters)
+    elif args.command == 'learn':
+        tags = parse_tags(args.tags)
+        learn(args.text, args.config, tags)
     elif args.command == 'stats':
         stats(args.config)
     else:
