@@ -1,0 +1,16 @@
+{
+  "project": "pi-rag",
+  "file_types": [".py", ".md"],
+  "tag_mappings": {
+    "rag/": {"service": "rag"},
+    "rag_server": {"device": "backend"},
+    "llm": {"feature": "llm"},
+    "vector": {"feature": "vectorstore"},
+    "orchestrator": {"feature": "orchestration"},
+    "ingest": {"type": "tool"},
+    "sample": {"type": "example"}
+  },
+  "index_path": "./rag_index",
+  "chunk_size": 500,
+  "exclusions": ["__pycache__", ".git", "build", "*.pyc", "*.log", ".DS_Store"]
+}

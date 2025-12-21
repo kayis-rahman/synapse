@@ -70,6 +70,18 @@ class VectorStore:
         with open(os.path.join(target, 'meta.json'), 'w', encoding='utf-8') as f:
             json.dump(self.metadata, f, ensure_ascii=False)
 
+    def remove_by_metadata(self, filters):
+        """Remove entries matching all filters."""
+        indices_to_remove = []
+        for i, meta in enumerate(self.metadata):
+            if self._matches_filters(meta, filters):
+                indices_to_remove.append(i)
+        # Remove in reverse order to maintain indices
+        for i in reversed(indices_to_remove):
+            del self.docs[i]
+            del self.vectors[i]
+            del self.metadata[i]
+
     def load(self, path=None):
         target = path or self.index_path
         if not target or not os.path.exists(target):
