@@ -119,14 +119,72 @@ def bulk_ingest(folder, config_path, update=False):
     store.save()
     print(f"Bulk ingestion complete: {processed} files processed.")
 
+def query_memory(query, config_path, filters=None):
+    """Query the memory for debugging."""
+    config = load_config(config_path)
+    index_path = config.get("index_path", "./rag_index")
+    store = VectorStore(index_path)
+    store.load()
+
+    from rag.embedding import EmbeddingService
+    from rag.retriever import Retriever
+    embedding_service = EmbeddingService()
+    retriever = Retriever(embedding_service, store)
+
+    results = retriever.retrieve([query], metadata_filters=filters)
+    print(f"Query: {query}")
+    print(f"Results ({len(results)}):")
+    for doc, score, meta in results[:5]:
+        print(f"  Score: {score:.3f} | Tags: {meta.get('project', 'N/A')}/{meta.get('service', 'N/A')}/{meta.get('feature', 'N/A')} | Text: {doc[:100]}...")
+
+def stats(config_path):
+    """Show memory stats."""
+    config = load_config(config_path)
+    index_path = config.get("index_path", "./rag_index")
+    store = VectorStore(index_path)
+    store.load()
+    print(f"Total chunks: {len(store.docs)}")
+    print(f"Total files: {len(set(meta.get('file_path') for meta in store.metadata if meta.get('file_path')))}")
+    services = set(meta.get('service') for meta in store.metadata if meta.get('service'))
+    features = set(meta.get('feature') for meta in store.metadata if meta.get('feature'))
+    print(f"Services: {', '.join(services)}")
+    print(f"Features: {', '.join(features)}")
+
 def main():
-    parser = argparse.ArgumentParser(description="Bulk ingest codebase into RAG memory.")
-    parser.add_argument('--folder', required=True, help="Root folder to scan.")
-    parser.add_argument('--config', required=True, help="Path to config JSON.")
-    parser.add_argument('--update', action='store_true', help="Incremental update mode.")
+    parser = argparse.ArgumentParser(description="RAG Memory Management Tool")
+    subparsers = parser.add_subparsers(dest='command', help='Commands')
+
+    # Ingest command
+    ingest_parser = subparsers.add_parser('ingest', help='Bulk ingest codebase')
+    ingest_parser.add_argument('--folder', required=True, help="Root folder to scan.")
+    ingest_parser.add_argument('--config', required=True, help="Path to config JSON.")
+    ingest_parser.add_argument('--update', action='store_true', help="Incremental update mode.")
+
+    # Query command
+    query_parser = subparsers.add_parser('query', help='Query memory')
+    query_parser.add_argument('query', help="Query string.")
+    query_parser.add_argument('--config', required=True, help="Path to config JSON.")
+    query_parser.add_argument('--filters', help="Filters as key:value,key2:value2")
+
+    # Stats command
+    stats_parser = subparsers.add_parser('stats', help='Show memory stats')
+    stats_parser.add_argument('--config', required=True, help="Path to config JSON.")
 
     args = parser.parse_args()
-    bulk_ingest(args.folder, args.config, args.update)
+    if args.command == 'ingest':
+        bulk_ingest(args.folder, args.config, args.update)
+    elif args.command == 'query':
+        filters = {}
+        if args.filters:
+            for pair in args.filters.split(','):
+                if ':' in pair:
+                    k, v = pair.split(':', 1)
+                    filters[k.strip()] = v.strip()
+        query_memory(args.query, args.config, filters)
+    elif args.command == 'stats':
+        stats(args.config)
+    else:
+        parser.print_help()
 
 if __name__ == "__main__":
     main()

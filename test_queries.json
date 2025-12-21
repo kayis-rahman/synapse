@@ -1,0 +1,27 @@
+[
+  {
+    "query": "Debug LLM error in pi-rag",
+    "expected": "Should mention LLM service, API keys, logs, or code from rag/llm.py",
+    "notes": "Test log check -> feature match"
+  },
+  {
+    "query": "How does vectorstore work",
+    "expected": "Explain FAISS, embeddings, search from ingested vectorstore.py",
+    "notes": "Code/docs retrieval"
+  },
+  {
+    "query": "Fix iOS backend issue",
+    "expected": "Context on backend/device tags, or fallback if no iOS data",
+    "notes": "Entity extraction test"
+  },
+  {
+    "query": "Explain orchestrator feature",
+    "expected": "Details from orchestrator.py, sequences",
+    "notes": "Feature-specific"
+  },
+  {
+    "query": "What is the project architecture",
+    "expected": "High-level from Agent.md/Plan.md",
+    "notes": "Docs retrieval"
+  }
+]
