@@ -3,7 +3,7 @@ import json
 import logging
 from typing import List, Dict, Optional
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
@@ -146,13 +146,17 @@ def chat_completions(request: Request, req: ChatCompletionRequest):
         if not user_messages:
             return {"error": "no user message"}
         query = user_messages[-1].content
+        auth_header = request.headers.get("authorization")
+        api_key = None
+        if auth_header and auth_header.startswith("Bearer "):
+            api_key = auth_header[7:]
         logging.info("Query: " + query)
-        result = _orchestrator.answer(query, model=req.model, temperature=req.temperature or 0.7)
+        result = _orchestrator.answer(query, model=req.model, temperature=req.temperature or 0.7, api_key=api_key)
         logging.info("Result: " + str(result))
         answer = result.get("answer", "") if isinstance(result, dict) else str(result)
-        if answer.startswith("LLM generation failed"):
-            return {"error": answer}
         import time
+        if answer.startswith("LLM generation failed"):
+            raise HTTPException(status_code=400, detail={"message": answer, "type": "api_error"})
         if req.stream:
             import json
             def generate():
@@ -208,10 +212,14 @@ def completions(request: Request, req: CompletionRequest):
     if _orchestrator is None:
         return {"error": "server not initialized"}
     query = req.prompt
-    result = _orchestrator.answer(query, model=req.model, temperature=req.temperature or 0.7)
+    auth_header = request.headers.get("authorization")
+    api_key = None
+    if auth_header and auth_header.startswith("Bearer "):
+        api_key = auth_header[7:]
+    result = _orchestrator.answer(query, model=req.model, temperature=req.temperature or 0.7, api_key=api_key)
     answer = result.get("answer", "") if isinstance(result, dict) else str(result)
     if answer.startswith("LLM generation failed"):
-        return {"error": answer}
+        raise HTTPException(status_code=400, detail={"message": answer, "type": "api_error"})
     import time
     return {
         "id": "rag-" + str(hash(query)),
