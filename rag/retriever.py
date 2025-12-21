@@ -6,7 +6,7 @@ class Retriever:
         self.vector_store = vector_store
         self.top_k = top_k
 
-    def retrieve(self, texts):
+    def retrieve(self, texts, metadata_filters=None):
         if not texts:
             return []
         embeddings = self.embedding_service.embed(texts)
@@ -14,4 +14,4 @@ class Retriever:
         if len(embeddings) > 1:
             dim = len(embeddings[0])
             query_vec = [sum(vec[i] for vec in embeddings) / len(embeddings) for i in range(dim)]
-        return self.vector_store.search(query_vec, top_k=self.top_k)
+        return self.vector_store.search(query_vec, top_k=self.top_k, metadata_filters=metadata_filters)

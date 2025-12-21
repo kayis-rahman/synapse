@@ -10,20 +10,49 @@ class RagOrchestrator:
         self.top_k = top_k
 
     def answer(self, query: str, model=None, temperature=0.7, api_key=None) -> dict:
-        # Embed the query
-        q_vecs = self.embedding_service.embed([query])
-        query_vec = q_vecs[0] if q_vecs else []
-        # Retrieve candidates
-        results = self.vector_store.search(query_vec, top_k=self.top_k) if self.vector_store else []
-        docs = [d for d, _score, _md in results]
-        context = "\n---\n".join(docs) if docs else ""
-        prompt = f"Question: {query}\nContext:\n{context}\n"
-        # Generate answer using LLM
+        # Step 1: Check logs (retrieve log-related entries)
+        log_results = self.retriever.retrieve([query], metadata_filters={"type": "log"}) if self.retriever else []
+        log_context = "\n".join([d for d, _s, _md in log_results]) if log_results else "No relevant logs found."
+
+        # Step 2: Match features (extract entities, retrieve)
+        entities = self._extract_entities(query)
+        feature_filters = {k: v for k, v in entities.items() if k in ["project", "service", "feature", "device"]}
+        feature_results = self.retriever.retrieve([query], metadata_filters=feature_filters) if self.retriever else []
+        feature_context = "\n".join([d for d, _s, _md in feature_results]) if feature_results else "No matching features found."
+
+        # Combine contexts
+        full_context = f"Logs:\n{log_context}\n\nFeatures:\n{feature_context}"
+
+        # Step 3: Orchestrate LLM prompt
+        prompt = f"Based on the following context:\n{full_context}\n\nQuestion: {query}\nAnswer:"
         answer = self.llm_controller.generate(prompt, model=model, temperature=temperature, api_key=api_key)
-        score = max((s for _d, s, _md in results), default=0.0) if results else 0.0
+
+        # Collect sources and scores
+        all_results = log_results + feature_results
+        docs = [d for d, _s, _md in all_results]
+        score = max((s for _d, s, _md in all_results), default=0.0) if all_results else 0.0
+
         return {
             "answer": answer,
             "sources": docs,
             "score": score,
-            "context": context,
+            "context": full_context,
         }
+
+    def _extract_entities(self, query: str) -> dict:
+        """Simple entity extraction: map keywords to tags."""
+        entities = {}
+        lower_query = query.lower()
+        # Define mappings (expand as needed)
+        mappings = {
+            "project": ["pi-rag", "project"],
+            "service": ["rag", "server", "llm", "embedding"],
+            "feature": ["auth", "llm", "vector", "api"],
+            "device": ["macos", "ios", "backend", "linux"]
+        }
+        for tag, keywords in mappings.items():
+            for word in keywords:
+                if word in lower_query:
+                    entities[tag] = word
+                    break
+        return entities

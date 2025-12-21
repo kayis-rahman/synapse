@@ -37,11 +37,14 @@ class VectorStore:
             return 0.0
         return dot / (na * nb)
 
-    def search(self, query_vector, top_k=5):
+    def search(self, query_vector, top_k=5, metadata_filters=None):
         if not self.vectors:
             return []
         scores = []
         for i, vec in enumerate(self.vectors):
+            if metadata_filters:
+                if not self._matches_filters(self.metadata[i], metadata_filters):
+                    continue
             s = self._cosine(query_vector, vec)
             scores.append((i, s))
         scores.sort(key=lambda x: x[1], reverse=True)
@@ -49,6 +52,12 @@ class VectorStore:
         for idx, score in scores[:top_k]:
             results.append((self.docs[idx], score, self.metadata[idx]))
         return results
+
+    def _matches_filters(self, item_meta, filters):
+        for key, value in filters.items():
+            if key not in item_meta or item_meta[key] != value:
+                return False
+        return True
 
     def save(self, path=None):
         target = path or self.index_path
