@@ -1,18 +1,19 @@
+import os
+import json
+import logging
+from typing import List, Dict, Optional
+
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List, Optional
-import os
-import logging
 
-logging.basicConfig(filename='rag_server.log', level=logging.DEBUG)
-
-# Import Rag components
 from rag.embedding import EmbeddingService
 from rag.vectorstore import VectorStore
 from rag.retriever import Retriever
 from rag.llm import LLMController
 from rag.orchestrator import RagOrchestrator
+
+logging.basicConfig(filename='rag_server.log', level=logging.DEBUG)
 
 app = FastAPI()
 
@@ -145,14 +146,12 @@ def chat_completions(request: Request, req: ChatCompletionRequest):
         if not user_messages:
             return {"error": "no user message"}
         query = user_messages[-1].content
-        auth_header = request.headers.get("authorization")
-        api_key = None
-        if auth_header and auth_header.startswith("Bearer "):
-            api_key = auth_header[7:]
         logging.info("Query: " + query)
-        result = _orchestrator.answer(query, model=req.model, temperature=req.temperature or 0.7, api_key=api_key)
+        result = _orchestrator.answer(query, model=req.model, temperature=req.temperature or 0.7)
         logging.info("Result: " + str(result))
         answer = result.get("answer", "") if isinstance(result, dict) else str(result)
+        if answer.startswith("LLM generation failed"):
+            return {"error": answer}
         import time
         if req.stream:
             import json
@@ -209,12 +208,10 @@ def completions(request: Request, req: CompletionRequest):
     if _orchestrator is None:
         return {"error": "server not initialized"}
     query = req.prompt
-    auth_header = request.headers.get("authorization")
-    api_key = None
-    if auth_header and auth_header.startswith("Bearer "):
-        api_key = auth_header[7:]
-    result = _orchestrator.answer(query, model=req.model, temperature=req.temperature or 0.7, api_key=api_key)
+    result = _orchestrator.answer(query, model=req.model, temperature=req.temperature or 0.7)
     answer = result.get("answer", "") if isinstance(result, dict) else str(result)
+    if answer.startswith("LLM generation failed"):
+        return {"error": answer}
     import time
     return {
         "id": "rag-" + str(hash(query)),
