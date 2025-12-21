@@ -124,7 +124,7 @@ def list_models():
     return ModelsResponse(
         data=[
             ModelInfo(
-                id="mistralai/devstral-2512:free",
+                id="kwaipilot/kat-coder-pro:free",
                 created=int(time.time()),
                 owned_by="rag"
             )
