@@ -11,7 +11,7 @@ class LLMController:
         self.model = model or 'openrouter/free-model-base'
         self.timeout = timeout
 
-    def generate(self, prompt, max_tokens=256, model=None, temperature=0.7, api_key=None):
+    def generate(self, messages, max_tokens=256, model=None, temperature=0.7, api_key=None):
         model = model or self.model
         api_key = api_key or self.api_key
         try:
@@ -22,7 +22,7 @@ class LLMController:
             }
             data = {
                 "model": model,
-                "messages": [{"role": "user", "content": prompt}],
+                "messages": messages,
                 "max_tokens": max_tokens,
                 "temperature": temperature
             }

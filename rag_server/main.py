@@ -141,19 +141,17 @@ def chat_completions(request: Request, req: ChatCompletionRequest):
         global _orchestrator
         if _orchestrator is None:
             return {"error": "server not initialized"}
-        # Extract the last user message as the query
-        user_messages = [msg for msg in req.messages if msg.role == "user"]
-        if not user_messages:
-            return {"error": "no user message"}
-        query = user_messages[-1].content
         auth_header = request.headers.get("authorization")
         api_key = None
         if auth_header and auth_header.startswith("Bearer "):
             api_key = auth_header[7:]
-        logging.info("Query: " + query)
-        result = _orchestrator.answer(query, model=req.model, temperature=req.temperature or 0.7, api_key=api_key)
+        logging.info("Messages count: " + str(len(req.messages)))
+        result = _orchestrator.answer(req.messages, model=req.model, temperature=req.temperature or 0.7, api_key=api_key)
         logging.info("Result: " + str(result))
         answer = result.get("answer", "") if isinstance(result, dict) else str(result)
+        # Extract last user message for hash
+        user_messages = [msg for msg in req.messages if msg.role == "user"]
+        query = user_messages[-1].content if user_messages else "no query"
         import time
         if answer.startswith("LLM generation failed"):
             raise HTTPException(status_code=400, detail={"message": answer, "type": "api_error"})

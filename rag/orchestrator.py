@@ -9,7 +9,16 @@ class RagOrchestrator:
         self.llm_controller = llm_controller
         self.top_k = top_k
 
-    def answer(self, query: str, model=None, temperature=0.7, api_key=None) -> dict:
+    def answer(self, messages, model=None, temperature=0.7, api_key=None) -> dict:
+        # Convert messages to dicts if needed
+        if messages and hasattr(messages[0], 'role'):
+            messages = [{"role": msg.role, "content": msg.content} for msg in messages]
+        # Extract the last user message for retrieval
+        user_messages = [msg for msg in messages if msg["role"] == "user"]
+        if not user_messages:
+            return {"answer": "No user message found.", "sources": [], "score": 0.0, "context": ""}
+        query = user_messages[-1]["content"]
+
         # Step 1: Check logs (retrieve log-related entries)
         log_results = self.retriever.retrieve([query], metadata_filters={"type": "log"}) if self.retriever else []
         log_context = "\n".join([d for d, _s, _md in log_results]) if log_results else "No relevant logs found."
@@ -23,9 +32,10 @@ class RagOrchestrator:
         # Combine contexts
         full_context = f"Logs:\n{log_context}\n\nFeatures:\n{feature_context}"
 
-        # Step 3: Orchestrate LLM prompt
-        prompt = f"Based on the following context:\n{full_context}\n\nQuestion: {query}\nAnswer:"
-        answer = self.llm_controller.generate(prompt, model=model, temperature=temperature, api_key=api_key)
+        # Step 3: Orchestrate LLM prompt - prepend context to messages
+        context_message = {"role": "system", "content": f"Based on the following context:\n{full_context}\n\nAnswer the user's questions."}
+        augmented_messages = [context_message] + messages
+        answer = self.llm_controller.generate(augmented_messages, model=model, temperature=temperature, api_key=api_key)
 
         # Collect sources and scores
         all_results = log_results + feature_results
