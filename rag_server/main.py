@@ -127,6 +127,11 @@ def list_models():
                 id="kwaipilot/kat-coder-pro:free",
                 created=int(time.time()),
                 owned_by="rag"
+            ),
+            ModelInfo(
+                id="mistralai/devstral-2512:free",
+                created=int(time.time()),
+                owned_by="rag"
             )
         ]
     )
