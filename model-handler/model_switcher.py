@@ -17,6 +17,7 @@ class ModelSwitcher:
     def __init__(self):
         self.active_model: Optional[str] = None
         self.process: Optional[subprocess.Popen] = None
+        self.llama_server = "/root/autodl-tmp/llama.cpp/build/bin/llama-server"
         self.model_configs = {
             "qwen": {
                 "model_path": "models/Qwen3-Coder-30B-A3B-Instruct-Q5_K_M.gguf",
@@ -61,7 +62,7 @@ class ModelSwitcher:
         
         # Build the command
         cmd = [
-            "./build/bin/llama-server",
+            self.llama_server,
             "-m", config["model_path"],
             "--port", str(config["port"]),
             "--host", config["host"],
