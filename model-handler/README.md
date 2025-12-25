@@ -1,67 +1,68 @@
-# Model Switcher for LLaMA Server
+# Model Switcher API Server
 
-This tool allows you to switch between two different models (Qwen3-Coder and DeepSeek-Coder) with their specific configurations while using port 6006.
+This directory contains the complete implementation for switching between Qwen3-Coder and DeepSeek-Coder models with an OpenAI-compatible API interface.
 
-## Features
-- Switch between Qwen3-Coder and DeepSeek-Coder models
-- Each model uses its specific configuration parameters
-- Consistent port 6006 usage (models are started/stopped to avoid conflicts)
-- API-compatible interface for both models
+## Files
 
-## Usage
+- **main.py** - FastAPI server with OpenAI-compatible endpoints
+- **model_switcher.py** - Model management and switching logic  
+- **start_server.sh** - Startup script to run the server directly
+- **install_service.sh** - Script to install as a systemd service
+- **model-switcher.service** - Systemd service configuration
+- **README.md** - Basic usage instructions
+- **SERVER_README.md** - Server usage documentation
+- **ARCHITECTURE.md** - Solution architecture explanation
 
-### Starting a model
+## Quick Start
+
+### Option 1: Run directly with start script
 ```bash
-python model_switcher.py start --model qwen
-python model_switcher.py start --model deepseek
+./start_server.sh
 ```
 
-### Stopping the current model
+### Option 2: Install as systemd service
 ```bash
-python model_switcher.py stop
+sudo ./install_service.sh
+sudo systemctl start model-switcher
+sudo systemctl enable model-switcher
 ```
 
-### Switching between models
+## API Endpoints
+
+- `GET /` - Server information
+- `GET /models` - List available models
+- `POST /chat/completions` - Chat completions
+- `POST /models/{model_name}/switch` - Switch models
+- `GET /status` - Current model status
+
+## Model Names
+
+The API accepts these exact model names:
+- `Qwen3-Coder-30B-A3B`
+- `Deepseek-Coder-33b-Instruct`
+
+## Usage Example
+
 ```bash
-python model_switcher.py switch --model qwen
-python model_switcher.py switch --model deepseek
+# Switch to Qwen model
+curl -X POST "http://localhost:6006/models/Qwen3-Coder-30B-A3B/switch"
+
+# Make a chat completion request
+curl -X POST "http://localhost:6006/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "Qwen3-Coder-30B-A3B",
+    "messages": [{"role": "user", "content": "Hello, world!"}],
+    "temperature": 0.7
+  }'
 ```
 
-### Checking status
-```bash
-python model_switcher.py status
-```
+## Requirements
 
-## Model Configurations
-
-### Qwen3-Coder-30B-A3B-Instruct-Q5_K_M.gguf
-- Model Path: models/Qwen3-Coder-30B-A3B-Instruct-Q5_K_M.gguf
-- Port: 6006
-- Context: 131072
-- NGL: 24
-- Flash Attention: on
-- CTK: q8_0
-- CTv: q8_0
-- Batch Size: 512
-- UB: 512
-- MLock: enabled
-
-### deepseek-coder-33b-instruct.Q5_K_M.gguf
-- Model Path: models/deepseek-coder-33b-instruct.Q5_K_M.gguf
-- Port: 6006
-- Context: 32768
-- NGL: 49
-- Flash Attention: on
-- CTK: q4_0
-- CTv: q4_0
-- Batch Size: 512
-- UB: 512
-- NP: 1
-- MLock: enabled
-
-## Important Notes
-
-1. Only one model can be active at a time since both use port 6006
-2. When switching models, the current model will be stopped before starting the new one
-3. The script assumes that the llama-server binary is at ./build/bin/llama-server
-4. Model files must be in the specified locations as configured in the script
+- Python 3.7+
+- FastAPI
+- Uvicorn
+- llama.cpp server binaries
+- Model files in models/ directory:
+  - `Qwen3-Coder-30B-A3B-Instruct-Q5_K_M.gguf`
+  - `deepseek-coder-33b-instruct.Q5_K_M.gguf`
