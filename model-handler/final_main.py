@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """
-Final Working FastAPI Server for Model Switching
-This provides a clean, working API that properly manages both models
+Final Working FastAPI Server for Model Switching with Proper Initialization Handling
 """
 
 import sys
 import os
 import logging
+import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import uvicorn
+import httpx
 from model_switcher import ModelSwitcher
 
 # Configure logging
@@ -74,7 +75,7 @@ async def list_models():
 
 @app.post("/chat/completions", response_model=ChatCompletionResponse)
 async def chat_completions(request: ChatCompletionRequest):
-    """Chat completions endpoint that makes real calls to models"""
+    """Chat completions endpoint that makes real calls to models with proper initialization handling"""
     try:
         # Validate model name
         valid_models = ["Qwen3-Coder-30B-A3B", "Deepseek-Coder-33b-Instruct"]
@@ -109,7 +110,7 @@ async def chat_completions(request: ChatCompletionRequest):
         model_port = config["port"]
         model_host = config["host"]
         
-        # Use the correct llama.cpp API endpoint (from logs we saw it's /completion)
+        # Use the correct llama.cpp API endpoint
         model_url = f"http://{model_host}:{model_port}/completion"
         
         # Prepare the prompt from messages
@@ -125,7 +126,6 @@ async def chat_completions(request: ChatCompletionRequest):
         }
         
         # Make the actual HTTP request to the running model server
-        import httpx
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(model_url, json=model_request_data, timeout=60.0)
