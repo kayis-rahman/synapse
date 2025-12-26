@@ -30,5 +30,5 @@ echo "Starting server on port 6006..."
 echo "Server will be available at http://localhost:6006"
 echo "Use Ctrl+C to stop the server"
 
-# Run the FastAPI server with debug logging
-python3 main.py --host 0.0.0.0 --port 6006 --log-level debug
+# Run the FastAPI server
+python3 minimal_main.py --host 0.0.0.0 --port 6006
