@@ -14,8 +14,11 @@ from typing import List, Optional, Dict, Any
 import uvicorn
 from model_switcher import ModelSwitcher
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
+# Configure logging - minimal output, only errors
+logging.basicConfig(
+    level=logging.ERROR,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Initialize the model switcher
@@ -75,9 +78,6 @@ async def list_models():
 async def chat_completions(request: ChatCompletionRequest):
     """Chat completions endpoint that routes to the active model"""
     try:
-        logger.debug(f"Received request for model: {request.model}")
-        logger.debug(f"Request data: {request.dict()}")
-        
         # Map the model names to internal identifiers
         model_mapping = {
             "Qwen3-Coder-30B-A3B": "qwen",
@@ -91,16 +91,13 @@ async def chat_completions(request: ChatCompletionRequest):
             raise HTTPException(status_code=400, detail=error_msg)
         
         internal_model = model_mapping[request.model]
-        logger.debug(f"Mapped to internal model: {internal_model}")
         
         # Check if the requested model is available
         status = model_switcher.get_status()
         active_model = status["active_model"]
-        logger.debug(f"Current active model: {active_model}")
         
         if active_model is None:
             # If no model is active, start the requested model
-            logger.debug(f"Starting model: {internal_model}")
             success = model_switcher.start_model(internal_model)
             if not success:
                 error_msg = f"Failed to start model {internal_model}"
@@ -110,7 +107,6 @@ async def chat_completions(request: ChatCompletionRequest):
         else:
             # Check if we need to switch models
             if active_model != internal_model:
-                logger.debug(f"Switching from {active_model} to {internal_model}")
                 success = model_switcher.switch_model(internal_model)
                 if not success:
                     error_msg = f"Failed to switch models from {active_model} to {internal_model}"
@@ -118,8 +114,6 @@ async def chat_completions(request: ChatCompletionRequest):
                     raise HTTPException(status_code=500, detail=error_msg)
                 active_model = internal_model
             
-        logger.debug(f"Model {internal_model} is active, returning response")
-        
         # For demonstration purposes, we'll return a mock response
         # In a real implementation, you would make an actual API call to the running model
         return ChatCompletionResponse(
@@ -147,8 +141,6 @@ async def chat_completions(request: ChatCompletionRequest):
 async def switch_model(model_name: str):
     """Switch to a different model"""
     try:
-        logger.debug(f"Received switch request for model: {model_name}")
-        
         model_mapping = {
             "Qwen3-Coder-30B-A3B": "qwen",
             "Deepseek-Coder-33b-Instruct": "deepseek"
@@ -160,7 +152,6 @@ async def switch_model(model_name: str):
             raise HTTPException(status_code=400, detail=error_msg)
         
         internal_model = model_mapping[model_name]
-        logger.debug(f"Mapped to internal model: {internal_model}")
         
         success = model_switcher.switch_model(internal_model)
         if not success:
@@ -168,7 +159,6 @@ async def switch_model(model_name: str):
             logger.error(error_msg)
             raise HTTPException(status_code=500, detail=error_msg)
         
-        logger.debug(f"Successfully switched to model: {internal_model}")
         return {"message": f"Successfully switched to {model_name} model"}
     except Exception as e:
         logger.error(f"Error switching model: {str(e)}", exc_info=True)
