@@ -54,12 +54,26 @@ class ModelSwitcher:
             print(f"Unknown model: {model_name}")
             return False
             
+        config = self.model_configs[model_name]
+        
+        # Check if model file exists
+        if not os.path.exists(config["model_path"]):
+            print(f"Model file not found: {config['model_path']}")
+            return False
+            
+        # Check if the same model is already running
+        if self.active_model == model_name and self.process and self.process.poll() is None:
+            print(f"Model {model_name} is already running")
+            return True
+            
+        # Stop current model if running
         if self.process and self.process.poll() is None:
             print("A model is already running. Stopping it first...")
             self.stop_model()
             
-        config = self.model_configs[model_name]
-        
+        # Give a brief moment for the previous process to fully terminate
+        time.sleep(0.5)
+            
         # Build the command
         cmd = [
             self.llama_server,
@@ -101,27 +115,28 @@ class ModelSwitcher:
             
         try:
             print("Stopping the current model...")
+            # Send terminate signal
             self.process.terminate()
-            self.process.wait(timeout=10)
+            
+            # Wait for graceful shutdown
+            try:
+                self.process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                print("Model did not stop gracefully, forcing termination...")
+                # Force kill if it doesn't stop gracefully
+                if self.process and hasattr(self.process, 'pid') and self.process.pid:
+                    self.process.kill()
+                self.process.wait()
+                
             self.active_model = None
             self.process = None
             print("Model stopped successfully")
             return True
-        except subprocess.TimeoutExpired:
-            print("Model did not stop gracefully, forcing termination...")
-            try:
-                if self.process and hasattr(self.process, 'pid') and self.process.pid:
-                    self.process.kill()
-                if self.process:
-                    self.process.wait()
-                self.active_model = None
-                self.process = None
-                return True
-            except Exception as e:
-                print(f"Failed to force stop model: {e}")
-                return False
         except Exception as e:
             print(f"Failed to stop model: {e}")
+            # Even if there's an error, clear the state
+            self.active_model = None
+            self.process = None
             return False
 
     def get_status(self) -> Dict[str, Any]:
