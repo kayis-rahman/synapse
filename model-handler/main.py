@@ -12,6 +12,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import uvicorn
+import httpx
 from model_switcher import ModelSwitcher
 
 # Configure logging - minimal output, only errors
@@ -105,7 +106,7 @@ async def chat_completions(request: ChatCompletionRequest):
                 raise HTTPException(status_code=500, detail=error_msg)
             active_model = internal_model
         else:
-            # Check if we need to switch models
+            # Check if we need to switch models (but only if it's a different model)
             if active_model != internal_model:
                 success = model_switcher.switch_model(internal_model)
                 if not success:
@@ -114,25 +115,58 @@ async def chat_completions(request: ChatCompletionRequest):
                     raise HTTPException(status_code=500, detail=error_msg)
                 active_model = internal_model
             
-        # For demonstration purposes, we'll return a mock response
-        # In a real implementation, you would make an actual API call to the running model
-        return ChatCompletionResponse(
-            id="chatcmpl-1234567890",
-            object="chat.completion",
-            created=1677610602,
-            model=request.model,
-            choices=[
-                {
-                    "index": 0,
-                    "message": {
-                        "role": "assistant",
-                        "content": f"Response from {request.model} model. This is a demo response since the actual model calls require additional setup. The model is now active: {request.model}",
-                        "tool_calls": None
-                    },
-                    "finish_reason": "stop"
-                }
-            ]
-        )
+        # Make an actual API call to the running model
+        # Get the port of the currently active model
+        config = model_switcher.model_configs[internal_model]
+        model_port = config["port"]
+        model_host = config["host"]
+        
+        # Make a request to the running llama-server model
+        model_url = f"http://{model_host}:{model_port}/completion"
+        
+        # Prepare the request data for the model
+        model_request_data = {
+            "prompt": "\n".join([msg["content"] for msg in request.messages]),
+            "temperature": request.temperature,
+            "n_predict": request.max_tokens,
+            "stop": ["\n"],
+            "stream": False
+        }
+        
+        # Make the actual HTTP request to the running model server
+        import httpx
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(model_url, json=model_request_data, timeout=30.0)
+                if response.status_code == 200:
+                    model_response = response.json()
+                    # Format the response properly for OpenAI API
+                    return ChatCompletionResponse(
+                        id="chatcmpl-1234567890",
+                        object="chat.completion",
+                        created=1677610602,
+                        model=request.model,
+                        choices=[
+                            {
+                                "index": 0,
+                                "message": {
+                                    "role": "assistant",
+                                    "content": model_response.get("content", ""),
+                                    "tool_calls": None
+                                },
+                                "finish_reason": "stop"
+                            }
+                        ]
+                    )
+                else:
+                    error_msg = f"Model server returned error: {response.status_code}"
+                    logger.error(error_msg)
+                    raise HTTPException(status_code=500, detail=error_msg)
+        except Exception as e:
+            error_msg = f"Error calling model server: {str(e)}"
+            logger.error(error_msg)
+            raise HTTPException(status_code=500, detail=error_msg)
+            
     except Exception as e:
         logger.error(f"Error processing request: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error processing request: {str(e)}")
