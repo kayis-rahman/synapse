@@ -20,7 +20,7 @@ class ModelSwitcher:
         self.llama_server = "/root/autodl-tmp/llama.cpp/build/bin/llama-server"
         self.model_configs = {
             "qwen": {
-                "model_path": "models/Qwen3-Coder-30B-A3B-Instruct-Q5_K_M.gguf",
+                "model_path": "/root/autodl-tmp/llama.cpp/models/Qwen3-Coder-30B-A3B-Instruct-Q5_K_M.gguf",
                 "port": 6007,  # Internal port - different from API port
                 "host": "127.0.0.1",  # Local interface
                 "context": 131072,
@@ -33,7 +33,7 @@ class ModelSwitcher:
                 "mlock": True
             },
             "deepseek": {
-                "model_path": "models/deepseek-coder-33b-instruct.Q5_K_M.gguf",
+                "model_path": "/root/autodl-tmp/llama.cpp/models/deepseek-coder-33b-instruct.Q5_K_M.gguf",
                 "port": 6008,  # Internal port - different from API port
                 "host": "127.0.0.1",  # Local interface
                 "context": 32768,
