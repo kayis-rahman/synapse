@@ -5,6 +5,7 @@ FastAPI server that exposes model switching functionality through OpenAI-compati
 
 import sys
 import os
+import logging
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from fastapi import FastAPI, HTTPException
@@ -12,6 +13,10 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import uvicorn
 from model_switcher import ModelSwitcher
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Initialize the model switcher
 model_switcher = ModelSwitcher()
@@ -70,36 +75,51 @@ async def list_models():
 async def chat_completions(request: ChatCompletionRequest):
     """Chat completions endpoint that routes to the active model"""
     try:
+        logger.debug(f"Received request for model: {request.model}")
+        logger.debug(f"Request data: {request.dict()}")
+        
         # Map the model names to internal identifiers
         model_mapping = {
             "Qwen3-Coder-30B-A3B": "qwen",
             "Deepseek-Coder-33b-Instruct": "deepseek"
         }
         
+        # Validate model name
+        if request.model not in model_mapping:
+            error_msg = f"Invalid model specified: {request.model}"
+            logger.error(error_msg)
+            raise HTTPException(status_code=400, detail=error_msg)
+        
+        internal_model = model_mapping[request.model]
+        logger.debug(f"Mapped to internal model: {internal_model}")
+        
         # Check if the requested model is available
         status = model_switcher.get_status()
         active_model = status["active_model"]
-        
-        # Validate model name
-        if request.model not in model_mapping:
-            raise HTTPException(status_code=400, detail="Invalid model specified")
-        
-        internal_model = model_mapping[request.model]
+        logger.debug(f"Current active model: {active_model}")
         
         if active_model is None:
             # If no model is active, start the requested model
+            logger.debug(f"Starting model: {internal_model}")
             success = model_switcher.start_model(internal_model)
             if not success:
-                raise HTTPException(status_code=500, detail="Failed to start model")
+                error_msg = f"Failed to start model {internal_model}"
+                logger.error(error_msg)
+                raise HTTPException(status_code=500, detail=error_msg)
             active_model = internal_model
         else:
             # Check if we need to switch models
             if active_model != internal_model:
+                logger.debug(f"Switching from {active_model} to {internal_model}")
                 success = model_switcher.switch_model(internal_model)
                 if not success:
-                    raise HTTPException(status_code=500, detail="Failed to switch models")
+                    error_msg = f"Failed to switch models from {active_model} to {internal_model}"
+                    logger.error(error_msg)
+                    raise HTTPException(status_code=500, detail=error_msg)
                 active_model = internal_model
             
+        logger.debug(f"Model {internal_model} is active, returning response")
+        
         # For demonstration purposes, we'll return a mock response
         # In a real implementation, you would make an actual API call to the running model
         return ChatCompletionResponse(
@@ -120,25 +140,39 @@ async def chat_completions(request: ChatCompletionRequest):
             ]
         )
     except Exception as e:
+        logger.error(f"Error processing request: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error processing request: {str(e)}")
 
 @app.post("/models/{model_name}/switch")
 async def switch_model(model_name: str):
     """Switch to a different model"""
-    model_mapping = {
-        "Qwen3-Coder-30B-A3B": "qwen",
-        "Deepseek-Coder-33b-Instruct": "deepseek"
-    }
-    
-    if model_name not in model_mapping:
-        raise HTTPException(status_code=400, detail="Invalid model name")
-    
-    internal_model = model_mapping[model_name]
-    success = model_switcher.switch_model(internal_model)
-    if not success:
-        raise HTTPException(status_code=500, detail="Failed to switch model")
-    
-    return {"message": f"Successfully switched to {model_name} model"}
+    try:
+        logger.debug(f"Received switch request for model: {model_name}")
+        
+        model_mapping = {
+            "Qwen3-Coder-30B-A3B": "qwen",
+            "Deepseek-Coder-33b-Instruct": "deepseek"
+        }
+        
+        if model_name not in model_mapping:
+            error_msg = f"Invalid model name specified: {model_name}"
+            logger.error(error_msg)
+            raise HTTPException(status_code=400, detail=error_msg)
+        
+        internal_model = model_mapping[model_name]
+        logger.debug(f"Mapped to internal model: {internal_model}")
+        
+        success = model_switcher.switch_model(internal_model)
+        if not success:
+            error_msg = f"Failed to switch model to {internal_model}"
+            logger.error(error_msg)
+            raise HTTPException(status_code=500, detail=error_msg)
+        
+        logger.debug(f"Successfully switched to model: {internal_model}")
+        return {"message": f"Successfully switched to {model_name} model"}
+    except Exception as e:
+        logger.error(f"Error switching model: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error switching model: {str(e)}")
 
 @app.get("/status")
 async def get_status():
@@ -150,8 +184,9 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description="Run FastAPI server for model switching")
     parser.add_argument("--host", default="0.0.0.0", help="Host to run the server on")
-    parser.add_argument("--port", type=int, default=8000, help="Port to run the server on")
+    parser.add_argument("--port", type=int, default=6006, help="Port to run the server on")
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload")
+    parser.add_argument("--log-level", default="debug", help="Logging level")
     
     args = parser.parse_args()
     
@@ -165,5 +200,5 @@ if __name__ == "__main__":
         host=args.host,
         port=args.port,
         reload=args.reload,
-        log_level="info"
+        log_level=args.log_level
     )
