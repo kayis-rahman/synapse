@@ -1,49 +1,49 @@
-# Rag core package exports (robust, safe imports)
-try:
-    from .embedding import EmbeddingService
-except Exception:
-    class EmbeddingService:
-        def __init__(self, *args, **kwargs):
-            pass
-        def embed(self, texts):
-            return [[0.0] * 128 for _ in texts]
-try:
-    from .vectorstore import VectorStore
-except Exception:
-    class VectorStore:
-        def __init__(self, *args, **kwargs):
-            pass
-        def search(self, query_vector, top_k=5):
-            return []
-try:
-    from .retriever import Retriever
-except Exception:
-    class Retriever:
-        def __init__(self, *args, **kwargs):
-            pass
-        def retrieve(self, texts):
-            return []
-try:
-    from .llm import LLMController
-except Exception:
-    class LLMController:
-        def __init__(self, *args, **kwargs):
-            pass
-        def generate(self, prompt, max_tokens=256):
-            return "Dummy answer"
-try:
-    from .orchestrator import RagOrchestrator
-except Exception:
-    class RagOrchestrator:
-        def __init__(self, *args, **kwargs):
-            pass
-        def answer(self, query):
-            return {"answer": "Dummy answer", "sources": [], "score": 0.0, "context": ""}
+"""
+pi-rag - Local RAG system using llama-cpp-python
+
+Components:
+- ModelManager: Multi-model load/unload management
+- EmbeddingService: Generate embeddings using GGUF models
+- VectorStore: CPU-based vector storage with cosine similarity
+- Retriever: Semantic document search
+- RAGOrchestrator: Coordinate retrieval and LLM generation
+- ingest_file/ingest_directory: Document ingestion tools
+"""
+
+from .model_manager import ModelManager, ModelConfig, get_model_manager
+from .vectorstore import VectorStore
+from .embedding import EmbeddingService, get_embedding_service
+from .retriever import Retriever, get_retriever
+from .orchestrator import RAGOrchestrator, get_orchestrator
+from .ingest import ingest_file, ingest_text, chunk_text
+from .bulk_ingest import ingest_directory
 
 __all__ = [
-    "EmbeddingService",
-    "VectorStore",
-    "Retriever",
-    "LLMController",
-    "RagOrchestrator",
+    # Model Management
+    'ModelManager',
+    'ModelConfig', 
+    'get_model_manager',
+    
+    # Vector Store
+    'VectorStore',
+    
+    # Embeddings
+    'EmbeddingService',
+    'get_embedding_service',
+    
+    # Retrieval
+    'Retriever',
+    'get_retriever',
+    
+    # Orchestration
+    'RAGOrchestrator',
+    'get_orchestrator',
+    
+    # Ingestion
+    'ingest_file',
+    'ingest_text',
+    'ingest_directory',
+    'chunk_text',
 ]
+
+__version__ = "1.0.0"
