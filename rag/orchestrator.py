@@ -1,68 +1,353 @@
-from typing import List
+"""
+RAG Orchestrator - Coordinates retrieval and LLM generation using llama-cpp-python.
 
+Features:
+- Automatic context injection from retrieved documents
+- Support for disabling RAG via system message keyword
+- Multi-model support (separate embedding and chat models)
+- Streaming and non-streaming responses
+"""
 
-class RagOrchestrator:
-    def __init__(self, embedding_service, vector_store, retriever, llm_controller, top_k: int = 5):
-        self.embedding_service = embedding_service
-        self.vector_store = vector_store
-        self.retriever = retriever
-        self.llm_controller = llm_controller
-        self.top_k = top_k
+import json
+import os
+from typing import List, Dict, Any, Optional, Generator
 
-    def answer(self, messages, model=None, temperature=0.7, api_key=None) -> dict:
-        # Convert messages to dicts if needed
-        if messages and hasattr(messages[0], 'role'):
-            messages = [{"role": msg.role, "content": msg.content} for msg in messages]
-        # Extract the last user message for retrieval
-        user_messages = [msg for msg in messages if msg["role"] == "user"]
-        if not user_messages:
-            return {"answer": "No user message found.", "sources": [], "score": 0.0, "context": ""}
-        query = user_messages[-1]["content"]
+class RAGOrchestrator:
+    """
+    Orchestrates RAG pipeline: retrieval + LLM generation.
+    
+    Usage:
+        orchestrator = RAGOrchestrator(config_path="./configs/rag_config.json")
+        response = orchestrator.chat(
+            messages=[{"role": "user", "content": "How does auth work?"}]
+        )
+    """
+    
+    def __init__(self, config_path: str = "./configs/rag_config.json"):
+        self.config_path = config_path
+        self._load_config()
+        
+        # Initialize components
+        from .model_manager import get_model_manager, ModelConfig
+        from .retriever import Retriever, get_retriever
+        
+        try:
+            self._manager = get_model_manager()  
+            self._retriever = get_retriever(config_path)
+            
+            # Register chat model if configured and it's a local model
+            if self.chat_model_path and self.chat_model_name in self._manager._registry:
+                config = self._manager._registry[self.chat_model_name]
+                if not config.is_external:
+                    self._register_chat_model()
+                
+        except Exception as e:
+            print(f"Warning: Failed to initialize orchestrator dependencies: {e}")
+    
+    def _load_config(self) -> None:
+        """Load configuration."""
+        # Defaults
+        self.rag_enabled = True
+        self.top_k = 3
+        self.disable_keyword = "disable-rag"
+        self.chat_model_path = ""
+        self.chat_model_name = "chat"
+        self.n_ctx = 32768
+        self.n_gpu_layers = -1
+        self.temperature = 0.7
+        self.max_tokens = 2048
+        
+        try:
+            if os.path.exists(self.config_path):
+                with open(self.config_path, 'r') as f:
+                    config = json.load(f)
+                    
+                self.rag_enabled = config.get("rag_enabled", True)
+                self.top_k = config.get("top_k", 3)
+                self.disable_keyword = config.get("rag_disable_keyword", "disable-rag")
+                self.chat_model_path = config.get("chat_model_path", "")
+                self.chat_model_name = config.get("chat_model_name", "chat")
+                self.n_ctx = config.get("chat_n_ctx", 32768)
+                self.n_gpu_layers = config.get("chat_n_gpu_layers", -1)
+                self.temperature = config.get("temperature", 0.7)
+                self.max_tokens = config.get("max_tokens", 2048)
+        except Exception as e:
+            print(f"Warning: Failed to load orchestrator config: {e}")
+    
+    def _register_chat_model(self) -> None:
+        """Register chat model with model manager."""
+        if not self.chat_model_path or not os.path.exists(self.chat_model_path):
+            return
+            
+        from .model_manager import ModelConfig
 
-        # Step 1: Check logs (retrieve log-related entries)
-        log_results = self.retriever.retrieve([query], metadata_filters={"type": "log"}) if self.retriever else []
-        log_context = "\n".join([d for d, _s, _md in log_results]) if log_results else "No relevant logs found."
+        config = ModelConfig(
+            path=self.chat_model_path,
+            model_type="chat",
+            n_ctx=self.n_ctx,
+            n_gpu_layers=self.n_gpu_layers,
+            embedding=False,
+            verbose=False
+        )
+        self._manager.register_model(self.chat_model_name, config)
+    
+    def set_chat_model(self, model_path: str, model_name: str = "chat") -> None:
+        """
+        Set the chat model to use.
+        
+        Args:
+            model_path: Path to GGUF model file
+            model_name: Name identifier for the model
+        """
+        self.chat_model_path = model_path
+        self.chat_model_name = model_name
+        
+        if os.path.exists(model_path):
+            self._register_chat_model()
+        else:
+            raise FileNotFoundError(f"Model file not found: {model_path}")
+    
+    def _should_use_rag(self, messages: List[Dict[str, str]]) -> bool:
+        """Check if RAG should be used based on messages."""
+        if not self.rag_enabled:
+            return False
+        
+        # Check system message for disable keyword
+        for msg in messages:
+            if msg.get("role") == "system":
+                content = msg.get("content", "").lower()
+                if self.disable_keyword.lower() in content:
+                    return False
+        
+        return True
+    
+    def _extract_query(self, messages: List[Dict[str, str]]) -> str:
+        """Extract the query from messages (last user message)."""
+        for msg in reversed(messages):
+            if msg.get("role") == "user":
+                return msg.get("content", "")
+        return ""
+    
+    def _inject_context(
+        self,
+        messages: List[Dict[str, str]],
+        context: str
+    ) -> List[Dict[str, str]]:
+        """Inject retrieved context into messages."""
+        if not context:
+            return messages
+        
+        # Create augmented messages
+        augmented = []
+        
+        # Add or augment system message with context
+        has_system = any(m.get("role") == "system" for m in messages)
+        
+        if has_system:
+            for msg in messages:
+                if msg.get("role") == "system":
+                    augmented.append({
+                        "role": "system",
+                        "content": f"{msg['content']}\n\n---\nRelevant Context:\n{context}"
+                    })
+                else:
+                    augmented.append(msg)
+        else:
+            # Add new system message with context
+            augmented.append({
+                "role": "system",
+                "content": f"Use the following context to help answer questions:\n\n{context}"
+            })
+            augmented.extend(messages)
+        
+        return augmented
 
-        # Step 2: Match features (extract entities, retrieve)
-        entities = self._extract_entities(query)
-        feature_filters = {k: v for k, v in entities.items() if k in ["project", "service", "feature", "device"]}
-        feature_results = self.retriever.retrieve([query], metadata_filters=feature_filters) if self.retriever else []
-        feature_context = "\n".join([d for d, _s, _md in feature_results]) if feature_results else "No matching features found."
+    def chat(
+        self,
+        messages: List[Dict[str, str]],
+        model_name: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        use_rag: Optional[bool] = None,
+        metadata_filters: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Generate a chat response with optional RAG augmentation.
+        
+        Args:
+            messages: List of message dicts with 'role' and 'content'
+            temperature: Sampling temperature
+            max_tokens: Maximum tokens to generate
+            use_rag: Override RAG usage (None = auto-detect)
+            metadata_filters: Filters for document retrieval
+            
+        Returns:
+            Response dict with 'content', 'rag_context', 'sources'
+        """
+        # Use specified model or default
+        model_to_use = model_name or self.chat_model_name
 
-        # Combine contexts
-        full_context = f"Logs:\n{log_context}\n\nFeatures:\n{feature_context}"
+        # Check if the model is registered
+        if model_to_use not in self._manager._registry:
+            raise ValueError(
+                f"Model '{model_to_use}' not registered. "
+                "Configure in models_config.json or register with model manager."
+            )
+        
+        # Determine if RAG should be used
+        should_rag = use_rag if use_rag is not None else self._should_use_rag(messages)
+        
+        # Retrieve context if RAG is enabled
+        context = ""
+        sources = []
+        
+        if should_rag:
+            query = self._extract_query(messages)
+            if query:
+                from .retriever import Retriever
+                context, sources = self._retriever.search_with_context(
+                    query,
+                    top_k=self.top_k,
+                    metadata_filters=metadata_filters
+                )
+        
+        # Inject context into messages
+        augmented_messages = self._inject_context(messages, context) if context else messages
+        
+        # Generate response
+        temp = temperature if temperature is not None else self.temperature
+        tokens = max_tokens if max_tokens is not None else self.max_tokens
+        
+        try:
+            response = self._manager.chat_completion(
+                model_to_use,
+                augmented_messages,
+                temperature=temp,
+                max_tokens=tokens
+            )
+            
+            # Extract content from response  
+            content = ""
+            if response and isinstance(response, dict):
+                choices = response.get("choices", [])
+                if choices:
+                    choice = choices[0]
+                    if "message" in choice:
+                        content = choice["message"].get("content", "")
+                    elif "text" in choice:
+                        content = choice["text"]
+            
+            return {
+                "content": content,
+                "rag_used": should_rag and bool(context),
+                "rag_context": context,
+                "sources": sources,
+                "model": model_to_use,
+                "raw_response": response
+            }
+        except Exception as e:
+            print(f"Error generating response: {e}")
+            return {
+                "content": f"Error: {str(e)}",
+                "rag_used": False,
+                "rag_context": "",
+                "sources": [],
+                "model": model_to_use,
+                "raw_response": None
+            }
 
-        # Step 3: Orchestrate LLM prompt - prepend context to messages
-        context_message = {"role": "system", "content": f"Based on the following context:\n{full_context}\n\nAnswer the user's questions."}
-        augmented_messages = [context_message] + messages
-        answer = self.llm_controller.generate(augmented_messages, model=model, temperature=temperature, api_key=api_key)
+    def chat_stream(
+        self,
+        messages: List[Dict[str, str]],
+        model_name: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        use_rag: Optional[bool] = None,
+        metadata_filters: Optional[Dict[str, Any]] = None
+    ) -> Generator[str, None, None]:
+        """
+        Generate a streaming chat response.
+        
+        Yields:
+            Content tokens as they are generated
+        """
+        if not self.chat_model_path:
+            raise ValueError("Chat model not configured.")
+        
+        # Use specified model or default
+        model_to_use = model_name or self.chat_model_name
 
-        # Collect sources and scores
-        all_results = log_results + feature_results
-        docs = [d for d, _s, _md in all_results]
-        score = max((s for _d, s, _md in all_results), default=0.0) if all_results else 0.0
+        # Check if the model is registered
+        if model_to_use not in self._manager._registry:
+            raise ValueError(f"Model '{model_to_use}' not registered.")
 
+        # Determine if RAG should be used
+        should_rag = use_rag if use_rag is not None else self._should_use_rag(messages)
+
+        # Retrieve context if RAG is enabled
+        context = ""
+
+        if should_rag:
+            query = self._extract_query(messages)
+            if query:
+                from .retriever import Retriever
+                context, _ = self._retriever.search_with_context(
+                    query,
+                    top_k=self.top_k,
+                    metadata_filters=metadata_filters
+                )
+
+        # Inject context into messages
+        augmented_messages = self._inject_context(messages, context) if context else messages
+
+        # Get model and stream
+        try:
+            model = self._manager.get_model(model_to_use)
+            
+            temp = temperature if temperature is not None else self.temperature
+            tokens = max_tokens if max_tokens is not None else self.max_tokens
+            
+            for chunk in model.create_chat_completion(
+                messages=augmented_messages,
+                temperature=temp,
+                max_tokens=tokens,
+                stream=True
+            ):
+                if "choices" in chunk and len(chunk["choices"]) > 0:
+                    delta = chunk["choices"][0].get("delta", {})
+                    content = delta.get("content", "")
+                    if content:
+                        yield content
+                        
+        except Exception as e:
+            print(f"Stream error: {e}")
+
+    def preload_models(self) -> None:
+        """Preload both chat and embedding models."""
+        if self.chat_model_path:
+            self._manager.load_model(self.chat_model_name)
+        # For now we don't have access to the retriever's embedded service directly
+
+    def unload_models(self) -> None:
+        """Unload all models to free memory."""
+        self._manager.unload_all()
+
+    def get_stats(self) -> Dict[str, Any]:
+        """Get orchestrator statistics."""
         return {
-            "answer": answer,
-            "sources": docs,
-            "score": score,
-            "context": full_context,
+            "rag_enabled": self.rag_enabled,
+            "chat_model": self.chat_model_name,
+            "chat_model_loaded": False,  # Placeholder - would require checking actual loaded state
+            "model_manager": str(type(self._manager)) 
         }
 
-    def _extract_entities(self, query: str) -> dict:
-        """Simple entity extraction: map keywords to tags."""
-        entities = {}
-        lower_query = query.lower()
-        # Define mappings (expand as needed)
-        mappings = {
-            "project": ["pi-rag", "project"],
-            "service": ["rag", "server", "llm", "embedding"],
-            "feature": ["auth", "llm", "vector", "api"],
-            "device": ["macos", "ios", "backend", "linux"]
-        }
-        for tag, keywords in mappings.items():
-            for word in keywords:
-                if word in lower_query:
-                    entities[tag] = word
-                    break
-        return entities
+# Singleton instance
+_orchestrator: Optional[RAGOrchestrator] = None
+
+
+def get_orchestrator(config_path: str = "./configs/rag_config.json") -> RAGOrchestrator:
+    """Get or create the orchestrator singleton."""
+    global _orchestrator
+    if _orchestrator is None:
+        _orchestrator = RAGOrchestrator(config_path)
+    return _orchestrator

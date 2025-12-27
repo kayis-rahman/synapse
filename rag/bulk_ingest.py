@@ -1,239 +1,255 @@
-import argparse
-import json
+"""
+Bulk Document Ingestion - Ingest entire directories.
+"""
+
 import os
-import hashlib
+import argparse
+from typing import List, Dict, Any, Optional, Set
 from pathlib import Path
-from rag.embedding import EmbeddingService
-from rag.vectorstore import VectorStore
 
-def compute_file_hash(file_path):
-    """Compute SHA256 hash of file content."""
-    hash_sha256 = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_sha256.update(chunk)
-    return hash_sha256.hexdigest()
+from .ingest import ingest_file
 
-def should_skip_file(file_path, exclusions):
-    """Check if file should be skipped based on exclusions."""
-    path = Path(file_path)
-    for exclusion in exclusions:
-        if exclusion in str(path) or path.match(exclusion):
-            return True
-    return False
 
-def infer_tags(file_path, tag_mappings):
-    """Infer tags from file path using mappings."""
-    tags = {}
-    path_str = str(file_path).lower()
-    for key, value in tag_mappings.items():
-        if key.lower() in path_str:
-            tags.update(value)
-    return tags
+# Supported file extensions
+SUPPORTED_EXTENSIONS: Set[str] = {
+    # Code files
+    '.py', '.js', '.ts', '.jsx', '.tsx', '.java', '.cpp', '.c', '.h',
+    '.hpp', '.cs', '.go', '.rs', '.rb', '.php', '.swift', '.kt', '.scala',
+    '.sh', '.bash', '.zsh', '.fish',
+    
+    # Config files
+    '.json', '.yaml', '.yml', '.toml', '.ini', '.cfg', '.conf',
+    '.env', '.env.example',
+    
+    # Documentation
+    '.md', '.mdx', '.txt', '.rst', '.adoc',
+    
+    # Web files
+    '.html', '.htm', '.css', '.scss', '.sass', '.less',
+    
+    # Data files
+    '.xml', '.csv',
+    
+    # SQL
+    '.sql',
+}
 
-def parse_tags(tags_str):
-    """Parse tags string like 'project:pi-rag,service:docs' into dict."""
-    tags = {}
-    if tags_str:
-        for pair in tags_str.split(','):
-            if ':' in pair:
-                key, value = pair.split(':', 1)
-                tags[key.strip()] = value.strip()
-    return tags
+# Directories to skip
+SKIP_DIRS: Set[str] = {
+    '.git', '.svn', '.hg', '__pycache__', 'node_modules', '.venv', 'venv',
+    'env', '.env', 'dist', 'build', '.next', '.nuxt', 'target', 'out',
+    '.idea', '.vscode', '.pytest_cache', '.mypy_cache', 'coverage',
+    'htmlcov', '.tox', 'eggs', '*.egg-info', '.eggs',
+}
 
-def chunk_text(text, chunk_size=500):
-    """Split text into chunks of approximately chunk_size characters."""
-    words = text.split()
-    chunks = []
-    current = ""
-    for word in words:
-        if len(current) + len(word) + 1 > chunk_size:
-            if current:
-                chunks.append(current.strip())
-                current = word
-            else:
-                chunks.append(word)
-        else:
-            current += " " + word
-    if current:
-        chunks.append(current.strip())
-    return chunks
 
-def load_config(config_path):
-    """Load config from JSON file."""
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config file {config_path} not found.")
-    with open(config_path, 'r') as f:
-        return json.load(f)
+def should_process_file(file_path: Path, extensions: Optional[Set[str]] = None) -> bool:
+    """Check if a file should be processed."""
+    ext = file_path.suffix.lower()
+    allowed = extensions or SUPPORTED_EXTENSIONS
+    return ext in allowed
 
-def process_file(file_path, config, store, update_mode=False):
-    """Process a single file: check hash, chunk, embed, store."""
-    file_hash = compute_file_hash(file_path)
-    file_meta_key = {"file_path": str(file_path)}
 
-    # Check if file changed (for update mode)
-    if update_mode:
-        for meta in store.metadata:
-            if meta.get("file_path") == str(file_path):
-                if meta.get("file_hash") == file_hash:
-                    print(f"Skipping unchanged file: {file_path}")
-                    return
+def should_skip_dir(dir_name: str) -> bool:
+    """Check if a directory should be skipped."""
+    return dir_name in SKIP_DIRS or dir_name.startswith('.')
+
+
+def ingest_directory(
+    directory: str,
+    chunk_size: int = 500,
+    chunk_overlap: int = 50,
+    extensions: Optional[Set[str]] = None,
+    metadata: Optional[Dict[str, Any]] = None,
+    recursive: bool = True,
+    config_path: str = "./configs/rag_config.json"
+) -> Dict[str, Any]:
+    """
+    Ingest all supported files from a directory.
+    
+    Args:
+        directory: Path to directory
+        chunk_size: Size of text chunks
+        chunk_overlap: Overlap between chunks
+        extensions: Set of allowed extensions (default: SUPPORTED_EXTENSIONS)
+        metadata: Additional metadata for all files
+        recursive: Whether to recurse into subdirectories
+        config_path: Path to RAG config
+        
+    Returns:
+        Dict with statistics about ingestion
+    """
+    dir_path = Path(directory)
+    
+    if not dir_path.exists():
+        raise FileNotFoundError(f"Directory not found: {directory}")
+    
+    if not dir_path.is_dir():
+        raise ValueError(f"Not a directory: {directory}")
+    
+    stats = {
+        "total_files": 0,
+        "processed_files": 0,
+        "total_chunks": 0,
+        "skipped_files": [],
+        "errors": []
+    }
+    
+    # Walk directory
+    if recursive:
+        file_iter = dir_path.rglob('*')
+    else:
+        file_iter = dir_path.glob('*')
+    
+    for file_path in file_iter:
+        # Skip directories
+        if file_path.is_dir():
+            continue
+        
+        # Check if parent dir should be skipped
+        skip = False
+        for parent in file_path.parents:
+            if should_skip_dir(parent.name):
+                skip = True
                 break
+        
+        if skip:
+            continue
+        
+        stats["total_files"] += 1
+        
+        # Check if file should be processed
+        if not should_process_file(file_path, extensions):
+            stats["skipped_files"].append(str(file_path))
+            continue
+        
+        # Prepare file metadata
+        file_metadata = {
+            "directory": str(dir_path.absolute()),
+            "relative_path": str(file_path.relative_to(dir_path))
+        }
+        
+        if metadata:
+            file_metadata.update(metadata)
+        
+        # Ingest file
+        try:
+            chunks = ingest_file(
+                str(file_path),
+                chunk_size=chunk_size,
+                chunk_overlap=chunk_overlap,
+                metadata=file_metadata,
+                config_path=config_path
+            )
+            stats["processed_files"] += 1
+            stats["total_chunks"] += chunks
+        except Exception as e:
+            stats["errors"].append({
+                "file": str(file_path),
+                "error": str(e)
+            })
+    
+    return stats
 
-    # Remove old entries for this file
-    store.remove_by_metadata(file_meta_key)
-
-    # Read and process
-    with open(file_path, 'r', encoding='utf-8') as f:
-        text = f.read()
-
-    chunks = chunk_text(text, config.get("chunk_size", 500))
-    if not chunks:
-        return
-
-    embedding_service = EmbeddingService()
-    try:
-        vectors = embedding_service.embed(chunks)
-    except Exception as e:
-        print(f"Embedding failed for {file_path}: {e}")
-        return
-
-    # Tags: project + inferred + file metadata
-    tags = {"project": config["project"], "file_path": str(file_path), "file_hash": file_hash}
-    tags.update(infer_tags(file_path, config.get("tag_mappings", {})))
-
-    metadata = [tags.copy() for _ in chunks]
-
-    store.add(chunks, vectors, metadata)
-    print(f"Processed {len(chunks)} chunks from {file_path}")
-
-def bulk_ingest(folder, config_path, update=False):
-    """Bulk ingest from folder."""
-    config = load_config(config_path)
-    index_path = config.get("index_path", "./rag_index")
-    exclusions = config.get("exclusions", ["__pycache__", ".git", "build", "*.pyc", "*.log"])
-    file_types = set(config.get("file_types", [".py", ".md"]))
-
-    store = VectorStore(index_path)
-    store.load()
-
-    folder_path = Path(folder)
-    processed = 0
-
-    for file_path in folder_path.rglob("*"):
-        if file_path.is_file() and file_path.suffix in file_types and not should_skip_file(file_path, exclusions):
-            try:
-                process_file(file_path, config, store, update)
-                processed += 1
-            except Exception as e:
-                print(f"Error processing {file_path}: {e}")
-
-    store.save()
-    print(f"Bulk ingestion complete: {processed} files processed.")
-
-def query_memory(query, config_path, filters=None):
-    """Query the memory for debugging."""
-    config = load_config(config_path)
-    index_path = config.get("index_path", "./rag_index")
-    store = VectorStore(index_path)
-    store.load()
-
-    from rag.embedding import EmbeddingService
-    from rag.retriever import Retriever
-    embedding_service = EmbeddingService()
-    retriever = Retriever(embedding_service, store)
-
-    results = retriever.retrieve([query], metadata_filters=filters)
-    print(f"Query: {query}")
-    print(f"Results ({len(results)}):")
-    for doc, score, meta in results[:5]:
-        print(f"  Score: {score:.3f} | Tags: {meta.get('project', 'N/A')}/{meta.get('service', 'N/A')}/{meta.get('feature', 'N/A')} | Text: {doc[:100]}...")
-
-def learn(text, config_path, tags):
-    """Add user-provided text to memory for learning."""
-    config = load_config(config_path)
-    index_path = config.get("index_path", "./rag_index")
-    store = VectorStore(index_path)
-    store.load()
-
-    chunks = chunk_text(text, config.get("chunk_size", 500))
-    if not chunks:
-        print("No text to learn.")
-        return
-
-    embedding_service = EmbeddingService()
-    vectors = embedding_service.embed(chunks)
-
-    # Tags: user-provided + project
-    full_tags = {"project": config["project"], "source": "user"}
-    full_tags.update(tags)
-
-    metadata = [full_tags.copy() for _ in chunks]
-
-    store.add(chunks, vectors, metadata)
-    store.save()
-
-    print(f"Learned {len(chunks)} chunks from user input.")
-
-def stats(config_path):
-    """Show memory stats."""
-    config = load_config(config_path)
-    index_path = config.get("index_path", "./rag_index")
-    store = VectorStore(index_path)
-    store.load()
-    print(f"Total chunks: {len(store.docs)}")
-    print(f"Total files: {len(set(meta.get('file_path') for meta in store.metadata if meta.get('file_path')))}")
-    user_chunks = sum(1 for meta in store.metadata if meta.get('source') == 'user')
-    print(f"User-learned chunks: {user_chunks}")
-    services = set(meta.get('service') for meta in store.metadata if meta.get('service'))
-    features = set(meta.get('feature') for meta in store.metadata if meta.get('feature'))
-    print(f"Services: {', '.join(services)}")
-    print(f"Features: {', '.join(features)}")
 
 def main():
-    parser = argparse.ArgumentParser(description="RAG Memory Management Tool")
-    subparsers = parser.add_subparsers(dest='command', help='Commands')
-
-    # Ingest command
-    ingest_parser = subparsers.add_parser('ingest', help='Bulk ingest codebase')
-    ingest_parser.add_argument('--folder', required=True, help="Root folder to scan.")
-    ingest_parser.add_argument('--config', required=True, help="Path to config JSON.")
-    ingest_parser.add_argument('--update', action='store_true', help="Incremental update mode.")
-
-    # Query command
-    query_parser = subparsers.add_parser('query', help='Query memory')
-    query_parser.add_argument('query', help="Query string.")
-    query_parser.add_argument('--config', required=True, help="Path to config JSON.")
-    query_parser.add_argument('--filters', help="Filters as key:value,key2:value2")
-
-    # Learn command
-    learn_parser = subparsers.add_parser('learn', help='Add text to memory for learning')
-    learn_parser.add_argument('text', help="Text to learn.")
-    learn_parser.add_argument('--config', required=True, help="Path to config JSON.")
-    learn_parser.add_argument('--tags', help="Tags as key:value,key2:value2")
-
-    # Stats command
-    stats_parser = subparsers.add_parser('stats', help='Show memory stats')
-    stats_parser.add_argument('--config', required=True, help="Path to config JSON.")
-
+    """CLI entry point for bulk ingestion."""
+    parser = argparse.ArgumentParser(
+        description="Bulk ingest documents into RAG index"
+    )
+    parser.add_argument(
+        "directory",
+        help="Directory to ingest"
+    )
+    parser.add_argument(
+        "--chunk-size", "-c",
+        type=int,
+        default=500,
+        help="Chunk size in characters (default: 500)"
+    )
+    parser.add_argument(
+        "--chunk-overlap", "-o",
+        type=int,
+        default=50,
+        help="Chunk overlap in characters (default: 50)"
+    )
+    parser.add_argument(
+        "--extensions", "-e",
+        nargs="+",
+        help="File extensions to process (default: all supported)"
+    )
+    parser.add_argument(
+        "--no-recursive", "-n",
+        action="store_true",
+        help="Don't recurse into subdirectories"
+    )
+    parser.add_argument(
+        "--tags", "-t",
+        help="Comma-separated key:value tags to add as metadata"
+    )
+    parser.add_argument(
+        "--config", "-f",
+        default="./configs/rag_config.json",
+        help="Path to RAG config file"
+    )
+    
     args = parser.parse_args()
-    if args.command == 'ingest':
-        bulk_ingest(args.folder, args.config, args.update)
-    elif args.command == 'query':
-        filters = {}
-        if args.filters:
-            for pair in args.filters.split(','):
-                if ':' in pair:
-                    k, v = pair.split(':', 1)
-                    filters[k.strip()] = v.strip()
-        query_memory(args.query, args.config, filters)
-    elif args.command == 'learn':
-        tags = parse_tags(args.tags)
-        learn(args.text, args.config, tags)
-    elif args.command == 'stats':
-        stats(args.config)
-    else:
-        parser.print_help()
+    
+    # Parse extensions
+    extensions = None
+    if args.extensions:
+        extensions = {e if e.startswith('.') else f'.{e}' for e in args.extensions}
+    
+    # Parse tags
+    metadata = {}
+    if args.tags:
+        for tag in args.tags.split(','):
+            if ':' in tag:
+                key, value = tag.split(':', 1)
+                metadata[key.strip()] = value.strip()
+    
+    print(f"Ingesting directory: {args.directory}")
+    print(f"  Chunk size: {args.chunk_size}")
+    print(f"  Chunk overlap: {args.chunk_overlap}")
+    print(f"  Recursive: {not args.no_recursive}")
+    if extensions:
+        print(f"  Extensions: {extensions}")
+    if metadata:
+        print(f"  Metadata: {metadata}")
+    print()
+    
+    try:
+        stats = ingest_directory(
+            args.directory,
+            chunk_size=args.chunk_size,
+            chunk_overlap=args.chunk_overlap,
+            extensions=extensions,
+            metadata=metadata,
+            recursive=not args.no_recursive,
+            config_path=args.config
+        )
+        
+        print("\n" + "=" * 50)
+        print("Ingestion Complete")
+        print("=" * 50)
+        print(f"Total files found: {stats['total_files']}")
+        print(f"Files processed: {stats['processed_files']}")
+        print(f"Total chunks created: {stats['total_chunks']}")
+        print(f"Files skipped: {len(stats['skipped_files'])}")
+        
+        if stats["errors"]:
+            print(f"\nErrors ({len(stats['errors'])}):")
+            for error in stats["errors"][:10]:
+                print(f"  - {error['file']}: {error['error']}")
+            if len(stats["errors"]) > 10:
+                print(f"  ... and {len(stats['errors']) - 10} more")
+        
+    except Exception as e:
+        print(f"Error: {e}")
+        return 1
+    
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())
