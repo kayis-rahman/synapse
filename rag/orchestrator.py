@@ -29,7 +29,7 @@ class RAGOrchestrator:
         
         # Initialize components
         from .model_manager import get_model_manager, ModelConfig
-        from .retriever import Retriever, get_retriever
+        from .retriever import get_retriever
         
         try:
             self._manager = get_model_manager()  
@@ -204,7 +204,6 @@ class RAGOrchestrator:
         if should_rag:
             query = self._extract_query(messages)
             if query:
-                from .retriever import Retriever
                 context, sources = self._retriever.search_with_context(
                     query,
                     top_k=self.top_k,
@@ -290,7 +289,6 @@ class RAGOrchestrator:
         if should_rag:
             query = self._extract_query(messages)
             if query:
-                from .retriever import Retriever
                 context, _ = self._retriever.search_with_context(
                     query,
                     top_k=self.top_k,
@@ -337,7 +335,6 @@ class RAGOrchestrator:
         return {
             "rag_enabled": self.rag_enabled,
             "chat_model": self.chat_model_name,
-            "chat_model_loaded": False,  # Placeholder - would require checking actual loaded state
             "model_manager": str(type(self._manager)) 
         }
 
