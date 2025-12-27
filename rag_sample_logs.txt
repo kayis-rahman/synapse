@@ -1,6 +1,0 @@
-INFO: LLM request to OpenRouter succeeded for model mistralai/devstral-2512:free
-ERROR: API key unauthorized - check OpenRouter key
-DEBUG: Embedding loaded for sentence-transformers/all-MiniLM-L6-v2
-WARNING: Vector store empty - no docs indexed yet
-INFO: Chat completion streamed successfully
-ERROR: Failed to parse JSON in streaming response

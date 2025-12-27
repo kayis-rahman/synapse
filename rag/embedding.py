@@ -1,66 +1,217 @@
-from typing import List
-import hashlib
-try:
-    from sentence_transformers import SentenceTransformer
-except Exception:
-    SentenceTransformer = None
+"""
+Embedding Service - Uses llama-cpp-python for GGUF embedding models.
+
+Supports:
+- Local GGUF embedding models (e.g., nomic-embed-text, bge-small)
+- Dynamic model loading via ModelManager
+- Embedding caching for efficiency
+"""
+
+import json
+import os
+from typing import List, Dict, Any, Optional
+from collections import OrderedDict
+
+from .model_manager import get_model_manager, ModelConfig
 
 
 class EmbeddingService:
-    def __init__(self, model_name='all-MiniLM-L6-v2', use_cache=True):
+    """
+    Embedding service using llama-cpp-python with GGUF models.
+    
+    Usage:
+        service = EmbeddingService()
+        embeddings = service.embed(["Hello world", "Another text"])
+    """
+
+    def __init__(self, config_path: str = "./configs/rag_config.json"):
+        self.config_path = config_path
+        self._load_config()
+        
+        # Cache for embeddings
+        self._cache: OrderedDict[str, List[float]] = OrderedDict()
+        
+        # Model manager
+        self._manager = get_model_manager()
+        
+        # Register embedding model if path is set
+        if self.model_path:
+            self._register_embedding_model()
+        
+    def _load_config(self) -> None:
+        """Load configuration from JSON file."""
+        self.model_path = ""
+        self.model_name = "embedding"
+        self.cache_enabled = True
+        self.cache_size = 1000
+        self.n_ctx = 2048
+        self.n_gpu_layers = -1
+        
+        try:
+            if os.path.exists(self.config_path):
+                with open(self.config_path, 'r') as f:
+                    config = json.load(f)
+                self.model_path = config.get("embedding_model_path", "")
+                self.model_name = config.get("embedding_model_name", "embedding")
+                self.cache_enabled = config.get("embedding_cache_enabled", True)
+                self.cache_size = config.get("embedding_cache_size", 1000)
+                self.n_ctx = config.get("embedding_n_ctx", 2048)
+                self.n_gpu_layers = config.get("embedding_n_gpu_layers", -1)
+        except Exception as e:
+            print(f"Warning: Failed to load config: {e}")
+    
+    def _register_embedding_model(self) -> None:
+        """Register the embedding model with the model manager."""
+        if not self.model_path or not os.path.exists(self.model_path):
+            return
+            
+        config = ModelConfig(
+            path=self.model_path,
+            model_type="embedding",
+            n_ctx=self.n_ctx,
+            n_gpu_layers=self.n_gpu_layers,
+            embedding=True,
+            verbose=False
+        )
+        self._manager.register_model(self.model_name, config)
+    
+    def set_model(self, model_path: str, model_name: str = "embedding") -> None:
+        """
+        Set the embedding model to use.
+        
+        Args:
+            model_path: Path to GGUF model file
+            model_name: Name identifier for the model
+        """
+        self.model_path = model_path
         self.model_name = model_name
-        self.use_cache = use_cache
-        self._cache = {}
-        self._model = None
-        if SentenceTransformer is not None:
-            try:
-                self._model = SentenceTransformer(model_name)
-            except Exception:
-                self._model = None
+        
+        if os.path.exists(model_path):
+            self._register_embedding_model()
+        else:
+            raise FileNotFoundError(f"Model file not found: {model_path}")
 
-    def embed(self, texts, batch_size=32):
-        vectors = []
-        uncached_texts = []
-        uncached_indices = []
-        for i, t in enumerate(texts):
-            if self.use_cache and t in self._cache:
-                vectors.append(self._cache[t])
-            else:
-                uncached_texts.append(t)
-                uncached_indices.append(i)
-                vectors.append(None)  # Placeholder
+    def _get_cache_key(self, text: str) -> str:
+        """Generate cache key for text."""
+        return text.lower().strip()[:500]  # Limit key length
 
+    def _update_cache(self, texts: List[str], embeddings: List[List[float]]) -> None:
+        """Update cache with new embeddings."""
+        if not self.cache_enabled:
+            return
+
+        for text, emb in zip(texts, embeddings):
+            key = self._get_cache_key(text)
+
+            # Remove oldest if cache is full
+            if len(self._cache) >= self.cache_size:
+                self._cache.popitem(last=False)
+
+            self._cache[key] = emb
+
+    def embed(self, texts: List[str]) -> List[List[float]]:
+        """
+        Generate embeddings for a list of texts.
+        
+        Args:
+            texts: List of strings to embed
+            
+        Returns:
+            List of embedding vectors (each is a list of floats)
+        """
+        if not texts:
+            return []
+        
+        if not self.model_path:
+            raise ValueError(
+                "Embedding model not configured. Set embedding_model_path in config "
+                "or call set_model() with path to GGUF file."
+            )
+        
+        # Check cache first
+        results: List[Optional[List[float]]] = [None] * len(texts)
+        uncached_texts: List[str] = []
+        uncached_indices: List[int] = []
+        
+        if self.cache_enabled:
+            for idx, text in enumerate(texts):
+                key = self._get_cache_key(text)
+                if key in self._cache:
+                    results[idx] = self._cache[key]
+                else:
+                    uncached_texts.append(text)
+                    uncached_indices.append(idx)
+        else:
+            uncached_texts = texts
+            uncached_indices = list(range(len(texts)))
+        
+        # Generate embeddings for uncached texts
         if uncached_texts:
-            if self._model is not None:
-                try:
-                    # Batch encode
-                    batch_vectors = self._model.encode(uncached_texts, batch_size=batch_size, convert_to_numpy=True).tolist()
-                    for idx, vec in zip(uncached_indices, batch_vectors):
-                        if self.use_cache:
-                            self._cache[texts[idx]] = vec
-                        vectors[idx] = vec
-                except Exception:
-                    pass  # Fall back to individual
+            new_embeddings = self._manager.generate_embeddings(
+                self.model_name, 
+                uncached_texts
+            )
+            
+            # Fill in results and update cache
+            for idx, emb in zip(uncached_indices, new_embeddings):
+                results[idx] = emb
+            
+            self._update_cache(uncached_texts, new_embeddings)
+        
+        # Return results
+        return [r for r in results if r is not None]
 
-            # Fallback for any failures
-            for i in uncached_indices:
-                if vectors[i] is None:
-                    vec = self._fallback_embed(texts[i])
-                    if self.use_cache:
-                        self._cache[texts[i]] = vec
-                    vectors[i] = vec
+    def embed_single(self, text: str) -> List[float]:
+        """
+        Generate embedding for a single text.
+        
+        Args:
+            text: String to embed
+            
+        Returns:
+            Embedding vector as a list of floats
+        """
+        embeddings = self.embed([text])
+        return embeddings[0] if embeddings else []
 
-        return vectors
+    def preload_model(self) -> None:
+        """Preload the embedding model into memory."""
+        if self.model_path:
+            self._manager.load_model(self.model_name)
+    
+    def unload_model(self) -> None:
+        """Unload the embedding model to free memory."""
+        self._manager.unload_model(self.model_name)
+    
+    def is_model_loaded(self) -> bool:
+        """Check if the embedding model is currently loaded."""
+        return self._manager.is_loaded(self.model_name)
+    
+    def clear_cache(self) -> None:
+        """Clear embedding cache."""
+        self._cache.clear()
+        
+    def get_stats(self) -> Dict[str, Any]:
+        """Get service statistics."""
+        model_info = self._manager.get_model_info(self.model_name)
+        return {
+            "cache_size": len(self._cache),
+            "cache_enabled": self.cache_enabled,
+            "max_cache_size": self.cache_size,
+            "model_path": self.model_path,
+            "model_name": self.model_name,
+            "model_loaded": self._manager.is_loaded(self.model_name),
+            "model_info": model_info
+        }
 
-    def _fallback_embed(self, text, dim=128):
-        # Deterministic, lightweight fallback embedding based on hash
-        h = hashlib.sha256(text.encode('utf-8')).hexdigest()
-        nums = [int(h[i:i+8], 16) for i in range(0, len(h), 8)]
-        vec = []
-        for i in range(dim):
-            val = nums[i % len(nums)]
-            vec.append((val / float(2**32)) * 2.0 - 1.0)
-        norm = sum(x * x for x in vec) ** 0.5
-        if norm == 0:
-            return [0.0 for _ in vec]
-        return [x / norm for x in vec]
+
+# Singleton instance for easy access
+_embedding_service: Optional[EmbeddingService] = None
+
+
+def get_embedding_service(config_path: str = "./configs/rag_config.json") -> EmbeddingService:
+    """Get or create the embedding service singleton."""
+    global _embedding_service
+    if _embedding_service is None:
+        _embedding_service = EmbeddingService(config_path)
+    return _embedding_service

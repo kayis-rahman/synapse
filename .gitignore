@@ -1,3 +1,4 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
@@ -20,6 +21,26 @@ wheels/
 *.egg
 MANIFEST
 
+# RAG Data
+data/rag_index/*.npy
+data/rag_index/*.json
+data/docs/*.tmp
+
+# Logs
+logs/
+*.log
+rag_server.log
+
+# Environment
+.env
+.env.local
+.venv/
+venv/
+virtualenv/
+env/
+ENV/
+
+# macOS
 .DS_Store
 .DS_Store?
 ._*
@@ -28,8 +49,20 @@ MANIFEST
 ehthumbs.db
 Thumbs.db
 
-rag_server.log
-*.log
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
-.env
-.env.local
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Temporary
+*.tmp
+*.bak
+*~
+.aider*

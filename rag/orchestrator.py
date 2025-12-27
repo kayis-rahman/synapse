@@ -218,12 +218,23 @@ class RAGOrchestrator:
         tokens = max_tokens if max_tokens is not None else self.max_tokens
         
         try:
-            response = self._manager.chat_completion(
-                model_to_use,
-                augmented_messages,
-                temperature=temp,
-                max_tokens=tokens
-            )
+            # Get model info to check if it's external
+            model_info = self._manager.get_model_info(model_to_use)
+            
+            if model_info and model_info.get("is_external", False):
+                # For external models, don't pass local model parameters
+                response = self._manager.chat_completion(
+                    model_to_use,
+                    augmented_messages
+                )
+            else:
+                # For local models, pass all parameters
+                response = self._manager.chat_completion(
+                    model_to_use,
+                    augmented_messages,
+                    temperature=temp,
+                    max_tokens=tokens
+                )
             
             # Extract content from response  
             content = ""
@@ -301,10 +312,12 @@ class RAGOrchestrator:
         # Get model and stream
         try:
             model = self._manager.get_model(model_to_use)
+            model_info = self._manager.get_model_info(model_to_use)
             
             temp = temperature if temperature is not None else self.temperature
             tokens = max_tokens if max_tokens is not None else self.max_tokens
             
+            # For now, treat all models the same way for streaming
             for chunk in model.create_chat_completion(
                 messages=augmented_messages,
                 temperature=temp,

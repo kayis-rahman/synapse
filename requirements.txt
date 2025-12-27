@@ -1,3 +1,26 @@
-numpy
-requests
-sentence-transformers
+# pi-rag Requirements - llama.cpp based RAG system
+# ================================================
+
+# LLM Backend - llama-cpp-python for multi-model support
+llama-cpp-python>=0.3.0
+
+# RAG API
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Vector store
+chromadb>=0.5.0
+
+# HTTP client
+httpx>=0.27.0
+aiohttp>=3.9.0
+
+# Document processing
+python-dotenv>=1.0.0
+numpy>=1.24.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
