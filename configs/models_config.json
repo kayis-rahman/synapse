@@ -1,18 +1,34 @@
 {
   "models": {
     "embedding": {
-      "path": "/Users/kayisrahman/llama.cpp/hf-models/nomic-embed-text-v1.5.Q8_0.gguf",
+      "path": "~/models/bge-m3-q8_0.gguf",
       "type": "embedding",
-      "n_ctx": 2048,
-      "n_gpu_layers": -1,
+      "n_ctx": 8194,
+      "n_gpu_layers": 0,
       "n_batch": 512,
       "verbose": false
     },
-    "local_chat": {
-      "path": "/Users/kayisrahman/llama.cpp/hf-models/embeddinggemma-300M-Q8_0.gguf",
+    "chat": {
+      "path": "~/models/gemma-3-1b-it-UD-Q4_K_XL.gguf",
       "type": "chat",
-      "n_ctx": 2048,
-      "n_gpu_layers": -1,
+      "n_ctx": 8192,
+      "n_gpu_layers": 0,
+      "n_batch": 512,
+      "verbose": false
+    },
+    "gemma-3-1b-it": {
+      "path": "~/models/gemma-3-1b-it-UD-Q4_K_XL.gguf",
+      "type": "chat",
+      "n_ctx": 8192,
+      "n_gpu_layers": 0,
+      "n_batch": 512,
+      "verbose": false
+    },
+    "gemma-3-1b-it-UD-Q4_K_XL": {
+      "path": "~/models/gemma-3-1b-it-UD-Q4_K_XL.gguf",
+      "type": "chat",
+      "n_ctx": 8192,
+      "n_gpu_layers": 0,
       "n_batch": 512,
       "verbose": false
     },
@@ -24,5 +40,5 @@
       "type": "chat"
     }
   },
-  "max_loaded_models": 2
+  "max_loaded_models": 3
 }

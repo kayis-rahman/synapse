@@ -66,3 +66,13 @@ htmlcov/
 *.bak
 *~
 .aider*
+# Test databases
+tests/test_dbs/
+tests/test_vectorstores/
+# Test cache
+tests/__pycache__/
+tests/.pytest_cache/
+# Coverage
+.coverage
+htmlcov/
+coverage.xml

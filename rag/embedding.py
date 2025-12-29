@@ -85,7 +85,8 @@ class EmbeddingService:
         """
         self.model_path = model_path
         self.model_name = model_name
-        
+
+        print(model_path)
         if os.path.exists(model_path):
             self._register_embedding_model()
         else:
@@ -132,7 +133,8 @@ class EmbeddingService:
         results: List[Optional[List[float]]] = [None] * len(texts)
         uncached_texts: List[str] = []
         uncached_indices: List[int] = []
-        
+
+
         if self.cache_enabled:
             for idx, text in enumerate(texts):
                 key = self._get_cache_key(text)
@@ -144,7 +146,8 @@ class EmbeddingService:
         else:
             uncached_texts = texts
             uncached_indices = list(range(len(texts)))
-        
+
+
         # Generate embeddings for uncached texts
         if uncached_texts:
             new_embeddings = self._manager.generate_embeddings(
@@ -155,9 +158,10 @@ class EmbeddingService:
             # Fill in results and update cache
             for idx, emb in zip(uncached_indices, new_embeddings):
                 results[idx] = emb
-            
+
             self._update_cache(uncached_texts, new_embeddings)
-        
+
+
         # Return results
         return [r for r in results if r is not None]
 

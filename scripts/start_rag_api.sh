@@ -1,6 +1,8 @@
 #!/bin/bash
-set -e
 
+source rag-env/bin/activate
+
+set -e
 echo "=========================================="
 echo "Starting RAG API Server"
 echo "=========================================="
@@ -24,6 +26,14 @@ export RAG_HOST="$HOST"
 export RAG_PORT="$PORT"
 export RAG_CONFIG="$CONFIG"
 
+# Check if we're in a virtual environment, if not use system packages
+if [ -z "$VIRTUAL_ENV" ]; then
+    echo "Using system Python packages..."
+else
+    echo "Using virtual environment: $VIRTUAL_ENV"
+fi
+
+
 # Start the API server
 echo "Starting uvicorn..."
-python3 -m uvicorn api.main:app --host "$HOST" --port "$PORT" --reload
+python3 -m uvicorn api.main:app --host "$HOST" --port "$PORT" --reload --workers 1

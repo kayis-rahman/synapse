@@ -69,10 +69,10 @@ class Retriever:
         """
         k = top_k or self.top_k
         score_threshold = min_score if min_score is not None else self.min_score
-        
+
         # Generate query embedding
         query_embedding = self.embedding_service.embed_single(query)
-        
+
         if not query_embedding:
             return []
         
@@ -113,7 +113,8 @@ class Retriever:
             Tuple of (context_string, raw_results)
         """
         results = self.search(query, top_k, metadata_filters)
-        
+
+        print(results)
         if not results:
             return "", []
         

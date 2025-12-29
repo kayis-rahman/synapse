@@ -158,10 +158,6 @@ class ModelManager:
                 self._loaded[name].last_used = time.time()
                 return self._loaded[name].model
             
-            # Check if registered
-            if name not in self._registry:
-                raise ValueError("Model '" + name + "' not registered. Register with register_model() first.")
-            
             config = self._registry[name]
             
             # Handle external models
@@ -172,29 +168,30 @@ class ModelManager:
                 return self._create_external_client(config)
             
             # Handle local GGUF models
-            if not os.path.exists(config.path):
+            expanded_path = os.path.expanduser(config.path)
+            if not os.path.exists(expanded_path):
                 raise FileNotFoundError("Model file not found: " + config.path)
             
             # Evict LRU if needed
             self._evict_lru()
-            
+
             # Load the model
             print("Loading model '" + name + "' from " + config.path + "...")
             start_time = time.time()
-            
-            if LLAMA_CPP_AVAILABLE:
+
+            if LLAMA_CPP_AVAILABLE and Llama is not None:
                 model = Llama(
-                    model_path=config.path,
+                    model_path=expanded_path,
                     n_ctx=config.n_ctx,
                     n_gpu_layers=config.n_gpu_layers,
                     n_batch=config.n_batch,
                     embedding=config.embedding,
                     verbose=config.verbose
                 )
-                
+
                 load_time = time.time() - start_time
                 print("Model '" + name + "' loaded in " + str(load_time) + "s")
-                
+
                 # Store loaded model
                 self._loaded[name] = LoadedModel(
                     model=model,
@@ -202,7 +199,7 @@ class ModelManager:
                     last_used=time.time(),
                     load_time=load_time
                 )
-                
+
                 return model
             else:
                 raise ImportError("llama-cpp-python is required for local models. Install with: pip install llama-cpp-python")
@@ -281,7 +278,13 @@ class ModelManager:
                                     continue
                 except Exception as e:
                     raise Exception("External API streaming error: " + str(e))
-        
+
+            def embed(self, text):
+                """Generate embedding for text using external API."""
+                # External APIs typically don't support embeddings in the same way
+                # This is a placeholder that raises NotImplementedError
+                raise NotImplementedError("External models do not support embedding generation")
+
         # Return an instance of the class, not the class itself
         return ExternalAPIClient(config.api_url, config.api_key)
     
@@ -419,7 +422,8 @@ class ModelManager:
         model = self.get_model(model_name)
 
         # For external models, embeddings are not supported yet
-        if hasattr(model, 'create_chat_completion'):
+        config = self._registry.get(model_name)
+        if config and config.is_external:
             raise NotImplementedError("External models do not support embedding generation yet")
 
         # For local GGUF models, use the embedding method
@@ -428,9 +432,9 @@ class ModelManager:
 
         embeddings = []
         for text in texts:
-            # Call the model's embed method
+            # Call the model's embed method (returns a list)
             embedding = model.embed(text)
-            embeddings.append(embedding.tolist())
+            embeddings.append(embedding)
 
         return embeddings
 

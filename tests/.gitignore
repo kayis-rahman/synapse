@@ -1,0 +1,11 @@
+# Test databases (auto-generated)
+test_dbs/
+test_vectorstores/
+__pycache__/
+.pytest_cache/
+*.pyc
+# Test temporary files
+.pytest_cache
+*.db
+.coverage
+htmlcov/

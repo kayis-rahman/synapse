@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  rag-mcp:
+    # Build configuration
+    build:
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+        - rag-mcp:buildcache
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+
+    # Container identification
+    image: rag-mcp:latest
+    container_name: rag-mcp
+
+    # Deployment configuration
+    restart: unless-stopped
+
+    # No ports needed (stdio communication)
+    # If you need HTTP access for debugging, add:
+    # ports:
+    #   - "8080:8080"
+
+    # Environment configuration
+    environment:
+      # RAG Configuration
+      - RAG_DATA_DIR=/app/data
+      - LOG_LEVEL=INFO
+
+      # Python configuration
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+
+    # Volume mounts for persistence and configuration
+    volumes:
+      # Data - named volume for databases and vector index
+      - type: volume
+        source: rag-mcp-data
+        target: /app/data
+
+      # Models - named volume for GGUF models
+      - type: volume
+        source: rag-mcp-models
+        target: /app/models
+
+      # Configs - bind mount for easy editing
+      - type: bind
+        source: ./configs
+        target: /app/configs
+        read_only: true
+
+    # Network configuration
+    networks:
+      - rag-mcp-net
+
+    # No health check needed (stdio communication)
+
+# Named volumes for persistence
+volumes:
+  rag-mcp-data:
+    driver: local
+
+  rag-mcp-models:
+    driver: local
+
+# Custom network
+networks:
+  rag-mcp-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

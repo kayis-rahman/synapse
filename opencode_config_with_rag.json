@@ -1,0 +1,39 @@
+{
+  "mcpServers": {
+    "sequentialthinking": {
+      "type": "local",
+      "command": [
+        "docker",
+        "run",
+        "-i",
+        "--rm",
+        "mcp/sequentialthinking"
+      ],
+      "enabled": true
+    },
+    "postgres": {
+      "type": "local",
+      "command": ["docker", "run", "-i", "--rm", "-e", "DATABASE_URI", "crystaldba/postgres-mcp", "--access-mode=unrestricted"],
+      "environment": {
+        "DATABASE_URI": "postgresql://timebeam:timebeam@piworm.local:5432/timebeam"
+      },
+      "enabled": true
+    },
+    "rag-mcp": {
+      "type": "local",
+      "command": [
+        "docker",
+        "run",
+        "-i",
+        "--rm",
+        "-e", "RAG_DATA_DIR=/app/data",
+        "-e", "LOG_LEVEL=INFO",
+        "-v", "/home/dietpi/pi-rag/data:/app/data",
+        "-v", "/home/dietpi/pi-rag/models:/app/models",
+        "rag-mcp:latest"
+      ],
+      "cwd": "/home/dietpi/pi-rag",
+      "enabled": true
+    }
+  }
+}
