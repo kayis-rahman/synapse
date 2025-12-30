@@ -155,6 +155,7 @@ class EpisodicStore:
         return """
         CREATE TABLE IF NOT EXISTS episodic_memory (
             id TEXT PRIMARY KEY,
+            project_id TEXT,
             situation TEXT NOT NULL,
             action TEXT NOT NULL,
             outcome TEXT NOT NULL,
@@ -163,6 +164,7 @@ class EpisodicStore:
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 
+        CREATE INDEX IF NOT EXISTS idx_project_id ON episodic_memory(project_id);
         CREATE INDEX IF NOT EXISTS idx_lesson ON episodic_memory(lesson);
         CREATE INDEX IF NOT EXISTS idx_confidence ON episodic_memory(confidence DESC);
         CREATE INDEX IF NOT EXISTS idx_created_at ON episodic_memory(created_at DESC);
@@ -202,9 +204,9 @@ class EpisodicStore:
             # Insert episode
             cursor.execute(
                 """INSERT INTO episodic_memory
-                   (id, situation, action, outcome, lesson, confidence, created_at)
+                   (id, project_id, situation, action, outcome, lesson, confidence, created_at)
                    VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                (episode.id, episode.situation, episode.action, episode.outcome,
+                (episode.id, episode.project_id, episode.situation, episode.action, episode.outcome,
                  episode.lesson, episode.confidence, episode.created_at)
             )
 
@@ -230,24 +232,25 @@ class EpisodicStore:
             cursor = conn.cursor()
 
             cursor.execute(
-                """SELECT id, situation, action, outcome, lesson, confidence, created_at
+                """SELECT id, project_id, situation, action, outcome, lesson, confidence, created_at
                    FROM episodic_memory WHERE id = ?""",
                 (episode_id,)
             )
-
+            
             row = cursor.fetchone()
-
+            
             if not row:
                 return None
-
+            
             return Episode(
                 id=row[0],
-                situation=row[1],
-                action=row[2],
-                outcome=row[3],
-                lesson=row[4],
-                confidence=row[5],
-                created_at=row[6]
+                project_id=row[1],
+                situation=row[2],
+                action=row[3],
+                outcome=row[4],
+                lesson=row[5],
+                confidence=row[6],
+                created_at=row[7]
             )
 
     def query_episodes(

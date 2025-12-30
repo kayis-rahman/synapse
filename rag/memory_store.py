@@ -115,11 +115,11 @@ class MemoryStore:
         >>> store.store_memory(fact)
     """
 
-    # Valid scope values
-    VALID_SCOPES = {"user", "project", "org", "session"}
-
     # Valid category values
     VALID_CATEGORIES = {"preference", "constraint", "decision", "fact"}
+    
+    # Valid source values
+    VALID_SOURCES = {"user", "agent", "tool"}
 
     # Valid source values
     VALID_SOURCES = {"user", "agent", "tool"}
@@ -218,8 +218,12 @@ class MemoryStore:
 
     def _validate_fact(self, fact: MemoryFact) -> None:
         """Validate memory fact constraints."""
-        if fact.scope not in self.VALID_SCOPES:
-            raise ValueError(f"Invalid scope: {fact.scope}. Must be one of {self.VALID_SCOPES}")
+        # Validate project_id format (name-shortUUID or just name)
+        if not self._is_valid_project_id(fact.scope):
+            raise ValueError(
+                f"Invalid project_id: {fact.scope}. "
+                f"Must be in format 'name-shortUUID' or a valid project name."
+            )
 
         if fact.category not in self.VALID_CATEGORIES:
             raise ValueError(f"Invalid category: {fact.category}. Must be one of {self.VALID_CATEGORIES}")
@@ -232,6 +236,67 @@ class MemoryStore:
 
         if fact.confidence < 0.0 or fact.confidence > 1.0:
             raise ValueError(f"Confidence must be between 0.0 and 1.0, got {fact.confidence}")
+    
+    @staticmethod
+    def _is_valid_project_id(project_id: str) -> bool:
+        """
+        Validate project_id format (name-shortUUID or simple name).
+        
+        Accepts:
+        - Simple names (alphanumeric, hyphens, underscores)
+        - name-shortUUID format (e.g., "myapp-a1b2c3d4")
+        
+        Returns:
+            True if valid, False otherwise
+        """
+        if not project_id or not isinstance(project_id, str):
+            return False
+        
+        # Check length
+        if len(project_id) < 1 or len(project_id) > 150:
+            return False
+        
+        # Check for valid characters (alphanumeric, hyphens, underscores)
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]+$', project_id):
+            return False
+        
+        return True
+    
+    def _validate_fact(self, fact: MemoryFact) -> None:
+        """Validate memory fact constraints."""
+        # Validate project_id format (name-shortUUID or just name)
+        if not self._is_valid_project_id(fact.scope):
+            raise ValueError(
+                f"Invalid project_id: {fact.scope}. "
+                f"Must be in format 'name-shortUUID' or a valid project name."
+            )
+    
+    @staticmethod
+    def _is_valid_project_id(project_id: str) -> bool:
+        """
+        Validate project_id format.
+        
+        Accepts:
+        - Simple names (alphanumeric, hyphens, underscores)
+        - name-shortUUID format (e.g., "myapp-a1b2c3d4")
+        
+        Returns:
+            True if valid, False otherwise
+        """
+        if not project_id or not isinstance(project_id, str):
+            return False
+        
+        # Check length
+        if len(project_id) < 1 or len(project_id) > 150:
+            return False
+        
+        # Check for valid characters (alphanumeric, hyphens, underscores)
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]+$', project_id):
+            return False
+        
+        return True
 
     def store_memory(self, fact: MemoryFact) -> Optional[MemoryFact]:
         """
@@ -415,16 +480,16 @@ class MemoryStore:
 
     def list_memory(self, scope: str) -> List[MemoryFact]:
         """
-        List all memory facts for a given scope.
-
+        List all memory facts for a given scope/project_id.
+        
         Args:
-            scope: Scope to list (user | project | org | session)
-
+            scope: Project ID (name-shortUUID format or project name)
+        
         Returns:
-            List of all MemoryFact objects in the scope
+            List of all MemoryFact objects in scope
         """
-        if scope not in self.VALID_SCOPES:
-            raise ValueError(f"Invalid scope: {scope}")
+        if not self._is_valid_project_id(scope):
+            raise ValueError(f"Invalid project_id: {scope}")
 
         return self.query_memory(scope=scope)
 
