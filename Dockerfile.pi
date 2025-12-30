@@ -13,12 +13,11 @@ RUN apt-get update && apt-get install -y \
     git \
     wget \
     curl \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
+# Install Python dependencies
 COPY requirements.txt /tmp/requirements.txt
-
-# Install Python dependencies (without llama-cpp-python for now)
 RUN pip install --user --no-cache-dir \
     fastapi>=0.115.0 \
     uvicorn[standard]>=0.30.0 \
@@ -28,6 +27,13 @@ RUN pip install --user --no-cache-dir \
     aiohttp>=3.9.0 \
     python-dotenv>=1.0.0 \
     numpy>=1.24.0
+
+# Install llama-cpp-python (standard PyPI for compatibility)
+RUN pip install --user --no-cache-dir llama-cpp-python>=0.3.0
+
+# Verify imports work (before code copy)
+RUN python -c "from llama_cpp import Llama; print('✅ llama-cpp-python OK')" && \
+    python -c "from fastapi import FastAPI; print('✅ FastAPI OK')"
 
 # ========================================
 # Runtime stage - minimal final image
@@ -62,13 +68,8 @@ ENV PATH=/home/pireader/.local/bin:$PATH
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-# Install llama-cpp-python with ARM NEON optimizations
-# These flags optimize for ARM64 architecture on Raspberry Pi 4/5
-# Done at runtime stage to ensure proper ARM detection
-RUN CMAKE_ARGS="-DLLAMA_NATIVE=ON -DLLAMA_ARM_NEON=ON -DLLAMA_ARM_FMA=ON \
-                -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_F16C=OFF \
-                -DLLAMA_FMA=OFF -DLLAMA_AVX512=OFF" \
-    pip install --no-cache-dir --user llama-cpp-python>=0.3.0
+# Verify code syntax (after code is copied)
+RUN python -m py_compile api/main.py && echo "✅ API syntax OK"
 
 # Create data directories structure
 RUN mkdir -p /app/data/{docs,rag_index,logs} && \
@@ -81,7 +82,7 @@ EXPOSE 8001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8001/health || exit 1
 
-# Run the API server with single worker for Pi resources
+# Run API server with single worker for Pi resources
 CMD ["python", "-m", "uvicorn", "api.main:app", \
      "--host", "0.0.0.0", \
      "--port", "8001", \

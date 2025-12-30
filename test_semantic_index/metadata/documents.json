@@ -1,0 +1,72 @@
+{
+  "doc_c20a3bcceed7996e": {
+    "source": "test_file.txt",
+    "type": "doc",
+    "title": "Test Document"
+  },
+  "doc_f5cea8be428e96de": {
+    "type": "doc",
+    "source": "/tmp/tmpacgd_3q1.txt",
+    "title": "Test Document",
+    "filename": "tmpacgd_3q1.txt",
+    "size": 197
+  },
+  "e6b91a0b-f962-4e03-99cd-e12ebb69d07f": {
+    "type": "code"
+  },
+  "c80b5d03-d692-48df-849d-5c70ae1a1c73": {
+    "type": "code"
+  },
+  "e6bb0fdf-e078-4f7c-98a0-5ef10aa46138": {
+    "type": "doc"
+  },
+  "d4a3e09f-c2d7-4821-af77-f1a9f0f76e9c": {
+    "type": "doc"
+  },
+  "doc_0f426376b964e609": {
+    "type": "doc",
+    "source": "docs/api.md"
+  },
+  "doc_01a06b801eb7962f": {
+    "type": "code",
+    "source": "auth.py"
+  },
+  "doc_a14d88b42647853c": {
+    "type": "doc",
+    "source": "/tmp/tmpuljeg2m6.txt",
+    "title": "Test Document",
+    "filename": "tmpuljeg2m6.txt",
+    "size": 197
+  },
+  "bb3fb167-1f3b-4e1c-8807-6698f2c9c602": {
+    "type": "code"
+  },
+  "59c9904b-a804-46ef-bed9-76d3a6e68059": {
+    "type": "code"
+  },
+  "8818e1f1-048a-47ab-9a1d-dd29b81939db": {
+    "type": "doc"
+  },
+  "f3433cdc-b4dc-4962-8841-143d9104744e": {
+    "type": "doc"
+  },
+  "doc_24054c950b527dae": {
+    "type": "doc",
+    "source": "/tmp/tmp417v70ol.txt",
+    "title": "Test Document",
+    "filename": "tmp417v70ol.txt",
+    "size": 197
+  },
+  "fac5a34f-7e5e-4e40-906b-ad8dcf5976a4": {
+    "type": "code"
+  },
+  "9f02ae5d-12ed-4265-9c81-b1eee5d91d0a": {
+    "type": "code"
+  },
+  "ae8a8540-7744-42cd-a999-c11f8e3822f8": {
+    "type": "doc"
+  },
+  "533840cd-c38b-49a8-b2f9-d0fd64ec4133": {
+    "type": "doc"
+  }
+}

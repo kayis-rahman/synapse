@@ -40,6 +40,7 @@ from rag import (
 
 # Local imports
 from .metrics import Metrics, get_metrics
+from .project_manager import ProjectManager
 
 
 # Configure logging
@@ -75,7 +76,8 @@ class RAGMemoryBackend:
         self.metrics: Metrics = get_metrics()
         self.metrics.load_metrics()
 
-        # Project cache for generated IDs
+        # Project Manager for dynamic project resolution
+        self.project_manager = ProjectManager()
         self._project_cache: Dict[str, str] = {}
 
     def _get_data_dir(self) -> str:

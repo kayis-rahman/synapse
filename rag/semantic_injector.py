@@ -47,7 +47,7 @@ class SemanticInjector:
     """
 
     # Section header for non-authoritative marking
-    NON_AUTHORITATIVE_HEADER = "RETRIEVED CONTEXT (NON-AUTHORITATIVE)"
+    NON_AUTHITATIVE_HEADER = "RETRIEVED CONTEXT (NON-AUTHORITATIVE)"
 
     # Citation format
     CITATION_FORMAT = "[{source}:{chunk_id}]"
@@ -85,7 +85,7 @@ class SemanticInjector:
         sections = []
 
         # 1. Header (non-authoritative marker)
-        sections.append(self.NON_AUTHORITATIVE_HEADER)
+        sections.append(self.NON_AUTHITATIVE_HEADER)
 
         # 2. Include query (for context)
         sections.append(f"Query: {query}")
@@ -100,7 +100,7 @@ class SemanticInjector:
 
         # 4. Add disclaimer
         sections.append("")
-        sections.append(self.NON_AUTHORITATIVE_DISCLAIMER)
+        sections.append(self.NON_AUTHITATIVE_DISCLAIMER)
 
         return "\n".join(sections)
 

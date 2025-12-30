@@ -6,22 +6,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.pi
-      # Enable BuildKit for faster builds
-      # platforms:
-      #   - linux/arm64
-      #   - linux/arm/v8
       cache_from:
         - pi-rag:buildcache
       args:
         - BUILDKIT_INLINE_CACHE=1
-    
+
     # Container identification
     image: pi-rag:latest
     container_name: pi-rag
-    
-    # Deployment configuration
+
+    # Restart policy
     restart: unless-stopped
-    
+
     # Resource limits for Raspberry Pi 5 (8GB RAM)
     # Adjust based on your Pi model and usage
     deploy:
@@ -32,26 +28,26 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
-    
+
     # Port mapping - API accessible on host port 8001
     ports:
       - "8001:8001"
-    
+
     # Environment configuration
     environment:
       # RAG Configuration
       - RAG_CONFIG=/app/configs/rag_config.json
       - RAG_HOST=0.0.0.0
       - RAG_PORT=8001
-      
+
       # Python configuration
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app
-      
+
       # External API configuration (override in .env or secrets)
       - EXTERNAL_CHAT_API_URL=${EXTERNAL_CHAT_API_URL:-}
       - EXTERNAL_CHAT_API_KEY=${EXTERNAL_CHAT_API_KEY:-}
-    
+
     # Volume mounts for persistence and configuration
     volumes:
       # Configurations - bind mount for easy editing
@@ -59,30 +55,30 @@ services:
         source: ./configs
         target: /app/configs
         read_only: true
-      
+
       # Models - named volume for GGUF files (100s of MB)
       - type: volume
         source: pi-rag-models
         target: /app/models
-      
+
       # Data - named volume for vector store and documents
       - type: volume
         source: pi-rag-data
         target: /app/data
-      
+
       # Cache volumes for better performance
       - type: volume
         source: pi-rag-cache
         target: /home/pireader/.cache
-      
+
       - type: volume
         source: pi-rag-huggingface
         target: /home/pireader/.huggingface
-    
+
     # Network configuration
     networks:
       - pi-rag-net
-    
+
     # Health check
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
@@ -90,6 +86,13 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 # Named volumes for persistence
 volumes:
@@ -100,13 +103,13 @@ volumes:
     #   type: none
     #   o: bind
     #   device: /home/pi/pi-rag-models
-  
+
   pi-rag-data:
     driver: local
-  
+
   pi-rag-cache:
     driver: local
-  
+
   pi-rag-huggingface:
     driver: local
 

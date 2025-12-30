@@ -916,5 +916,228 @@
     "type": "doc",
     "filename": "memory_db_schema.sql",
     "size": 4712
+  },
+  "doc_4c29cf161f751471": {
+    "test": "true",
+    "project_id": "test-project",
+    "source_type": "file",
+    "ingested_at": "2025-12-29T18:25:53.258791",
+    "source": "/tmp/tmpymiw04_s.md",
+    "type": "doc",
+    "filename": "tmpymiw04_s.md",
+    "size": 132
+  },
+  "doc_0e8c5786f2bb29ad": {
+    "test": "true",
+    "project_id": "test-project",
+    "source_type": "file",
+    "ingested_at": "2025-12-29T18:26:51.243140",
+    "source": "/tmp/tmp8l6jc7ip.md",
+    "type": "doc",
+    "filename": "tmp8l6jc7ip.md",
+    "size": 132
+  },
+  "doc_0f426376b964e609": {
+    "type": "doc",
+    "source": "docs/api.md"
+  },
+  "doc_01a06b801eb7962f": {
+    "type": "code",
+    "source": "auth.py",
+    "language": "python"
+  },
+  "doc_04c6e90faac2675a": {
+    "type": "doc",
+    "source": "README.md"
+  },
+  "doc_7c68a16849e85960": {
+    "type": "article",
+    "source": "kb/troubleshooting.md"
+  },
+  "doc_ee11cbb19052e40b": {
+    "type": "preference",
+    "source": "user"
+  },
+  "doc_bb9253a5c09febb0": {
+    "type": "decision",
+    "source": "meetings.md"
+  },
+  "doc_a05dcee144da6675": {
+    "type": "constraint",
+    "source": "requirements.md"
+  },
+  "doc_e9c0a0684a84e250": {
+    "type": "chat",
+    "source": "conversation.log"
+  },
+  "doc_e0afea2a901b4196": {
+    "type": "doc",
+    "source": "long_doc.md"
+  },
+  "doc_b128b7694e4de962": {
+    "type": "doc",
+    "source": "test.md"
+  },
+  "doc_a4120eb5e3b840f4": {
+    "type": "doc",
+    "source": "book.md"
+  },
+  "doc_00e71df22262087f": {
+    "type": "doc",
+    "source": "api.md"
+  },
+  "doc_aa2bac014b8e70bf": {
+    "type": "doc",
+    "source": "db.md"
+  },
+  "doc_c5911ec6a9fbfdfd": {
+    "type": "doc",
+    "source": "doc0.md"
+  },
+  "doc_3cc94db6db0e85f5": {
+    "type": "doc",
+    "source": "doc1.md"
+  },
+  "doc_cd45b96787416003": {
+    "type": "doc",
+    "source": "doc2.md"
+  },
+  "doc_28c75a9e2162b8ec": {
+    "type": "doc",
+    "source": "doc3.md"
+  },
+  "doc_f8e6806123f341b8": {
+    "type": "doc",
+    "source": "doc4.md"
+  },
+  "doc_ea9f9e5b508551bd": {
+    "type": "doc",
+    "source": "doc5.md"
+  },
+  "doc_8a1accd73efefd98": {
+    "type": "doc",
+    "source": "doc6.md"
+  },
+  "doc_b33c71334fd0af1b": {
+    "type": "doc",
+    "source": "doc7.md"
+  },
+  "doc_2df0ce173f393e81": {
+    "type": "doc",
+    "source": "doc8.md"
+  },
+  "doc_f6b619e5baa15dd0": {
+    "type": "doc",
+    "source": "doc9.md"
+  },
+  "doc_ab9607dc75e4451a": {
+    "type": "doc",
+    "source": "cooking.md"
+  },
+  "doc_3b5e31446f546cea": {
+    "type": "code",
+    "source": "example.py",
+    "language": "python"
+  },
+  "doc_65d7f35d2dc8f882": {
+    "type": "code",
+    "source": "example.js",
+    "language": "javascript"
+  },
+  "doc_a67ef2eaf22cfa61": {
+    "type": "doc",
+    "source": "old.md"
+  },
+  "doc_b7a73ff21accb7e8": {
+    "type": "doc",
+    "source": "new.md"
+  },
+  "doc_6287b96b2ebce4bb": {
+    "type": "doc",
+    "source": "info.md"
+  },
+  "doc_fadda958faf921bd": {
+    "type": "doc",
+    "source": "semantic.md"
+  },
+  "doc_d950817e04abf251": {
+    "type": "doc",
+    "source": "test2.md"
+  },
+  "doc_7d149b5d9510b86e": {
+    "test": "true",
+    "project_id": "test-project",
+    "source_type": "file",
+    "ingested_at": "2025-12-29T18:51:37.243386",
+    "source": "/tmp/tmp97_7uvv0.md",
+    "type": "doc",
+    "filename": "tmp97_7uvv0.md",
+    "size": 132
+  },
+  "doc_4f76782f821d0144": {
+    "test": "true",
+    "project_id": "test-project",
+    "source_type": "file",
+    "ingested_at": "2025-12-29T19:08:38.037547",
+    "source": "/tmp/tmp7ofqnxj1.md",
+    "type": "doc",
+    "filename": "tmp7ofqnxj1.md",
+    "size": 132
+  },
+  "doc_450026fe15fdec24": {
+    "type": "doc",
+    "source": "/tmp/tmp667q7twt.txt",
+    "project_id": "global",
+    "source_type": "file",
+    "ingested_at": "2025-12-29T19:46:53.367711",
+    "filename": "tmp667q7twt.txt",
+    "size": 149
+  },
+  "doc_f69ac22c2b66f1f6": {
+    "type": "doc",
+    "source": "/tmp/tmpu4svdein.txt",
+    "project_id": "session",
+    "source_type": "file",
+    "ingested_at": "2025-12-29T19:47:59.331211",
+    "filename": "tmpu4svdein.txt",
+    "size": 145
+  },
+  "doc_e592096302fd9d5a": {
+    "type": "doc",
+    "source": "/tmp/test_docker.txt",
+    "project_id": "session",
+    "source_type": "file",
+    "ingested_at": "2025-12-29T19:50:36.997167",
+    "filename": "test_docker.txt",
+    "size": 81
+  },
+  "doc_5c614e4f1c2f3469": {
+    "type": "doc",
+    "source": "/tmp/tmp6wtpv4zv.txt",
+    "project_id": "session",
+    "source_type": "file",
+    "ingested_at": "2025-12-29T20:01:35.702400",
+    "filename": "tmp6wtpv4zv.txt",
+    "size": 145
+  },
+  "doc_a8516340f78543c2": {
+    "type": "doc",
+    "source": "/tmp/tmp2r3eef9t.txt",
+    "project_id": "session",
+    "source_type": "file",
+    "ingested_at": "2025-12-29T20:02:06.995011",
+    "filename": "tmp2r3eef9t.txt",
+    "size": 145
+  },
+  "doc_4f37c6a32374111e": {
+    "test": "mcp_verification",
+    "category": "reference",
+    "project_id": "project",
+    "source_type": "file",
+    "ingested_at": "2025-12-29T21:54:25.450096",
+    "source": "/home/dietpi/pi-rag/docs/MCP_SERVER_QUICKREF.md",
+    "type": "doc",
+    "filename": "MCP_SERVER_QUICKREF.md",
+    "size": 5974
   }
 }
