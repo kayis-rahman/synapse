@@ -49,6 +49,7 @@ class Episode:
     def __init__(
         self,
         id: Optional[str] = None,
+        project_id: str = "",
         situation: str = "",
         action: str = "",
         outcome: str = "",
@@ -57,17 +58,19 @@ class Episode:
         created_at: Optional[str] = None
     ):
         self.id = id or str(uuid.uuid4())
+        self.project_id = project_id  # <-- NEW
         self.situation = situation
         self.action = action
         self.outcome = outcome
         self.lesson = lesson
         self.confidence = max(0.0, min(1.0, confidence))  # Clamp to 0-1
         self.created_at = created_at or datetime.now(timezone.utc).isoformat()
-
+    
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
             "id": self.id,
+            "project_id": self.project_id,  # <-- NEW
             "situation": self.situation,
             "action": self.action,
             "outcome": self.outcome,
@@ -255,6 +258,7 @@ class EpisodicStore:
 
     def query_episodes(
         self,
+        project_id: str,
         lesson: Optional[str] = None,
         min_confidence: float = 0.0,
         situation_contains: Optional[str] = None,
@@ -262,23 +266,24 @@ class EpisodicStore:
     ) -> List[Episode]:
         """
         Query episodes with optional filters.
-
+        
         Args:
+            project_id: Project identifier to filter by
             lesson: Filter by lesson text (optional, can use LIKE pattern)
             min_confidence: Minimum confidence threshold (default: 0.0)
             situation_contains: Filter by situation text (optional)
             limit: Maximum number of results (default: 10)
-
+        
         Returns:
             List of matching Episode objects
         """
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-
+            
             # Build query dynamically
-            conditions = []
-            params = []
-
+            conditions = ["project_id = ?"]
+            params = [project_id]
+            
             if lesson:
                 # Support both exact match and LIKE pattern
                 if '%' in lesson or '_' in lesson:
@@ -286,14 +291,14 @@ class EpisodicStore:
                 else:
                     conditions.append("lesson = ?")
                 params.append(lesson)
-
+            
             conditions.append("confidence >= ?")
             params.append(min_confidence)
-
+            
             if situation_contains:
                 conditions.append("situation LIKE ?")
                 params.append(f"%{situation_contains}%")
-
+            
             where_clause = " AND ".join(conditions) if conditions else "1=1"
 
             cursor.execute(

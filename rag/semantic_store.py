@@ -550,6 +550,41 @@ def get_semantic_store(index_path: str = "./data/semantic_index") -> SemanticSto
     return _semantic_store
 
 
+
+# Embedding service will be imported lazily to avoid circular imports
+_embedding_service = None
+
+def get_embedding_service():
+    """Get embedding service singleton (lazy import)."""
+    global _embedding_service
+    if _embedding_service is None:
+        try:
+            from .embedding import get_embedding_service as get_emb
+            _embedding_service = get_emb()
+            logger.info("Embedding service initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize embedding service: {e}")
+            _embedding_service = None
+    return _embedding_service
+
+def _generate_embedding(content: str) -> list:
+    """
+    Generate embedding for content.
+    
+    Args:
+        content: Text to generate embedding for
+    
+    Returns:
+        List of embedding values (empty list if service unavailable)
+    """
+    embedding_service = get_embedding_service()
+    if embedding_service:
+        try:
+            return embedding_service.embed_single(content)
+        except Exception as e:
+            logger.warning(f"Failed to generate embedding: {e}")
+            return []
+    return []
 logger = logging.getLogger(__name__)
 
 
