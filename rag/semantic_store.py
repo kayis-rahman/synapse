@@ -34,11 +34,17 @@ import json
 import os
 import hashlib
 import uuid
+import logging
 from typing import List, Dict, Any, Optional, Tuple, Set
 from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
+
+# Import embedding service at module level (no lazy import needed)
+from .embedding import get_embedding_service
 
 
 class DocumentChunk:
@@ -90,40 +96,64 @@ class DocumentChunk:
     def validate_metadata(self) -> bool:
         """
         Validate metadata doesn't contain forbidden content.
-
+        
         Forbidden:
         - User preferences (→ Symbolic Memory)
         - Decisions (→ Symbolic Memory)
         - Constraints (→ Symbolic Memory)
         - Agent lessons (→ Episodic Memory)
         - Chat history
-
+        
+        Note: "episode" and "episodic" are legitimate technical terms in this codebase
+        and should be allowed in metadata and file content.
+        
         Returns:
             True if valid, False if contains forbidden content
         """
         forbidden_keys = {
             "user_preference", "preference", "user_likes",
             "agent_decision", "decision", "system_decision",
-            "agent_lesson", "episode", "episodic_lesson",
+            "agent_lesson",
             "chat_history", "conversation", "dialogue"
         }
-
+        
         for key in forbidden_keys:
             if key in self.metadata:
                 return False
-
+        
         # Check if content looks like a preference/decision
+        # Use phrase matching to avoid false positives on technical documentation
         content_lower = self.content.lower()
-        pref_patterns = [
-            "user prefers", "user likes", "user wants",
-            "decision was made", "decided to", "system decided",
-            "agent learned", "episode", "lesson learned"
+        
+        # Check for user preferences
+        user_pref_patterns = [
+            "user prefers", "user likes", "user wants", "user preference",
+            "the user prefers", "the user likes", "the user wants"
         ]
-
-        for pattern in pref_patterns:
+        for pattern in user_pref_patterns:
             if pattern in content_lower:
                 return False
-
+        
+        # Check for system/agent decisions (only if about making decisions)
+        decision_patterns = [
+            "decision was made", "we decided to", "the system decided",
+            "agent decided to", "system decided to"
+        ]
+        for pattern in decision_patterns:
+            if pattern in content_lower:
+                return False
+        
+        # Check for agent learning (avoid matching documentation terms)
+        learning_patterns = [
+            "agent learned that", "the agent learned that", "our agent learned",
+            "lesson was that", "the lesson was that"
+        ]
+        for pattern in learning_patterns:
+            if pattern in content_lower:
+                return False
+        
+        return True
+        
         return True
 
 
@@ -208,12 +238,16 @@ class SemanticStore:
         # Chunk the content
         chunks = self._chunk_content(content, chunk_size, chunk_overlap)
 
-        # Create DocumentChunk objects
+        # Create DocumentChunk objects with embeddings
         chunk_ids = []
         for i, chunk_text in enumerate(chunks):
+            # Generate embedding for the chunk
+            embedding = _generate_embedding(chunk_text)
+
             chunk = DocumentChunk(
                 document_id=document_id,
                 content=chunk_text,
+                embedding=embedding,
                 chunk_index=i,
                 metadata={
                     **metadata,
@@ -550,77 +584,19 @@ def get_semantic_store(index_path: str = "./data/semantic_index") -> SemanticSto
     return _semantic_store
 
 
-
-# Embedding service will be imported lazily to avoid circular imports
-_embedding_service = None
-
-def get_embedding_service():
-    """Get embedding service singleton (lazy import)."""
-    global _embedding_service
-    if _embedding_service is None:
-        try:
-            from .embedding import get_embedding_service as get_emb
-            _embedding_service = get_emb()
-            logger.info("Embedding service initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize embedding service: {e}")
-            _embedding_service = None
-    return _embedding_service
-
-def _generate_embedding(content: str) -> list:
-    """
-    Generate embedding for content.
-    
-    Args:
-        content: Text to generate embedding for
-    
-    Returns:
-        List of embedding values (empty list if service unavailable)
-    """
-    embedding_service = get_embedding_service()
-    if embedding_service:
-        try:
-            return embedding_service.embed_single(content)
-        except Exception as e:
-            logger.warning(f"Failed to generate embedding: {e}")
-            return []
-    return []
-logger = logging.getLogger(__name__)
-
-
-# Embedding service will be imported lazily to avoid circular imports
-_embedding_service = None
-
-
-def get_embedding_service():
-    """Get embedding service singleton (lazy import)."""
-    global _embedding_service
-    if _embedding_service is None:
-        try:
-            from .embedding import get_embedding_service as get_emb
-            _embedding_service = get_emb()
-            logger.info("Embedding service initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize embedding service: {e}")
-            _embedding_service = None
-    return _embedding_service
-
-
 def _generate_embedding(content: str) -> List[float]:
     """
     Generate embedding for content.
-    
+
     Args:
         content: Text to generate embedding for
-        
+
     Returns:
         List of embedding values (empty list if service unavailable)
     """
-    embedding_service = get_embedding_service()
-    if embedding_service:
-        try:
-            return embedding_service.embed_single(content)
-        except Exception as e:
-            logger.warning(f"Failed to generate embedding for {e}")
-            return []
-    return []
+    try:
+        embedding_service = get_embedding_service()
+        return embedding_service.embed_single(content)
+    except Exception as e:
+        logger.warning(f"Failed to generate embedding: {e}")
+        return []
