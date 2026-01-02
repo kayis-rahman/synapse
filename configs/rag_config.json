@@ -5,12 +5,12 @@
   "top_k": 3,
   "min_retrieval_score": 0.3,
 
-  "index_path": "./data/rag_index",
-  "docs_path": "./data/docs",
+  "index_path": "/opt/pi-rag/data/rag_index",
+  "docs_path": "/opt/pi-rag/data/docs",
 
   "rag_disable_keyword": "disable-rag",
 
-  "embedding_model_path": "~/models/bge-m3-q8_0.gguf",
+  "embedding_model_path": "/home/dietpi/models/bge-small-en-v1.5-q8_0.gguf",
   "embedding_model_name": "embedding",
   "embedding_n_ctx": 8194,
   "embedding_n_gpu_layers": 0,
@@ -33,7 +33,7 @@
   "rag_api_host": "0.0.0.0",
 
   "memory_enabled": true,
-  "memory_db_path": "./data/memory.db",
+  "memory_db_path": "/opt/pi-rag/data/memory.db",
   "memory_scope": "session",
   "memory_min_confidence": 0.7,
   "memory_max_facts": 10,
