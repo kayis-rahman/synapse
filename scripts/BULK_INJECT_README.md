@@ -2,7 +2,7 @@
 
 ## Overview
 
-`bulk_inject_with_gitignore.py` is a comprehensive script for bulk injecting project files into the pi-rag semantic memory system via local file path ingestion mode. It features intelligent exclusion patterns, incremental ingestion with checksum verification, and retry capabilities.
+`bulk_ingest.py` is a comprehensive script for bulk injecting project files into the pi-rag semantic memory system via local file path ingestion mode. It features intelligent exclusion patterns, incremental ingestion with checksum verification, and retry capabilities.
 
 ## Features
 
@@ -23,17 +23,17 @@
 
 ```bash
 # Preview what will be ingested
-python scripts/bulk_inject_with_gitignore.py --dry-run
+python scripts/bulk_ingest.py --dry-run
 
 # Actually ingest the files
-python scripts/bulk_inject_with_gitignore.py
+python scripts/bulk_ingest.py
 ```
 
 ### Different Project
 
 ```bash
 # Ingest another project
-python scripts/bulk_inject_with_gitignore.py \
+python scripts/bulk_ingest.py \
     --project-id "myproject" \
     --root-dir /path/to/myproject
 ```
@@ -45,7 +45,7 @@ python scripts/bulk_inject_with_gitignore.py \
 Preview what would be ingested without actually processing:
 
 ```bash
-python scripts/bulk_inject_with_gitignore.py --dry-run
+python scripts/bulk_ingest.py --dry-run
 ```
 
 ### 2. Filter by File Type
@@ -54,12 +54,12 @@ Ingest only specific file types:
 
 ```bash
 # Only code and documentation files
-python scripts/bulk_inject_with_gitignore.py \
+python scripts/bulk_ingest.py \
     --file-type code \
     --file-type doc
 
 # Only configuration files
-python scripts/bulk_inject_with_gitignore.py --file-type config
+python scripts/bulk_ingest.py --file-type config
 ```
 
 **Available File Types:**
@@ -75,7 +75,7 @@ python scripts/bulk_inject_with_gitignore.py --file-type config
 Disable `.gitignore` parsing and use only custom patterns:
 
 ```bash
-python scripts/bulk_inject_with_gitignore.py \
+python scripts/bulk_ingest.py \
     --no-gitignore \
     --exclude "*.log" \
     --exclude "*.tmp" \
@@ -87,7 +87,7 @@ python scripts/bulk_inject_with_gitignore.py \
 Disable incremental mode and re-ingest all files:
 
 ```bash
-python scripts/bulk_inject_with_gitignore.py --no-incremental
+python scripts/bulk_ingest.py --no-incremental
 ```
 
 ### 5. Specific Directory
@@ -95,7 +95,7 @@ python scripts/bulk_inject_with_gitignore.py --no-incremental
 Ingest only a specific subdirectory:
 
 ```bash
-python scripts/bulk_inject_with_gitignore.py \
+python scripts/bulk_ingest.py \
     --root-dir /path/to/project \
     --file-type code
 ```
@@ -105,7 +105,7 @@ python scripts/bulk_inject_with_gitignore.py \
 Show detailed information about each file:
 
 ```bash
-python scripts/bulk_inject_with_gitignore.py --verbose
+python scripts/bulk_ingest.py --verbose
 ```
 
 ### 7. Custom Chunking
@@ -113,7 +113,7 @@ python scripts/bulk_inject_with_gitignore.py --verbose
 Change chunk size and overlap:
 
 ```bash
-python scripts/bulk_inject_with_gitignore.py \
+python scripts/bulk_ingest.py \
     --chunk-size 400 \
     --chunk-overlap 60
 ```
@@ -218,7 +218,7 @@ The script uses checksum-based incremental ingestion:
 
 **Force Re-Ingestion:**
 ```bash
-python scripts/bulk_inject_with_gitignore.py --no-incremental
+python scripts/bulk_ingest.py --no-incremental
 ```
 
 ## Retry Mechanism
@@ -386,12 +386,12 @@ Ingest multiple projects with different IDs:
 
 ```bash
 # Project 1
-python scripts/bulk_inject_with_gitignore.py \
+python scripts/bulk_ingest.py \
     --project-id frontend \
     --root-dir /home/user/frontend-app
 
 # Project 2
-python scripts/bulk_inject_with_gitignore.py \
+python scripts/bulk_ingest.py \
     --project-id backend \
     --root-dir /home/user/backend-api
 ```
@@ -403,11 +403,11 @@ python scripts/bulk_inject_with_gitignore.py \
 # Ingest project files in CI pipeline
 
 # Step 1: Dry-run
-python scripts/bulk_inject_with_gitignore.py --dry-run
+python scripts/bulk_ingest.py --dry-run
 
 # Step 2: Ingest (only in production)
 if [ "$ENV" = "production" ]; then
-    python scripts/bulk_inject_with_gitignore.py
+    python scripts/bulk_ingest.py
 fi
 ```
 
@@ -415,7 +415,7 @@ fi
 
 ```bash
 # Cron job to re-ingest daily (catch changes)
-0 2 * * * cd /home/user/pi-rag && python scripts/bulk_inject_with_gitignore.py >> /var/log/bulk_ingest.log 2>&1
+0 2 * * * cd /home/user/pi-rag && python scripts/bulk_ingest.py >> /var/log/bulk_ingest.log 2>&1
 ```
 
 ## Troubleshooting
@@ -425,7 +425,7 @@ fi
 **Solution**: Use `.gitignore` or custom exclusions:
 
 ```bash
-python scripts/bulk_inject_with_gitignore.py \
+python scripts/bulk_ingest.py \
     --exclude "*.test.js" \
     --exclude "coverage/" \
     --exclude ".next/"
@@ -437,7 +437,7 @@ python scripts/bulk_inject_with_gitignore.py \
 
 ```bash
 # Force re-ingest to verify
-python scripts/bulk_inject_with_gitignore.py --no-incremental
+python scripts/bulk_ingest.py --no-incremental
 ```
 
 ### Issue: Progress bar not showing

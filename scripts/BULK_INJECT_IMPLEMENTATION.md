@@ -13,7 +13,7 @@ Created a comprehensive bulk injection script for pi-rag that injects project fi
 
 ## Files Created
 
-### 1. Main Script: `scripts/bulk_inject_with_gitignore.py`
+### 1. Main Script: `scripts/bulk_ingest.py`
 - **Size**: 31KB (727 lines)
 - **Purpose**: Main bulk injection script with .gitignore support
 - **Executable**: Yes (`chmod +x` applied)
@@ -112,29 +112,29 @@ Created a comprehensive bulk injection script for pi-rag that injects project fi
 ### Basic Usage
 ```bash
 # Preview
-python scripts/bulk_inject_with_gitignore.py --dry-run
+python scripts/bulk_ingest.py --dry-run
 
 # Ingest
-python scripts/bulk_inject_with_gitignore.py
+python scripts/bulk_ingest.py
 ```
 
 ### Different Project
 ```bash
-python scripts/bulk_inject_with_gitignore.py \
+python scripts/bulk_ingest.py \
     --project-id "myapp" \
     --root-dir /path/to/project
 ```
 
 ### Filter by File Type
 ```bash
-python scripts/bulk_inject_with_gitignore.py \
+python scripts/bulk_ingest.py \
     --file-type code \
     --file-type doc
 ```
 
 ### Custom Exclusions
 ```bash
-python scripts/bulk_inject_with_gitignore.py \
+python scripts/bulk_ingest.py \
     --exclude "*.log" \
     --exclude "*.tmp" \
     --exclude "dist/"
@@ -142,7 +142,7 @@ python scripts/bulk_inject_with_gitignore.py \
 
 ### Force Re-Ingest
 ```bash
-python scripts/bulk_inject_with_gitignore.py --no-incremental
+python scripts/bulk_ingest.py --no-incremental
 ```
 
 ---
@@ -374,50 +374,50 @@ They will be retried on next run.
 
 ```bash
 # Help
-python scripts/bulk_inject_with_gitignore.py --help
+python scripts/bulk_ingest.py --help
 
 # Dry-run (all files)
-python scripts/bulk_inject_with_gitignore.py --dry-run
+python scripts/bulk_ingest.py --dry-run
 
 # Dry-run (code + config)
-python scripts/bulk_inject_with_gitignore.py --dry-run --file-type code --file-type config
+python scripts/bulk_ingest.py --dry-run --file-type code --file-type config
 
 # Specific directory
-python scripts/bulk_inject_with_gitignore.py --dry-run --root-dir rag --file-type code
+python scripts/bulk_ingest.py --dry-run --root-dir rag --file-type code
 
 # Custom exclusions
-python scripts/bulk_inject_with_gitignore.py --dry-run --exclude "vectorstore.py"
+python scripts/bulk_ingest.py --dry-run --exclude "vectorstore.py"
 
 # Docs only (tested with Rich)
-python scripts/bulk_inject_with_gitignore.py --dry-run --file-type doc
+python scripts/bulk_ingest.py --dry-run --file-type doc
 
 # Verbose
-python scripts/bulk_inject_with_gitignore.py --verbose --dry-run --file-type code
+python scripts/bulk_ingest.py --verbose --dry-run --file-type code
 ```
 
 ### Test Commands Run
 
 ```bash
 # Help
-python scripts/bulk_inject_with_gitignore.py --help
+python scripts/bulk_ingest.py --help
 
 # Dry-run (all files)
-python scripts/bulk_inject_with_gitignore.py --dry-run
+python scripts/bulk_ingest.py --dry-run
 
 # Dry-run (code + config)
-python scripts/bulk_inject_with_gitignore.py --dry-run --file-type code --file-type config
+python scripts/bulk_ingest.py --dry-run --file-type code --file-type config
 
 # Specific directory
-python scripts/bulk_inject_with_gitignore.py --dry-run --root-dir rag --file-type code
+python scripts/bulk_ingest.py --dry-run --root-dir rag --file-type code
 
 # Custom exclusions
-python scripts/bulk_inject_with_gitignore.py --dry-run --exclude "vectorstore.py"
+python scripts/bulk_ingest.py --dry-run --exclude "vectorstore.py"
 
 # Docs only
-python scripts/bulk_inject_with_gitignore.py --dry-run --file-type doc
+python scripts/bulk_ingest.py --dry-run --file-type doc
 
 # Verbose
-python scripts/bulk_inject_with_gitignore.py --verbose --dry-run --file-type code
+python scripts/bulk_ingest.py --verbose --dry-run --file-type code
 ```
 
 ---
@@ -437,7 +437,7 @@ python scripts/bulk_inject_with_gitignore.py --verbose --dry-run --file-type cod
 
 ## Comparison: Old vs New
 
-| Feature | Old (mcp_bulk_ingest.py) | New (bulk_inject_with_gitignore.py) |
+| Feature | Old (mcp_bulk_ingest.py) | New (bulk_ingest.py) |
 |---------|---------------------------|-------------------------------------|
 | .gitignore support | ❌ No | ✅ Yes |
 | Custom exclusions | ❌ No | ✅ Yes |
@@ -473,12 +473,12 @@ The bulk injection script is **fully functional** and **production-ready**. It m
 
 1. **Run full ingestion** on pi-rag project:
    ```bash
-   python scripts/bulk_inject_with_gitignore.py
+   python scripts/bulk_ingest.py
    ```
 
 2. **Test on other projects**:
    ```bash
-   python scripts/bulk_inject_with_gitignore.py \
+   python scripts/bulk_ingest.py \
        --project-id myproject \
        --root-dir /path/to/project
    ```
