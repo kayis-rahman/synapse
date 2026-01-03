@@ -24,6 +24,10 @@ MANIFEST
 # RAG Data Directory (entire directory - moved to /opt/pi-rag/data/)
 data/
 
+# Model files (large GGUF files should not be tracked in git)
+models/
+*.gguf
+
 # Logs
 logs/
 *.log
