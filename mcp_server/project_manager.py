@@ -36,13 +36,15 @@ class ProjectManager:
     - Project metadata
     """
 
-    def __init__(self, base_data_dir: str = "/opt/pi-rag/data"):
+    def __init__(self, base_data_dir: Optional[str] = None):
         """
         Initialize project manager.
 
         Args:
-            base_data_dir: Base data directory
+            base_data_dir: Base data directory (defaults to RAG_DATA_DIR env var or /opt/pi-rag/data)
         """
+        if base_data_dir is None:
+            base_data_dir = os.environ.get("RAG_DATA_DIR", "/opt/pi-rag/data")
         self.base_data_dir = base_data_dir
         self.registry_db = os.path.join(base_data_dir, "registry.db")
         self._init_registry()

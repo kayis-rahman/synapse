@@ -63,6 +63,8 @@ class RAGOrchestrator:
         self.memory_scope = "session"
         self.memory_min_confidence = 0.7
         self.memory_max_facts = 10
+        self.file_path_mode_enabled = False
+        self.context_injection_enabled = False
 
         try:
             if os.path.exists(self.config_path):
@@ -85,6 +87,10 @@ class RAGOrchestrator:
                 self.memory_scope = config.get("memory_scope", "session")
                 self.memory_min_confidence = config.get("memory_min_confidence", 0.7)
                 self.memory_max_facts = config.get("memory_max_facts", 10)
+
+                # Feature toggle configuration
+                self.file_path_mode_enabled = config.get("file_path_mode_enabled", True)
+                self.context_injection_enabled = config.get("context_injection_enabled", True)
         except Exception as e:
             print(f"Warning: Failed to load orchestrator config: {e}")
     
@@ -149,6 +155,13 @@ class RAGOrchestrator:
         memory_context: str = ""
     ) -> List[Dict[str, Any]]:
         """Inject retrieved context and memory into messages."""
+        # Check if context injection is disabled in config
+        if not self.context_injection_enabled:
+            return messages
+
+        if not context and not memory_context:
+            return messages
+
         if not context and not memory_context:
             return messages
 

@@ -1,3 +1,8 @@
+# syntax=docker/dockerfile:1.4
+# check=experimental=true
+# ================================================================================
+# Build Optimization: BuildKit inline cache enabled
+# ================================================================================
 # Multi-stage build for RAG MCP Server
 FROM python:3.11-slim as builder
 
@@ -6,11 +11,16 @@ WORKDIR /app
 # Install system dependencies including OpenMP library
 RUN apt-get update && apt-get install -y \
     build-essential \
+    cmake \
+    gcc \
+    g++ \
     libffi-dev \
     libssl-dev \
     sqlite3 \
     libgomp1 \
-    g++ \
+    git \
+    wget \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
@@ -28,6 +38,9 @@ RUN pip install --no-cache-dir --break-system-packages mcp-server
 # Copy application code
 COPY . .
 
+# Cleanup build artifacts
+RUN rm -rf /tmp/* /var/tmp/*
+
 # Verify imports work
 RUN python -c "from mcp.server import Server; from mcp.types import Tool; print('✅ MCP SDK OK')" && \
     python -c "from rag import MemoryStore, EpisodicStore, SemanticStore; print('✅ RAG imports OK')" && \
@@ -39,10 +52,10 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install runtime dependencies only
-RUN apt-get update && apt-get install -y \
-    sqlite3 \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
+# NOTE: sqlite3, libgomp1 already installed in builder stage
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Copy from builder
 COPY --from=builder /usr/local/lib/python3.11 /usr/local/lib/python3.11

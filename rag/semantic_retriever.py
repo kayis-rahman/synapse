@@ -38,6 +38,7 @@ from datetime import datetime, timedelta
 
 from .semantic_store import SemanticStore, get_semantic_store
 from .embedding import EmbeddingService, get_embedding_service
+from .query_expander import get_query_expander
 
 
 class SemanticRetriever:
@@ -73,7 +74,9 @@ class SemanticRetriever:
     def __init__(
         self,
         semantic_store: Optional[SemanticStore] = None,
-        embedding_service: Optional[EmbeddingService] = None
+        embedding_service: Optional[EmbeddingService] = None,
+        query_expansion_enabled: bool = True,
+        num_expansions: int = 3
     ):
         """
         Initialize semantic retriever.
@@ -81,9 +84,13 @@ class SemanticRetriever:
         Args:
             semantic_store: Semantic store instance
             embedding_service: Embedding service instance
+            query_expansion_enabled: Enable query expansion (default: True)
+            num_expansions: Number of query expansions (default: 3)
         """
         self.semantic_store = semantic_store or get_semantic_store()
         self.embedding_service = embedding_service or get_embedding_service()
+        self.query_expansion_enabled = query_expansion_enabled
+        self.num_expansions = num_expansions
 
     def retrieve(
         self,
@@ -140,6 +147,141 @@ class SemanticRetriever:
 
         # Return top-k results
         return ranked_results[:top_k]
+
+    def retrieve_with_expansion(
+        self,
+        query: str,
+        trigger: str = "external_info_needed",
+        top_k: int = 3,
+        metadata_filters: Optional[Dict[str, Any]] = None,
+        min_score: float = 0.0,
+        include_recency: bool = True,
+        num_expansions: Optional[int] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Retrieve with query expansion for better recall.
+
+        Uses multi-query expansion to improve retrieval quality.
+
+        Args:
+            query: Search query text
+            trigger: Retrieval trigger (must be valid)
+            top_k: Number of top results to return
+            metadata_filters: Optional metadata filters
+            min_score: Minimum similarity score
+            include_recency: Whether to boost recent documents
+            num_expansions: Number of expansions (default: from config)
+
+        Returns:
+            List of retrieved documents with scores, metadata, and citations
+
+        Raises:
+            ValueError: If trigger is invalid
+        """
+        if not self.query_expansion_enabled:
+            # Fall back to normal retrieval
+            return self.retrieve(query, trigger, top_k, metadata_filters, min_score, include_recency)
+
+        expansions = num_expansions or self.num_expansions
+        expander = get_query_expander(num_expansions=expansions)
+
+        # Expand query
+        expanded_queries = expander.expand_query(query)
+
+        # Search with each query
+        all_results = []
+        for expanded_query in expanded_queries:
+            results = self._search_without_trigger(
+                expanded_query,
+                top_k=top_k * 2,  # Get more results per query
+                metadata_filters=metadata_filters,
+                min_score=min_score
+            )
+            all_results.append(results)
+
+        # Merge and deduplicate results
+        merged_results = self._merge_retrieval_results(all_results)
+
+        # Rank merged results
+        ranked_results = self._rank_results(merged_results, query, include_recency)
+
+        # Return top-k results
+        return ranked_results[:top_k]
+
+    def _search_without_trigger(
+        self,
+        query: str,
+        top_k: int = 3,
+        metadata_filters: Optional[Dict[str, Any]] = None,
+        min_score: float = 0.0
+    ) -> List[Dict[str, Any]]:
+        """
+        Search without trigger validation (internal use).
+
+        Used by retrieve_with_expansion to avoid trigger validation on expanded queries.
+
+        Args:
+            query: Search query text
+            top_k: Number of top results to return
+            metadata_filters: Optional metadata filters
+            min_score: Minimum similarity score
+
+        Returns:
+            List of retrieved documents with scores, metadata, and citations
+        """
+        # Generate query embedding
+        query_embedding = self.embedding_service.embed_single(query)
+
+        if not query_embedding:
+            return []
+
+        # Search semantic store
+        raw_results = self.semantic_store.search(
+            query_embedding=query_embedding,
+            top_k=top_k,
+            metadata_filters=metadata_filters,
+            min_score=min_score
+        )
+
+        return raw_results
+
+    def _merge_retrieval_results(
+        self,
+        all_results: List[List[Dict[str, Any]]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Merge results from multiple query searches.
+
+        Deduplicates and keeps best score.
+
+        Args:
+            all_results: List of result lists from each query
+
+        Returns:
+            Merged and deduplicated results
+        """
+        if not all_results:
+            return []
+
+        # Track results by content for deduplication
+        content_map: Dict[str, Dict[str, Any]] = {}
+
+        for query_results in all_results:
+            for result in query_results:
+                content = result.get("content", "")
+                score = result.get("score", 0.0)
+                metadata = result.get("metadata", {})
+                created_at = result.get("created_at", "")
+
+                if content in content_map:
+                    # Keep the highest score
+                    existing = content_map[content]
+                    if score > existing.get("score", 0.0):
+                        content_map[content] = result
+                else:
+                    content_map[content] = result
+
+        return list(content_map.values())
 
     def _rank_results(
         self,

@@ -80,9 +80,28 @@ class RAGMemoryBackend:
         self.project_manager = ProjectManager()
         self._project_cache: Dict[str, str] = {}
 
+        # Upload configuration for remote file ingestion
+        self._upload_config = self._load_upload_config()
+
     def _get_data_dir(self) -> str:
-        """Get data directory from environment."""
-        return os.environ.get("RAG_DATA_DIR", "/app/data")
+        """Get data directory from config file."""
+        try:
+            config_path = os.environ.get("RAG_CONFIG_PATH", "./configs/rag_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, 'r') as f:
+                    config = json.load(f)
+                    # Derive data directory from index_path or memory_db_path
+                    if "index_path" in config:
+                        index_path = config["index_path"]
+                        return os.path.dirname(index_path)
+                    if "memory_db_path" in config:
+                        db_path = config["memory_db_path"]
+                        return os.path.dirname(db_path)
+        except Exception as e:
+            logger.warning(f"Failed to read data dir from config: {e}")
+
+        # Fallback to environment variable
+        return os.environ.get("RAG_DATA_DIR", "/opt/pi-rag/data")
 
     def _get_symbolic_store(self) -> MemoryStore:
         """Get or create symbolic memory store (Phase 1)."""
@@ -129,6 +148,163 @@ class RAGMemoryBackend:
             Short UUID string (8 characters)
         """
         return str(uuid.uuid4())[:8]
+
+    def _load_upload_config(self) -> Dict[str, Any]:
+        """
+        Load upload configuration from config file and environment.
+
+        Returns:
+            Upload configuration dictionary
+        """
+        import json
+
+        config = {
+            "enabled": True,
+            "directory": "/tmp/rag-uploads",
+            "max_age": 3600,
+            "max_size_mb": 50
+        }
+
+        # Load from environment variables (highest priority)
+        config["enabled"] = os.environ.get("RAG_REMOTE_UPLOAD_ENABLED", "true").lower() == "true"
+        config["directory"] = os.environ.get("RAG_UPLOAD_DIR", config["directory"])
+        config["max_age"] = int(os.environ.get("RAG_UPLOAD_MAX_AGE", str(config["max_age"])))
+        config["max_size_mb"] = int(os.environ.get("RAG_UPLOAD_MAX_SIZE", str(config["max_size_mb"])))
+
+        # Load from config file (medium priority)
+        try:
+            config_path = os.environ.get("RAG_CONFIG_PATH", "./configs/rag_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, 'r') as f:
+                    file_config = json.load(f)
+
+                if "remote_file_upload_enabled" in file_config:
+                    config["enabled"] = file_config["remote_file_upload_enabled"]
+                if "remote_upload_directory" in file_config:
+                    config["directory"] = file_config["remote_upload_directory"]
+                if "remote_upload_max_age_seconds" in file_config:
+                    config["max_age"] = file_config["remote_upload_max_age_seconds"]
+                if "remote_upload_max_file_size_mb" in file_config:
+                    config["max_size_mb"] = file_config["remote_upload_max_file_size_mb"]
+        except Exception as e:
+            logger.warning(f"Failed to load upload config: {e}")
+
+        logger.info(f"Upload config: enabled={config['enabled']}, dir={config['directory']}")
+
+        return config
+
+    def _ensure_upload_directory(self) -> str:
+        """
+        Ensure upload directory exists.
+
+        Returns:
+            Upload directory path
+        """
+        upload_dir = self._upload_config["directory"]
+
+        # Create directory if not exists
+        os.makedirs(upload_dir, exist_ok=True)
+
+        # Set permissions (owner read/write only)
+        try:
+            os.chmod(upload_dir, 0o700)
+        except Exception as e:
+            logger.warning(f"Failed to set permissions on {upload_dir}: {e}")
+
+        return upload_dir
+
+    def _validate_remote_file_path(
+        self,
+        file_path: str
+    ) -> tuple:
+        """
+        Validate that file path is within allowed directory.
+
+        Args:
+            file_path: Absolute file path to validate
+
+        Returns:
+            Tuple of (is_valid, error_message)
+        """
+        # Normalize path
+        abs_path = os.path.abspath(file_path)
+        upload_dir = os.path.abspath(self._upload_config["directory"])
+
+        # Check if remote upload is enabled
+        if not self._upload_config["enabled"]:
+            return (False, "Remote file upload is disabled")
+
+        # Check if within upload directory
+        if not abs_path.startswith(upload_dir):
+            return (False, f"File path must be within upload directory: {upload_dir}")
+
+        # Check if path tries to escape with symlinks (realpath)
+        real_path = os.path.realpath(abs_path)
+        if not real_path.startswith(upload_dir):
+            return (False, "File path contains invalid symlinks")
+
+        # Check if file exists
+        if not os.path.isfile(real_path):
+            return (False, f"File not found: {abs_path}")
+
+        # Check file size
+        file_size = os.path.getsize(real_path)
+        max_size = self._upload_config["max_size_mb"] * 1024 * 1024
+        if file_size > max_size:
+            size_mb = file_size / (1024 * 1024)
+            return (False, f"File too large: {size_mb:.1f}MB (max: {self._upload_config['max_size_mb']}MB)")
+
+        # Check file permissions
+        if not os.access(real_path, os.R_OK):
+            return (False, "File not readable")
+
+        return (True, "")
+
+    def _cleanup_old_uploads(self) -> None:
+        """
+        Clean up old uploaded files.
+        """
+        import time
+
+        upload_dir = self._ensure_upload_directory()
+        max_age = self._upload_config["max_age"]
+        current_time = time.time()
+
+        for filename in os.listdir(upload_dir):
+            file_path = os.path.join(upload_dir, filename)
+
+            # Skip directories
+            if not os.path.isfile(file_path):
+                continue
+
+            # Check age
+            file_age = current_time - os.path.getmtime(file_path)
+
+            if file_age > max_age:
+                try:
+                    os.remove(file_path)
+                    logger.info(f"Cleaned up old upload: {filename}")
+                except Exception as e:
+                    logger.warning(f"Failed to clean up {filename}: {e}")
+
+    async def _delete_upload_file_async(self, file_path: str) -> None:
+        """
+        Delete uploaded file asynchronously after successful ingestion.
+
+        Args:
+            file_path: Path to file to delete
+        """
+        try:
+            # Small delay to ensure ingestion completes
+            await asyncio.sleep(0.5)
+
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                logger.info(f"Auto-deleted uploaded file after ingestion: {file_path}")
+            else:
+                logger.warning(f"File already deleted or not found: {file_path}")
+        except Exception as e:
+            logger.warning(f"Failed to auto-delete file {file_path}: {e}")
 
     async def list_projects(
         self,
@@ -299,6 +475,7 @@ class RAGMemoryBackend:
             if context_type in ["all", "episodic"]:
                 episodic_store = self._get_episodic_store()
                 episodes = episodic_store.list_recent_episodes(
+                    project_id=project_id,  # FIX: Pass project_id to filter by scope
                     days=30,
                     min_confidence=0.5,
                     limit=max_results
@@ -365,7 +542,8 @@ class RAGMemoryBackend:
         project_id: str,
         query: str,
         memory_type: str = "all",
-        top_k: int = 10
+        top_k: int = 10,
+        situation_contains: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Semantic search across all memory types.
@@ -375,6 +553,7 @@ class RAGMemoryBackend:
             query: Search query
             memory_type: Memory type to search (all, symbolic, episodic, semantic)
             top_k: Number of results
+            situation_contains: For episodic search, filter by situation content
 
         Returns:
             Dict with search results
@@ -392,8 +571,10 @@ class RAGMemoryBackend:
             # Search symbolic memory (authoritative)
             if memory_type in ["all", "symbolic"]:
                 symbolic_store = self._get_symbolic_store()
+                # Enable partial matching with wildcards
+                search_key = f"%{query}%" if '%' not in query and '_' not in query else query
                 facts = symbolic_store.query_memory(
-                    key=query,  # Use LIKE pattern
+                    key=search_key,  # Use LIKE pattern with wildcards for partial matching
                     min_confidence=0.0
                 )
 
@@ -409,8 +590,11 @@ class RAGMemoryBackend:
             # Search episodic memory (advisory)
             if memory_type in ["all", "episodic"]:
                 episodic_store = self._get_episodic_store()
+                # Use situation_contains if provided, otherwise search by lesson
                 episodes = episodic_store.query_episodes(
-                    lesson=query,
+                    project_id=project_id,  # Add required project_id parameter
+                    lesson=query if not situation_contains else None,
+                    situation_contains=situation_contains,
                     min_confidence=0.0,
                     limit=top_k
                 )
@@ -481,9 +665,14 @@ class RAGMemoryBackend:
         """
         Ingest a file into semantic memory.
 
+        Supports remote file uploads:
+        - Upload file to server's upload directory first
+        - Provide full absolute path to this tool
+        - Server validates path and reads file
+
         Args:
             project_id: Project identifier
-            file_path: Path to file to ingest
+            file_path: Path to file to ingest (absolute path)
             source_type: Type of source (file, code, web)
             metadata: Optional metadata to attach
 
@@ -495,18 +684,47 @@ class RAGMemoryBackend:
         try:
             logger.info(f"Ingesting file for project {project_id}: {file_path}")
 
+            # Phase A: Ensure upload directory and clean old files
+            self._ensure_upload_directory()
+            self._cleanup_old_uploads()
+
+            # Phase B: Validate remote file path
+            is_valid, error_msg = self._validate_remote_file_path(file_path)
+            if not is_valid:
+                self.metrics.record_tool_completion(
+                    project_id, "ingest_file", request_id,
+                    error=True, error_message=error_msg
+                )
+                return {
+                    "status": "error",
+                    "error": error_msg,
+                    "message": f"File validation failed: {error_msg}"
+                }
+
+            # Phase C: Read file from validated path
+            real_path = os.path.realpath(os.path.abspath(file_path))
+            logger.info(f"Reading file from: {real_path}")
+
             # Build metadata
             file_metadata = metadata or {}
             file_metadata["project_id"] = project_id
             file_metadata["source_type"] = source_type
             file_metadata["ingested_at"] = datetime.utcnow().isoformat()
+            file_metadata["original_path"] = real_path  # Track original path
 
-            # Ingest file
+            # Phase D: Ingest file using existing ingestor
             ingestor = self._get_semantic_ingestor()
             chunk_ids = ingestor.ingest_file(
-                file_path=file_path,
+                file_path=real_path,
                 metadata=file_metadata
             )
+
+            # Phase E: Auto-delete uploaded file after successful ingestion (async, non-blocking)
+            # Only delete if file is within upload directory (security check)
+            upload_dir = os.path.abspath(self._upload_config["directory"])
+            if real_path.startswith(upload_dir):
+                asyncio.create_task(self._delete_upload_file_async(real_path))
+                logger.info(f"Scheduled async deletion of uploaded file: {real_path}")
 
             # Generate document ID
             doc_id = chunk_ids[0].split("_")[0] if chunk_ids else "unknown"
@@ -516,10 +734,16 @@ class RAGMemoryBackend:
             return {
                 "status": "success",
                 "file_path": file_path,
+                "real_path": real_path,
                 "chunk_count": len(chunk_ids),
                 "doc_id": doc_id,
                 "authority": "non-authoritative",
-                "message": f"Successfully ingested {len(chunk_ids)} chunk(s)"
+                "message": f"Successfully ingested {len(chunk_ids)} chunk(s)",
+                "upload_config": {
+                    "enabled": self._upload_config["enabled"],
+                    "directory": self._upload_config["directory"],
+                    "max_size_mb": self._upload_config["max_size_mb"]
+                }
             }
 
         except Exception as e:
@@ -625,8 +849,9 @@ class RAGMemoryBackend:
             # Expected format: "Situation: ... Action: ... Outcome: ... Lesson: ..."
             episode_dict = self._parse_episode_content(content, title)
 
-            # Create episode
+            # Create episode with project_id
             episode = Episode(
+                project_id=project_id,  # Add project_id parameter
                 situation=episode_dict["situation"],
                 action=episode_dict["action"],
                 outcome=episode_dict["outcome"],
@@ -791,6 +1016,10 @@ tools = [
                     "type": "number",
                     "description": "Number of results",
                     "default": 10
+                },
+                "situation_contains": {
+                    "type": "string",
+                    "description": "For episodic memory search, filter by situation content (optional)"
                 }
             }
         }
@@ -930,11 +1159,13 @@ async def handle_tool_call(name: str, arguments: Dict[str, Any]) -> List[TextCon
             query = arguments.get("query")
             memory_type = arguments.get("memory_type", "all")
             top_k = arguments.get("top_k", 10)
+            situation_contains = arguments.get("situation_contains")
             result = await backend.search(
                 project_id=project_id,
                 query=query,
                 memory_type=memory_type,
-                top_k=top_k
+                top_k=top_k,
+                situation_contains=situation_contains
             )
 
         elif name == "rag.ingest_file":

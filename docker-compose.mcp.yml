@@ -17,10 +17,11 @@ services:
     # Deployment configuration
     restart: "no"  # Prevent restart loops
 
-    # No ports needed (stdio communication)
-    # If you need HTTP access for debugging, add:
-    # ports:
-    #   - "8080:8080"
+    # Port mapping for HTTP MCP server
+    # - 8002: HTTP MCP wrapper for remote opencode access
+    # - Note: stdio MCP (no ports) still available
+    ports:
+      - "8002:8002"  # HTTP MCP endpoint for remote clients
 
     # Environment configuration
     environment:

@@ -27,7 +27,7 @@ Episodic memory boundaries:
 import sqlite3
 import json
 import uuid
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Union
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -177,7 +177,7 @@ class EpisodicStore:
         -- Most recent episodes with high confidence
         CREATE VIEW IF NOT EXISTS recent_high_confidence_episodes AS
         SELECT
-            id, situation, action, outcome, lesson, confidence, created_at
+            id, project_id, situation, action, outcome, lesson, confidence, created_at
         FROM episodic_memory
         WHERE confidence >= 0.7
         ORDER BY created_at DESC
@@ -208,7 +208,7 @@ class EpisodicStore:
             cursor.execute(
                 """INSERT INTO episodic_memory
                    (id, project_id, situation, action, outcome, lesson, confidence, created_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                 (episode.id, episode.project_id, episode.situation, episode.action, episode.outcome,
                  episode.lesson, episode.confidence, episode.created_at)
             )
@@ -279,10 +279,10 @@ class EpisodicStore:
         """
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            
+
             # Build query dynamically
             conditions = ["project_id = ?"]
-            params = [project_id]
+            params: List[Any] = [project_id]  # Allow any type for SQLite params
             
             if lesson:
                 # Support both exact match and LIKE pattern
@@ -293,7 +293,7 @@ class EpisodicStore:
                 params.append(lesson)
             
             conditions.append("confidence >= ?")
-            params.append(min_confidence)
+            params.append(float(min_confidence))
             
             if situation_contains:
                 conditions.append("situation LIKE ?")
@@ -302,7 +302,7 @@ class EpisodicStore:
             where_clause = " AND ".join(conditions) if conditions else "1=1"
 
             cursor.execute(
-                f"""SELECT id, situation, action, outcome, lesson, confidence, created_at
+                f"""SELECT id, project_id, situation, action, outcome, lesson, confidence, created_at
                    FROM episodic_memory WHERE {where_clause}
                    ORDER BY confidence DESC, created_at DESC LIMIT ?""",
                 params + [limit]
@@ -313,18 +313,20 @@ class EpisodicStore:
             return [
                 Episode(
                     id=row[0],
-                    situation=row[1],
-                    action=row[2],
-                    outcome=row[3],
-                    lesson=row[4],
-                    confidence=row[5],
-                    created_at=row[6]
+                    project_id=row[1],
+                    situation=row[2],
+                    action=row[3],
+                    outcome=row[4],
+                    lesson=row[5],
+                    confidence=row[6],
+                    created_at=row[7]
                 )
                 for row in rows
             ]
 
     def list_recent_episodes(
         self,
+        project_id: str = "session",
         days: int = 30,
         min_confidence: float = 0.5,
         limit: int = 20
@@ -333,6 +335,7 @@ class EpisodicStore:
         List recent episodes within a time range.
 
         Args:
+            project_id: Project identifier to filter by
             days: Number of days to look back (default: 30)
             min_confidence: Minimum confidence threshold
             limit: Maximum number of results
@@ -344,12 +347,13 @@ class EpisodicStore:
             cursor = conn.cursor()
 
             cursor.execute(
-                """SELECT id, situation, action, outcome, lesson, confidence, created_at
+                """SELECT id, project_id, situation, action, outcome, lesson, confidence, created_at
                    FROM episodic_memory
-                   WHERE datetime(created_at) >= datetime('now', '-' || ? || ' days')
+                   WHERE project_id = ?
+                   AND date(created_at) >= date('now', '-' || ? || ' days')
                    AND confidence >= ?
                    ORDER BY confidence DESC, created_at DESC LIMIT ?""",
-                (days, min_confidence, limit)
+                (project_id, days, min_confidence, limit)
             )
 
             rows = cursor.fetchall()
@@ -357,12 +361,13 @@ class EpisodicStore:
             return [
                 Episode(
                     id=row[0],
-                    situation=row[1],
-                    action=row[2],
-                    outcome=row[3],
-                    lesson=row[4],
-                    confidence=row[5],
-                    created_at=row[6]
+                    project_id=row[1],
+                    situation=row[2],
+                    action=row[3],
+                    outcome=row[4],
+                    lesson=row[5],
+                    confidence=row[6],
+                    created_at=row[7]
                 )
                 for row in rows
             ]

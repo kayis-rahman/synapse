@@ -5,6 +5,9 @@
   "top_k": 3,
   "min_retrieval_score": 0.3,
 
+  "query_expansion_enabled": true,
+  "num_expansions": 3,
+
   "index_path": "/opt/pi-rag/data/rag_index",
   "docs_path": "/opt/pi-rag/data/docs",
 
@@ -38,5 +41,8 @@
   "memory_min_confidence": 0.7,
   "memory_max_facts": 10,
 
-  "_comment": "RAG + Symbolic Memory configuration. Memory stores explicit, deterministic facts (user preferences, decisions, constraints). Memory ≠ conversation history."
+  "remote_file_upload_enabled": true,
+  "remote_upload_directory": "/tmp/rag-uploads",
+  "remote_upload_max_age_seconds": 3600,
+  "remote_upload_max_file_size_mb": 50
 }

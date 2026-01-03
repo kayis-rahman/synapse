@@ -112,12 +112,13 @@ class MemoryStore:
         ...     confidence=0.9,
         ...     source="user"
         ... )
-        >>> store.store_memory(fact)
     """
+
+    VALID_SCOPES = ["user", "project", "org", "session"]
 
     # Valid category values
     VALID_CATEGORIES = {"preference", "constraint", "decision", "fact"}
-    
+
     # Valid source values
     VALID_SOURCES = {"user", "agent", "tool"}
 

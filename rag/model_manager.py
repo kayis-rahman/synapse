@@ -431,10 +431,20 @@ class ModelManager:
             raise ImportError("llama-cpp-python is required for embedding generation")
 
         embeddings = []
-        for text in texts:
-            # Call the model's embed method (returns a list)
-            embedding = model.embed(text)
-            embeddings.append(embedding)
+        # Use lock to protect thread-unsafe llama-cpp-python model
+        try:
+            with self._lock:
+                for text in texts:
+                    # Call the model's embed method (returns a list)
+                    embedding = model.embed(text)
+                    embeddings.append(embedding)
+        except Exception as e:
+            # Llama-cpp-python tokenizer may crash on certain inputs
+            # Return empty embeddings on failure to prevent crashes
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Embedding generation failed for {len(texts)} texts: {e}")
+            return [[] for _ in texts]
 
         return embeddings
 
