@@ -345,7 +345,7 @@ They will be retried on next run.
 - `logging`
 
 ### Optional
-- `tqdm` - Progress bar (auto-detected)
+- `rich` - Progress bar and formatted logging (already installed)
 
 ### pi-rag Modules
 - `rag.SemanticStore`
@@ -360,6 +360,8 @@ They will be retried on next run.
 ### Tests Performed
 
 ✅ Help display
+✅ Rich progress bar with sticky display
+✅ Rich logging with colors and formatting
 ✅ Dry-run mode
 ✅ Full project scan
 ✅ File type filtering (code, config, doc)
@@ -367,6 +369,31 @@ They will be retried on next run.
 ✅ .gitignore parsing
 ✅ Specific directory scan
 ✅ Verbose mode
+
+### Test Commands Run
+
+```bash
+# Help
+python scripts/bulk_inject_with_gitignore.py --help
+
+# Dry-run (all files)
+python scripts/bulk_inject_with_gitignore.py --dry-run
+
+# Dry-run (code + config)
+python scripts/bulk_inject_with_gitignore.py --dry-run --file-type code --file-type config
+
+# Specific directory
+python scripts/bulk_inject_with_gitignore.py --dry-run --root-dir rag --file-type code
+
+# Custom exclusions
+python scripts/bulk_inject_with_gitignore.py --dry-run --exclude "vectorstore.py"
+
+# Docs only (tested with Rich)
+python scripts/bulk_inject_with_gitignore.py --dry-run --file-type doc
+
+# Verbose
+python scripts/bulk_inject_with_gitignore.py --verbose --dry-run --file-type code
+```
 
 ### Test Commands Run
 
@@ -419,7 +446,7 @@ python scripts/bulk_inject_with_gitignore.py --verbose --dry-run --file-type cod
 | File type filtering | ❌ No | ✅ Yes (6 types) |
 | Retry mechanism | ❌ No | ✅ Yes (auto-retry) |
 | Direct Python API | ❌ No (MCP only) | ✅ Yes |
-| Progress bar | ✅ Yes | ✅ Yes |
+| Progress bar | ✅ Yes (tqdm) | ✅ Yes (Rich - sticky with colored logs) |
 | Reusable | ❌ Hardcoded | ✅ Configurable |
 | Extension support | Limited (25) | Comprehensive (100+) |
 

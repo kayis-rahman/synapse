@@ -321,22 +321,32 @@ Each file is ingested with the following metadata:
 }
 ```
 
-## Progress Bar
+## Progress Bar and Logging
 
-The script uses `tqdm` for progress tracking if available:
+The script uses **Rich** for beautiful progress tracking and logging with sticky progress bar:
+
+### Rich Features
+- **Sticky Progress Bar**: Progress bar stays at bottom while logs scroll above
+- **Colored Output**: Rich formatting with colors and emojis
+- **Time Remaining**: Shows estimated time to completion
+- **Multiple Progress Columns**: Description, percentage, count, time remaining
+
+### Output Example
+```
+2026-01-03 18:30:00 - INFO     Scanning files...
+2026-01-03 18:30:00 - INFO     Found 452 files
+2026-01-03 18:30:01 - INFO     Ingested file1.py: 12 chunks
+2026-01-03 18:30:02 - INFO     Ingested file2.py: 8 chunks
+                                                  ↑ Logs scroll above
+Processing files  ████████████████████████ 75% (340/452) [00:01<00:00]
+                                                  ↑ Progress bar stays sticky at bottom
+```
+
+### Requirements
+Rich is already installed in the pi-rag environment. If needed:
 
 ```bash
-# Install tqdm for progress bar
-pip install tqdm
-
-# Progress bar will be displayed automatically
-Processing: 100%|██████████| 452/452 [01:30<00:00, 5.02file/s]
-```
-
-If `tqdm` is not available, a simple counter is used:
-
-```
-Processing 452 files...
+pip install rich
 ```
 
 ## Error Handling

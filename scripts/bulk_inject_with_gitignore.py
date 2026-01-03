@@ -10,7 +10,7 @@ Features:
 - Incremental ingestion with checksum verification
 - File type filtering
 - Retry file for failed ingestions
-- Progress tracking
+- Rich progress bar and logging
 
 Usage:
     python bulk_inject_with_gitignore.py [options]
@@ -42,20 +42,20 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Any
 
-# Setup logging
+# Rich imports for progress bar and logging
+from rich.console import Console
+from rich.logging import RichHandler
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeRemainingColumn
+
+# Setup logging with Rich
+console = Console()
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format="%(message)s",  # Rich adds its own formatting
+    handlers=[RichHandler(console=console, rich_tracebacks=True)],
+    force=True
 )
 logger = logging.getLogger(__name__)
-
-# Try to import tqdm for progress bar
-try:
-    from tqdm import tqdm
-    HAS_TQDM = True
-except ImportError:
-    HAS_TQDM = False
-    logger.info("tqdm not available, using simple progress indicator")
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent
@@ -66,7 +66,7 @@ try:
     from rag.semantic_ingest import SemanticIngestor, get_semantic_ingestor
 except ImportError as e:
     logger.error(f"Failed to import RAG modules: {e}")
-    logger.error("Make sure you're running from the pi-rag project directory")
+    logger.error("Make sure you're running from pi-rag project directory")
     sys.exit(1)
 
 
@@ -607,16 +607,26 @@ class BulkInjector:
                 except ValueError:
                     pass
 
-        # Process files
+        # Process files with Rich progress bar
         logger.info("Processing files...")
-        if HAS_TQDM:
-            files_iter = tqdm(files, desc="Processing", unit="file")
-        else:
-            files_iter = files
-            print(f"Processing {len(files)} files...")
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(bar_width=40),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            TextColumn("({task.completed}/{task.total})"),
+            TimeRemainingColumn(),
+            console=console,
+            refresh_per_second=10
+        ) as progress:
+            task = progress.add_task("[cyan]Processing files...", total=len(files))
 
-        for file_path, relative_path in files_iter:
-            self._process_file(file_path, relative_path)
+            for file_path, relative_path in files:
+                self._process_file(file_path, relative_path)
+
+                # Update progress bar with current file name
+                file_status = "🆕" if self.stats['new'] > self.stats['updated'] else "🔄"
+                progress.update(task, advance=1, description=f"[cyan]Processing {file_path.name}")
 
         # Get store stats
         store_stats = self.semantic_ingestor.semantic_store.get_stats()
@@ -657,7 +667,7 @@ class BulkInjector:
                 print(f"... and {len(self.stats['errors_list']) - 10} more errors")
             print()
             print(f"Failed files saved to retry list: {len(self.incremental.failed_files)}")
-            print("They will be retried on the next run.")
+            print("They will be retried on next run.")
             print()
 
         # Store stats
