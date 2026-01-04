@@ -90,7 +90,7 @@ echo ""
 
 # 5. Episodic Memory (Advisory Lessons)
 echo "5. Episodic Memory (Advisory Lessons):"
-EPISODES=$(sqlite3 /opt/synapse/data/episodic.db "SELECT COUNT(*) FROM episodic_memory WHERE project_id='pi-rag';" 2>/dev/null || echo "0")
+EPISODES=$(sqlite3 /opt/synapse/data/episodic.db "SELECT COUNT(*) FROM episodic_memory WHERE project_id="synapse"';" 2>/dev/null || echo "0")
 echo "   Total episodes: $EPISODES"
 if [ "$EPISODES" -ge 4 ]; then
     echo "   ✓ Sufficient lessons"
@@ -100,7 +100,7 @@ else
 fi
 
 echo "   Recent episodes:"
-sqlite3 /opt/synapse/data/episodic.db "SELECT lesson, outcome FROM episodic_memory WHERE project_id='pi-rag' ORDER BY created_at DESC LIMIT 5;" 2>/dev/null | while read line; do
+sqlite3 /opt/synapse/data/episodic.db "SELECT lesson, outcome FROM episodic_memory WHERE project_id="synapse"' ORDER BY created_at DESC LIMIT 5;" 2>/dev/null | while read line; do
     echo "     - $line"
 done
 echo ""
@@ -110,7 +110,7 @@ echo "6. Registered Projects:"
 sqlite3 /opt/synapse/data/registry.db "SELECT project_id, name FROM projects;" 2>/dev/null | while read line; do
     echo "   - $line"
 done
-PROJECT_EXISTS=$(sqlite3 /opt/synapse/data/registry.db "SELECT COUNT(*) FROM projects WHERE project_id='pi-rag';" 2>/dev/null || echo "0")
+PROJECT_EXISTS=$(sqlite3 /opt/synapse/data/registry.db "SELECT COUNT(*) FROM projects WHERE project_id="synapse"';" 2>/dev/null || echo "0")
 if [ "$PROJECT_EXISTS" -gt 0 ]; then
     echo "   ✓ Project 'pi-rag' is registered"
     ((PASS++))

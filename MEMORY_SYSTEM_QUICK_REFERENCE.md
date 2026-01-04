@@ -11,8 +11,8 @@
 - ✅ **MCP Server**: Running and responsive (verified with test)
 - ✅ **7 Tools Available**: All MCP server tools functional
 - ✅ **51 Files Ingested**: ~960+ chunks in semantic memory
-- ✅ **Data Directory**: `/opt/pi-rag/data/` (13MB total)
-- ✅ **Configuration**: Properly configured with `/opt/pi-rag/data/` paths
+- ✅ **Data Directory**: `/opt/synapse/data/` (13MB total)
+- ✅ **Configuration**: Properly configured with `/opt/synapse/data/` paths
 
 ---
 
@@ -93,7 +93,7 @@ memory_min_confidence=0.7
 memory_max_facts=10
 
 # Data
-data_dir=/opt/pi-rag/data
+data_dir=/opt/synapse/data
 ```
 
 ---
@@ -109,40 +109,40 @@ timeout 5 python3 -m mcp_server.rag_server
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | python3 -m mcp_server.rag_server
 
 # Get context
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"rag.get_context","project_id":"pi-rag","context_type":"all","query":"test query","max_results":10}}' | python3 -m mcp_server.rag_server
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"rag.get_context","project_id":"synapse","context_type":"all","query":"test query","max_results":10}}' | python3 -m mcp_server.rag_server
 
 # Search
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"rag.search","project_id":"pi-rag","query":"test query","memory_type":"semantic","top_k":3}}' | python3 -m mcp_server.rag_server
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"rag.search","project_id":"synapse","query":"test query","memory_type":"semantic","top_k":3}}' | python3 -m mcp_server.rag_server
 ```
 
 ### Test Retrieval Quality
 ```bash
 # Run quality test
-cd /home/dietpi/pi-rag
+cd /home/dietpi/synapse
 python3 scripts/test_retrieval_quality.py
 
 # Check results
-cat /opt/pi-rag/data/retrieval_quality_test_results.json
-cat /opt/pi-rag/data/baseline_quality_metrics.json
+cat /opt/synapse/data/retrieval_quality_test_results.json
+cat /opt/synapse/data/baseline_quality_metrics.json
 ```
 
 ### Performance Benchmark
 ```bash
 # Run performance benchmark
-cd /home/dietpi/pi-rag
+cd /home/dietpi/synapse
 python3 scripts/baseline_performance.py
 
 # Check results
-cat /opt/pi-rag/data/baseline_performance_metrics.json
+cat /opt/synapse/data/baseline_performance_metrics.json
 ```
 
 ### Check Health
 ```bash
-cd /home/dietpi/pi-rag
+cd /home/dietpi/synapse
 python3 scripts/health_check.py
 
 # Check disk space
-df -h /opt/pi-rag/data
+df -h /opt/synapse/data
 ```
 
 ### Create Backup
@@ -163,7 +163,7 @@ python3 scripts/backup_system.py list --limit 5
 **Diagnosis**:
 ```bash
 # Check recent query performance
-tail -100 /var/log/pi-rag/mcp_server.log | grep "Query time"
+tail -100 /var/log/synapse/mcp_server.log | grep "Query time"
 ```
 
 **Solutions**:
@@ -184,7 +184,7 @@ print(f\"Memory: {process.memory_info().rss / 1024/1024 / 1024:.1f}MB\")
 "
 
 # Check cache sizes
-du -sh /opt/pi-rag/data/cache/
+du -sh /opt/synapse/data/cache/
 ```
 
 **Solutions**:
@@ -197,10 +197,10 @@ du -sh /opt/pi-rag/data/cache/
 **Diagnosis**:
 ```bash
 # Check error logs
-tail -100 /var/log/pi-rag/mcp_server.log | grep "Error: ingestion"
+tail -100 /var/log/synapse/mcp_server.log | grep "Error: ingestion"
 
 # Check validation failures
-tail -100 /var/log/pi-rag/mcp_server.log | grep "Forbidden content"
+tail -100 /var/log/synapse/mcp_server.log | grep "Forbidden content"
 ```
 
 **Solutions**:
@@ -226,11 +226,11 @@ tail -100 /var/log/pi-rag/mcp_server.log | grep "Forbidden content"
 ### View Dashboard
 ```bash
 # Start metrics server (if implemented)
-cd /home/dietpi/pi-rag
+cd /home/dietpi/synapse
 python3 mcp_server/metrics_dashboard.py
 
 # Or view metrics file
-cat /opt/pi-rag/data/metrics.json
+cat /opt/synapse/data/metrics.json
 ```
 
 ---
@@ -238,14 +238,14 @@ cat /opt/pi-rag/data/metrics.json
 ## 🚀 Quick Reference - File Locations
 
 ### Configuration
-- Main Config: `/opt/pi-rag/configs/rag_config.json`
-- Data Directory: `/opt/pi-rag/data/`
-- Metrics: `/opt/pi-rag/data/metrics.json`
-- Test Results: `/opt/pi-rag/data/*_test_results.json`
+- Main Config: `/opt/synapse/configs/rag_config.json`
+- Data Directory: `/opt/synapse/data/`
+- Metrics: `/opt/synapse/data/metrics.json`
+- Test Results: `/opt/synapse/data/*_test_results.json`
 
 ### Data Structure
 ```
-/opt/pi-rag/data/
+/opt/synapse/data/
 ├── semantic_index/          # Chroma vector database (13MB)
 │   ├── chroma.sqlite3
 │   ├── chunks.json
@@ -274,7 +274,7 @@ cat /opt/pi-rag/data/metrics.json
 **Ingest Multiple Files**:
 ```bash
 # Create file list
-find /home/dietpi/pi-rag -type f -name "*.py" > /tmp/files.txt
+find /home/dietpi/synapse -type f -name "*.py" > /tmp/files.txt
 
 # Ingest each file using loop
 while IFS= read -r files.txt; do
@@ -282,7 +282,7 @@ while IFS= read -r files.txt; do
     IFS=$REPLY
     
     python3 -m mcp_server.rag_server << 'EOF'
-    {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"rag.ingest_file","arguments":{"project_id":"pi-rag","file_path":"$IFS","source_type":"code"}}
+    {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"rag.ingest_file","arguments":{"project_id":"synapse","file_path":"$IFS","source_type":"code"}}
     '
     IFS=$REPLY
 done
@@ -290,13 +290,13 @@ done
 
 **Search and Add Context**:
 ```python3 -m mcp_server.rag_server << 'EOF'
-    {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"rag.get_context","arguments":{"project_id":"pi-rag","context_type":"semantic","query":"RAG system architecture","max_results":10}}'
+    {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"rag.get_context","arguments":{"project_id":"synapse","context_type":"semantic","query":"RAG system architecture","max_results":10}}'
 EOF'
 ```
 
 **Query and Add Facts**:
 ```python3 -m mcp_server.rag_server << 'EOF'
-    {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"rag.add_fact","arguments":{"project_id":"pi-rag","fact_key":"test_fact","fact_value":"Testing MCP integration","confidence":0.9}}
+    {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"rag.add_fact","arguments":{"project_id":"synapse","fact_key":"test_fact","fact_value":"Testing MCP integration","confidence":0.9}}
 EOF'
 ```
 
@@ -311,8 +311,8 @@ EOF'
    python3 scripts/test_retrieval_quality.py
    
    # Results in:
-   # /opt/pi-rag/data/retrieval_quality_test_results.json
-   # /opt/pi-rag/data/baseline_quality_metrics.json
+   # /opt/synapse/data/retrieval_quality_test_results.json
+   # /opt/synapse/data/baseline_quality_metrics.json
    ```
 
 2. **Run Performance Benchmark** ✅ READY
@@ -320,7 +320,7 @@ EOF'
    python3 scripts/baseline_performance.py
    
    # Results in:
-   # /opt/pi-rag/data/baseline_performance_metrics.json
+   # /opt/synapse/data/baseline_performance_metrics.json
    ```
 
 3. **Document Current Configuration**
@@ -451,7 +451,7 @@ EOF'
 - System is **functional** and **well-tested**
 - **51 files** successfully ingested
 - **MCP server** working with all 7 tools
-- **Proper data structure** in `/opt/pi-rag/data/`
+- **Proper data structure** in `/opt/synapse/data/`
 
 ### ✅ Completed Quick Wins
 - Validation logic improved (episode_extractor can now be ingested)
@@ -481,7 +481,7 @@ EOF'
 
 **Quick Reference**: This file for fast lookup
 
-**Implementation Scripts**: All scripts are ready in `/home/dietpi/pi-rag/scripts/`
+**Implementation Scripts**: All scripts are ready in `/home/dietpi/synapse/scripts/`
 
 **Test Framework**: Ready to validate changes
 

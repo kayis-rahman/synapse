@@ -4,7 +4,7 @@
 
 ```bash
 # Set environment variable for Pi
-export RAG_DATA_DIR=/opt/pi-rag/data
+export RAG_DATA_DIR=/opt/synapse/data
 ```
 
 ---
@@ -139,7 +139,7 @@ mcp_call "rag.ingest_file" "{\"project_id\":\"test\",\"file_path\":\"/tmp/rag-up
 ### Full Test
 ```bash
 # Run test script on Pi
-ssh dietpi@<pi-ip> "cd /home/dietpi/pi-rag && python3 test_remote_ingestion.py"
+ssh dietpi@<pi-ip> "cd /home/dietpi/synapse && python3 test_remote_ingestion.py"
 ```
 
 ---
@@ -280,7 +280,7 @@ rsync -av docs/ dietpi@pi:/tmp/rag-uploads/
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `RAG_DATA_DIR` | `/opt/pi-rag/data` | Data directory |
+| `RAG_DATA_DIR` | `/opt/synapse/data` | Data directory |
 | `RAG_UPLOAD_DIR` | `/tmp/rag-uploads` | Upload directory |
 | `RAG_REMOTE_UPLOAD_ENABLED` | `true` | Enable remote uploads |
 | `RAG_UPLOAD_MAX_AGE` | `3600` | Auto-cleanup age (1 hour) |
