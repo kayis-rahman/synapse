@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-**Current Status**: Phase 1 & 2 Complete, Phase 3 Next
+**Current Status**: Phase 1 & 2 Complete, Phase 3 & 3b In Progress
 **Timeline**: 6 weeks total to MVP
 **Goal**: "10-second setup, 3 commands that do everything"
 **Target**: AI Agents (Claude, Cline, Cursor)
@@ -16,6 +16,7 @@
 | Phase 1 | ✅ COMPLETE | Week 1 | Unified CLI Foundation |
 | Phase 2 | ✅ COMPLETE | Week 2 | Configuration Simplification |
 | Phase 3 | 🔄 IN PROGRESS | Week 2-3 | Model Bundling & Management |
+| Phase 3b | 🔄 IN PROGRESS | Week 2-3 | Onboarding Wizard |
 | Phase 4 | ⏳ PENDING | Week 3-4 | Agent-Focused Features |
 | Phase 5 | ⏳ PENDING | Week 5 | Documentation Overhaul |
 | Phase 6 | ⏳ PENDING | Week 5-6 | Distribution & Launch |
@@ -338,6 +339,96 @@ synapse models remove <name>     # Already exists (placeholder)
 
 ---
 
+## Phase 3b: Onboarding Wizard ⏳ PENDING
+
+**Duration**: Week 2-3
+**Status**: ⏳ PENDING (not started)
+
+### What Needs to Be Built
+
+**1. Interactive Wizard Mode:**
+- Step-by-step guided setup with clear questions
+- Step 1: Environment Setup (detect, confirm paths)
+- Step 2: Model Setup (check, download, verify)
+- Step 3: Project Setup (scan, prompt, ingest)
+- Step 4: Quick Test (health check, sample query)
+- Step 5: Summary & next steps
+
+**2. Command Modes:**
+- Interactive wizard (default) - Full guided experience
+- Quick mode (`--quick`) - Use all defaults, only prompt for model
+- Silent mode (`--silent`) - No prompts, use flags (for automation)
+- Additional flags: `--skip-test`, `--skip-ingest`, `--project-id`
+
+**3. Environment Detection:**
+- Detect available disk space (need 2GB+)
+- Detect Python version (3.8+ required)
+- Detect network connectivity
+- Auto-create all required directories
+- Generate ~/.synapse/config.json
+
+**4. Model Setup Integration:**
+- Check for BGE-M3 model
+- Prompt user for download with typer.confirm()
+- Call download_model() with Rich progress bar
+- Verify model with checksum
+- Configure model paths
+
+**5. Project Initialization:**
+- Detect current directory
+- Prompt for project ID (default: dir name)
+- Scan files with Rich progress bar
+- Filter by type (code, docs, config)
+- Show preview of files to ingest
+- Ingest project files
+
+**6. Quick Start Testing:**
+- Run system health check
+- Test BGE-M3 model with sample query
+- Ingest 1-2 sample files
+- Run test query
+- Show "Everything working!" message
+
+**7. User Experience:**
+- Rich UI with panels, tables, progress bars
+- Clear error messages and recovery suggestions
+- Retry logic for failed downloads
+- Summary with next steps and documentation links
+
+### Tasks Remaining
+- [x] Create synapse/cli/commands/onboard.py
+- [x] Implement interactive wizard UI
+- [x] Implement environment detection
+- [x] Implement model setup integration
+- [x] Implement project initialization
+- [x] Implement quick start testing
+- [x] Implement command modes (quick/silent)
+- [x] Add onboard command to main CLI
+- [ ] Test interactive wizard (full flow)
+- [ ] Test --quick mode
+- [ ] Test --silent mode
+- [ ] Test model download in onboard
+- [ ] Test project ingestion
+- [ ] Test quick test
+- [ ] Test error scenarios (no disk space, network fail)
+- [ ] Test all flag combinations
+- [ ] Document onboarding process
+- [ ] Add troubleshooting section
+- [ ] Update README with onboard command
+
+### Estimated Timeline
+- Wizard UI implementation: 3-4 hours
+- Environment detection: 1-2 hours
+- Model setup integration: 1 hour
+- Project initialization: 2-3 hours
+- Quick testing: 1-2 hours
+- Command modes: 1-2 hours
+- Testing & validation: 2-3 hours
+- Documentation: 1-2 hours
+- **Total**: 12-19 hours
+
+---
+
 ## Phase 4: Agent-Focused Features ⏳ PENDING
 
 **Duration**: Week 3-4
@@ -637,11 +728,12 @@ synapse models remove <name>     # Already exists (placeholder)
 
 ### Completion Status
 ```
-████████████████░░░░░░░░░░░░░░░░░░░░░░ 20% Complete
+█████████████████░░░░░░░░░░░░░░░░░░░ 25% Complete
 
 Phase 1: ████████████████████████████ 100% ✅
 Phase 2: ████████████████████████████ 100% ✅
 Phase 3: ░░░░░░░░░░░░░░░░░░░░░░░░   0% 🔄
+Phase 3b: ░░░░░░░░░░░░░░░░░░░░░░░░  0% 🔄
 Phase 4: ░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
 Phase 5: ░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
 Phase 6: ░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳

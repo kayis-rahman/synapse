@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Optional
 
 # Import CLI commands
-from synapse.cli.commands import start, stop, status, ingest, query, setup, models
+from synapse.cli.commands import start, stop, status, ingest, query, setup, models, onboard
 
 # Import configuration
 from synapse.config import get_config, print_config_summary, DEFAULT_CONFIG
@@ -297,6 +297,41 @@ def setup(
     print("    1. Start server: synapse start")
     print("    2. Ingest documents: synapse ingest <path>")
     print("    3. Query knowledge: synapse query 'your question'")
+
+
+@app.command("onboard")
+def onboard_cmd(
+    quick: bool = typer.Option(False, "--quick", "-q", help="Quick mode (use all defaults)"),
+    silent: bool = typer.Option(False, "--silent", "-s", help="Silent mode (no prompts)"),
+    skip_test: bool = typer.Option(False, "--skip-test", help="Skip quick test"),
+    skip_ingest: bool = typer.Option(False, "--skip-ingest", help="Skip file ingestion"),
+    offline: bool = typer.Option(False, "--offline", help="Offline mode (no downloads)"),
+    project_id: Optional[str] = typer.Option(None, "--project-id", "-p", help="Project ID (silent mode only)")
+):
+    """
+    SYNAPSE Onboarding Wizard.
+
+    Interactive first-time setup that guides you through:
+    - Environment configuration
+    - Model download (BGE-M3)
+    - Project initialization
+    - Quick start test
+
+    Examples:
+        synapse onboard                    # Interactive mode
+        synapse onboard --quick            # Quick mode (all defaults)
+        synapse onboard --silent            # Silent mode (no prompts)
+        synapse onboard --skip-ingest       # Skip file ingestion
+        synapse onboard --offline            # Offline mode (no downloads)
+    """
+    onboard.onboard(
+        quick=quick,
+        silent=silent,
+        skip_test=skip_test,
+        skip_ingest=skip_ingest,
+        offline=offline,
+        project_id=project_id
+    )
 
 
 # Model management subcommands
