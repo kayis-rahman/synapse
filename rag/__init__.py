@@ -84,4 +84,4 @@ __all__ = [
     'get_semantic_injector',
 ]
 
-__version__ = "1.3.0"
+__version__ = "1.0.0"
