@@ -9,7 +9,7 @@ ensuring compatibility with opencode and other MCP clients.
 Clean version created from scratch with all fixes applied:
 - Content mode for remote file ingestion
 - Transport security for remote connections
-- Correct data directory (/opt/pi-rag/data)
+- Correct data directory (/opt/synapse/data)
 - Fixed query parameter handling for episodic search
 - Embedding model filename fixed (embedding-gemma, not embeddinggemma)
 """
@@ -33,14 +33,16 @@ from starlette.datastructures import UploadFile
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
-# Add parent directory to path for imports
-sys.path.insert(0, '/home/dietpi/pi-rag')
+# Add parent directory to path for imports (only if not already in path)
+# In Docker, PYTHONPATH=/app so we don't need this
+if os.environ.get("RAG_ENV") != "docker":
+    sys.path.insert(0, '/home/dietpi/synapse')
 
 # Import RAG backend
 from mcp_server.rag_server import RAGMemoryBackend
 
 # Load RAG config once at module level for performance
-_config_path = os.environ.get("RAG_CONFIG_PATH", "/home/dietpi/pi-rag/configs/rag_config.json")
+_config_path = os.environ.get("RAG_CONFIG_PATH", "/app/configs/rag_config.json")
 with open(_config_path, 'r') as f:
     _rag_config = json.load(f)
 _context_injection_enabled = _rag_config.get("context_injection_enabled", False)
@@ -422,7 +424,7 @@ async def upload_file(request) -> Response:
             )
 
         # Load upload config from rag_config.json
-        config_path = os.environ.get("RAG_CONFIG_PATH", "/home/dietpi/pi-rag/configs/rag_config.json")
+        config_path = os.environ.get("RAG_CONFIG_PATH", "/app/configs/rag_config.json")
         with open(config_path, 'r') as f:
             config = json.load(f)
 

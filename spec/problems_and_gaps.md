@@ -152,7 +152,7 @@ synapse start  # Works immediately
 
 - Requires `configs/rag_config.json` (49 lines)
 - Requires `.env` file (26 lines)
-- Hard-coded paths: `/opt/pi-rag/data`
+- Hard-coded paths: `/opt/synapse/data`
 - Model paths must be manually set
 
 **Strategy Requirement:**

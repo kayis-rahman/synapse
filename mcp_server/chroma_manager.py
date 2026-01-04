@@ -21,7 +21,7 @@ class ProjectChromaManager:
     - Complete isolation between projects
     """
 
-    def __init__(self, base_data_dir: str = "/opt/pi-rag/data"):
+    def __init__(self, base_data_dir: str = "/opt/synapse/data"):
         """
         Initialize ChromaDB manager.
 

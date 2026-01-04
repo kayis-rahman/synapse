@@ -41,10 +41,10 @@ class ProjectManager:
         Initialize project manager.
 
         Args:
-            base_data_dir: Base data directory (defaults to RAG_DATA_DIR env var or /opt/pi-rag/data)
+            base_data_dir: Base data directory (defaults to RAG_DATA_DIR env var or /opt/synapse/data)
         """
         if base_data_dir is None:
-            base_data_dir = os.environ.get("RAG_DATA_DIR", "/opt/pi-rag/data")
+            base_data_dir = os.environ.get("RAG_DATA_DIR", "/opt/synapse/data")
         self.base_data_dir = base_data_dir
         self.registry_db = os.path.join(base_data_dir, "registry.db")
         self._init_registry()

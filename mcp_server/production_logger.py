@@ -37,8 +37,8 @@ class ProductionLogger:
         
         # Configuration
         self.log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
-        self.log_file = os.environ.get("LOG_FILE", "/opt/pi-rag/logs/rag-mcp.log")
-        self.metrics_file = os.environ.get("METRICS_FILE", "/opt/pi-rag/loki-data/metrics.json")
+        self.log_file = os.environ.get("LOG_FILE", "/opt/synapse/logs/rag-mcp.log")
+        self.metrics_file = os.environ.get("METRICS_FILE", "/opt/synapse/loki-data/metrics.json")
         
         # Enable flags
         self.debug_enabled = self.log_level == "DEBUG"
@@ -208,5 +208,5 @@ def get_logger(name: str) -> ProductionLogger:
 
 
 def get_metrics_file_path() -> str:
-    """Get the metrics file path for Grafana/Promtail."""
-    return os.environ.get("METRICS_FILE", "/opt/pi-rag/loki-data/metrics.json")
+    """Get metrics file path for Grafana/Promtail."""
+    return os.environ.get("METRICS_FILE", "/opt/synapse/loki-data/metrics.json")

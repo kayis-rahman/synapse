@@ -1,6 +1,6 @@
 # Deploying Pi-RAG on Raspberry Pi 5 with Docker
 
-This guide walks you through deploying the pi-rag system on a Raspberry Pi 5 using Docker with remote context. The deployment runs the embedding model locally on the Pi while offloading the chat model to your external GPU server.
+This guide walks you through deploying the synapse system on a Raspberry Pi 5 using Docker with remote context. The deployment runs the embedding model locally on the Pi while offloading the chat model to your external GPU server.
 
 ## Table of Contents
 
@@ -58,7 +58,7 @@ This guide walks you through deploying the pi-rag system on a Raspberry Pi 5 usi
 │              Raspberry Pi 5 (8GB RAM)                    │
 │                                                           │
 │  ┌────────────────────────────────────────────────────┐  │
-│  │   Docker Container (pi-rag)                        │  │
+│  │   Docker Container (synapse)                        │  │
 │  │                                                    │  │
 │  │   ┌────────────────────────────────────────────┐    │  │
 │  │   │   FastAPI Server (uvicorn)               │    │  │
@@ -80,9 +80,9 @@ This guide walks you through deploying the pi-rag system on a Raspberry Pi 5 usi
 │  └────────────────────────────────────────────────────┘  │
 │                                                           │
 │   Docker Volumes:                                         │
-│   - pi-rag-models: GGUF model storage                     │
-│   - pi-rag-data: Vector store & documents                 │
-│   - pi-rag-cache: Pip/HF cache                           │
+│   - synapse-models: GGUF model storage                     │
+│   - synapse-data: Vector store & documents                 │
+│   - synapse-cache: Pip/HF cache                           │
 │                                                           │
 └───────────────────────────────────────────────────────────┘
                               │
@@ -114,8 +114,8 @@ Use the provided deployment script:
 
 ```bash
 # Clone repository (if not already done)
-git clone <your-repo-url> pi-rag
-cd pi-rag
+git clone <your-repo-url> synapse
+cd synapse
 
 # Make scripts executable
 chmod +x scripts/deploy.sh scripts/manage.sh
@@ -142,19 +142,19 @@ The script will:
 docker context use pi
 
 # Create necessary directories
-ssh pi@raspberrypi.local "mkdir -p /home/pi/pi-rag/{configs,data,models}"
+ssh pi@raspberrypi.local "mkdir -p /home/pi/synapse/{configs,data,models}"
 
 # Copy configs
-scp -r configs pi@raspberrypi.local:/home/pi/pi-rag/
+scp -r configs pi@raspberrypi.local:/home/pi/synapse/
 
 # Download embedding model
 ssh pi@raspberrypi.local << 'EOF'
-cd /home/pi/pi-rag/models
+cd /home/pi/synapse/models
 wget https://huggingface.co/nomic-ai/nomic-embed-text-v1.5-GGUF/resolve/main/nomic-embed-text-v1.5.Q4_K_M.gguf
 EOF
 
 # Copy Docker files
-scp docker-compose.pi.yml Dockerfile.pi pi@raspberrypi.local:/home/pi/pi-rag/
+scp docker-compose.pi.yml Dockerfile.pi pi@raspberrypi.local:/home/pi/synapse/
 
 # Build and deploy
 docker compose -f docker-compose.pi.yml --context pi up -d
@@ -235,16 +235,16 @@ MAX_LOADED_MODELS=1
 ### Volume Structure
 
 ```
-pi-rag-models/         # GGUF model files
+synapse-models/         # GGUF model files
   └─ nomic-embed-text-v1.5.Q4_K_M.gguf
 
-pi-rag-data/           # Application data
+synapse-data/           # Application data
   ├─ rag_index/         # Vector store
   ├─ docs/              # Source documents
   └─ logs/              # Application logs
 
-pi-rag-cache/          # Pip cache
-pi-rag-huggingface/    # HuggingFace cache
+synapse-cache/          # Pip cache
+synapse-huggingface/    # HuggingFace cache
 ```
 
 ### Backup Volumes
@@ -252,25 +252,25 @@ pi-rag-huggingface/    # HuggingFace cache
 ```bash
 # Backup data volume
 docker run --rm \
-  -v pi-rag-data:/data \
+  -v synapse-data:/data \
   -v $(pwd):/backup \
-  alpine tar czf /backup/pi-rag-data-backup.tar.gz /data
+  alpine tar czf /backup/synapse-data-backup.tar.gz /data
 
 # Restore data volume
 docker run --rm \
-  -v pi-rag-data:/data \
+  -v synapse-data:/data \
   -v $(pwd):/backup \
-  alpine sh -c "cd /data && tar xzf /backup/pi-rag-data-backup.tar.gz --strip 1"
+  alpine sh -c "cd /data && tar xzf /backup/synapse-data-backup.tar.gz --strip 1"
 ```
 
 ### Inspect Volume Contents
 
 ```bash
 # View data volume
-docker run --rm -v pi-rag-data:/data alpine ls -la /data
+docker run --rm -v synapse-data:/data alpine ls -la /data
 
 # Get volume size
-docker system df -v | grep pi-rag
+docker system df -v | grep synapse
 ```
 
 ## Deployment Management
@@ -313,16 +313,16 @@ docker system df -v | grep pi-rag
 docker context use pi
 
 # View logs
-docker logs -f pi-rag
+docker logs -f synapse
 
 # Restart container
-docker restart pi-rag
+docker restart synapse
 
 # Execute command in container
-docker exec pi-rag python -m rag.bulk_ingest /app/data/docs /path/to/docs
+docker exec synapse python -m rag.bulk_ingest /app/data/docs /path/to/docs
 
 # Scale resources
-docker update --memory 3g --cpus 3 pi-rag
+docker update --memory 3g --cpus 3 synapse
 
 # Cleanup
 docker system prune -a --volumes
@@ -337,23 +337,23 @@ docker system prune -a --volumes
 docker ps
 
 # View health status
-docker inspect pi-rag --format='{{.State.Health.Status}}'
+docker inspect synapse --format='{{.State.Health.Status}}'
 
 # Detailed container info
-docker inspect pi-rag
+docker inspect synapse
 ```
 
 ### Resource Usage
 
 ```bash
 # Real-time stats
-docker stats pi-rag
+docker stats synapse
 
 # Memory usage
-docker exec pi-rag ps aux --sort=-%mem | head -10
+docker exec synapse ps aux --sort=-%mem | head -10
 
 # Disk usage
-docker exec pi-rag df -h
+docker exec synapse df -h
 ```
 
 ### API Health Checks
@@ -373,16 +373,16 @@ curl http://<pi-ip>:8001/v1/models
 
 ```bash
 # View all logs
-docker logs pi-rag
+docker logs synapse
 
 # Follow logs in real-time
-docker logs -f pi-rag
+docker logs -f synapse
 
 # Last 100 lines
-docker logs --tail 100 pi-rag
+docker logs --tail 100 synapse
 
 # Search for errors
-docker logs pi-rag 2>&1 | grep -i error
+docker logs synapse 2>&1 | grep -i error
 ```
 
 ### Common Issues
@@ -390,7 +390,7 @@ docker logs pi-rag 2>&1 | grep -i error
 **Container won't start:**
 ```bash
 # Check logs
-docker logs pi-rag
+docker logs synapse
 
 # Check if port is in use
 ssh pi@raspberrypi.local "netstat -tlnp | grep 8001"
@@ -399,19 +399,19 @@ ssh pi@raspberrypi.local "netstat -tlnp | grep 8001"
 **Out of memory:**
 ```bash
 # Increase swap
-docker exec pi-rag dmesg | grep -i memory
+docker exec synapse dmesg | grep -i memory
 
 # Check container limits
-docker inspect pi-rag --format='{{.HostConfig.Memory}}'
+docker inspect synapse --format='{{.HostConfig.Memory}}'
 ```
 
 **Model loading fails:**
 ```bash
 # Check model file exists
-docker exec pi-rag ls -la /app/models/
+docker exec synapse ls -la /app/models/
 
 # Check permissions
-docker exec pi-rag ls -la /app/models/nomic-embed-text-v1.5.Q4_K_M.gguf
+docker exec synapse ls -la /app/models/nomic-embed-text-v1.5.Q4_K_M.gguf
 ```
 
 ## Performance Optimization
@@ -489,10 +489,10 @@ network={
 
 ```bash
 # Copy documents to Pi
-scp -r /path/to/documents pi@raspberrypi.local:/home/pi/pi-rag-data/docs/
+scp -r /path/to/documents pi@raspberrypi.local:/home/pi/synapse-data/docs/
 
 # Ingest documents
-docker exec pi-rag python -m rag.bulk_ingest \
+docker exec synapse python -m rag.bulk_ingest \
   /app/data/docs \
   --tags "source:my-documents" \
   --chunk-size 500 \
@@ -503,10 +503,10 @@ docker exec pi-rag python -m rag.bulk_ingest \
 
 ```bash
 # Copy file to Pi
-scp document.pdf pi@raspberrypi.local:/home/pi/pi-rag-data/docs/
+scp document.pdf pi@raspberrypi.local:/home/pi/synapse-data/docs/
 
 # Ingest single file
-docker exec pi-rag python -m rag.ingest \
+docker exec synapse python -m rag.ingest \
   /app/data/docs/document.pdf
 ```
 
@@ -533,7 +533,7 @@ curl -X POST http://<pi-ip>:8001/v1/ingest \
 curl http://<pi-ip>:8001/health
 
 # Expected response:
-# {"status": "ok", "service": "pi-rag"}
+# {"status": "ok", "service": "synapse"}
 ```
 
 ### Model Status
@@ -552,7 +552,7 @@ curl http://<pi-ip>:8001/v1/models
 curl -X POST http://<pi-ip>:8001/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "messages": [{"role": "user", "content": "What is pi-rag?"}]
+    "messages": [{"role": "user", "content": "What is synapse?"}]
   }'
 
 # Test without RAG
@@ -561,7 +561,7 @@ curl -X POST http://<pi-ip>:8001/v1/chat/completions \
   -d '{
     "messages": [
       {"role": "system", "content": "disable-rag"},
-      {"role": "user", "content": "What is pi-rag?"}
+      {"role": "user", "content": "What is synapse?"}
     ]
   }'
 ```
@@ -589,7 +589,7 @@ curl -X POST http://<pi-ip>:8001/v1/search \
 # Or manually
 docker context use pi
 docker compose -f docker-compose.pi.yml build --no-cache
-docker compose -f docker-compose.pi.yml up -d --no-deps pi-rag
+docker compose -f docker-compose.pi.yml up -d --no-deps synapse
 ```
 
 ### Update Configuration
@@ -597,11 +597,11 @@ docker compose -f docker-compose.pi.yml up -d --no-deps pi-rag
 1. Update local configs
 2. Copy to Pi:
    ```bash
-   scp -r configs pi@raspberrypi.local:/home/pi/pi-rag/
+   scp -r configs pi@raspberrypi.local:/home/pi/synapse/
    ```
 3. Restart container:
    ```bash
-   docker restart pi-rag
+   docker restart synapse
    ```
 
 ### Update Model File
@@ -611,14 +611,14 @@ docker compose -f docker-compose.pi.yml up -d --no-deps pi-rag
 ssh pi@raspberrypi.local
 
 # Download new model
-cd /home/pi/pi-rag-models
+cd /home/pi/synapse-models
 wget https://huggingface.co/.../new-model.gguf
 
 # Update config to point to new model
-nano /home/pi/pi-rag-configs/rag_config.json
+nano /home/pi/synapse-configs/rag_config.json
 
 # Restart container
-docker restart pi-rag
+docker restart synapse
 ```
 
 ## Production Considerations
@@ -659,17 +659,17 @@ Automated backup script (`scripts/backup.sh`):
 
 ```bash
 #!/bin/bash
-# Backup pi-rag data daily
+# Backup synapse data daily
 BACKUP_DIR="/home/pi/backups"
 DATE=$(date +%Y%m%d_%H%M%S)
 
 docker run --rm \
-  -v pi-rag-data:/data \
+  -v synapse-data:/data \
   -v $BACKUP_DIR:/backup \
-  alpine tar czf /backup/pi-rag-data-$DATE.tar.gz /data
+  alpine tar czf /backup/synapse-data-$DATE.tar.gz /data
 
 # Keep only last 7 days
-find $BACKUP_DIR -name "pi-rag-data-*.tar.gz" -mtime +7 -delete
+find $BACKUP_DIR -name "synapse-data-*.tar.gz" -mtime +7 -delete
 ```
 
 Add to cron:
@@ -684,7 +684,7 @@ crontab -e
 
 **Check logs:**
 ```bash
-docker logs pi-rag
+docker logs synapse
 ```
 
 **Common causes:**
@@ -716,7 +716,7 @@ curl -v https://your-gpu-server:8443/v1/chat/completions \
 **Check network:**
 ```bash
 # From Pi container
-docker exec pi-rag curl -v https://your-gpu-server:8443/health
+docker exec synapse curl -v https://your-gpu-server:8443/health
 ```
 
 ### Slow Performance
@@ -727,11 +727,11 @@ docker exec pi-rag curl -v https://your-gpu-server:8443/health
 top
 
 # In container
-docker exec pi-rag top
+docker exec synapse top
 ```
 
 **Optimization steps:**
-1. Verify ARM NEON flags were used: `docker exec pi-rag pip show llama-cpp-python`
+1. Verify ARM NEON flags were used: `docker exec synapse pip show llama-cpp-python`
 2. Check memory pressure: `free -h`
 3. Use ethernet instead of WiFi
 4. Move data to USB 3.0 SSD
@@ -749,12 +749,12 @@ docker context rm pi
 # Cleanup on Pi (optional)
 ssh pi@raspberrypi.local << 'EOF'
 # Remove directories
-rm -rf /home/pi/pi-rag
-rm -rf /home/pi/pi-rag-data
-rm -rf /home/pi/pi-rag-models
+rm -rf /home/pi/synapse
+rm -rf /home/pi/synapse-data
+rm -rf /home/pi/synapse-models
 
 # Remove Docker volumes
-docker volume rm pi-rag-data pi-rag-models pi-rag-cache pi-rag-huggingface
+docker volume rm synapse-data synapse-models synapse-cache synapse-huggingface
 EOF
 ```
 

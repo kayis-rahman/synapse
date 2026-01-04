@@ -1,5 +1,5 @@
 """
-pi-rag - Local RAG system using llama-cpp-python
+synapse - Local RAG system using llama-cpp-python
 
 Components:
 - ModelManager: Multi-model load/unload management
