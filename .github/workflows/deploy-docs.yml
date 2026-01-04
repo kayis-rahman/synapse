@@ -37,9 +37,7 @@ jobs:
 
       - name: Generate source map
         working-directory: ./docs
-        run: npm run dev > /dev/null 2>&1 &
-          sleep 5
-          pkill -f "next dev"
+        run: timeout 10 npm run dev || true
 
       - name: Build docs
         working-directory: ./docs
