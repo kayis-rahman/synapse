@@ -1385,17 +1385,77 @@ backend = RAGMemoryBackend()
 # Define tools
 tools = [
     Tool(
-        name="rag.list_projects",
-        description="List all projects in RAG memory system",
+        name="rag.add_episode",
+        description="Add an advisory episode to episodic memory",
         inputSchema={
             "type": "object",
             "properties": {
-                "scope_type": {
+                "project_id": {
                     "type": "string",
-                    "description": "Filter by scope type (user, project, org, session)",
-                    "enum": ["user", "project", "org", "session"]
+                    "description": "Project identifier"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Episode title"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Episode content (situation, action, outcome, lesson)"
+                },
+                "lesson_type": {
+                    "type": "string",
+                    "description": "Type of lesson (success, pattern, mistake, failure, general)",
+                    "enum": ["success", "pattern", "mistake", "failure", "general"],
+                    "default": "general"
+                },
+                "quality": {
+                    "type": "number",
+                    "description": "Quality score (0.0-1.0)",
+                    "minimum": 0.0,
+                    "maximum": 1.0
                 }
-            }
+            },
+            "required": ["project_id", "title", "content"]
+        }
+    ),
+    Tool(
+        name="rag.analyze_conversation",
+        description="Analyze conversation for automatic learning of facts and episodes. Works with ANY agent that supports MCP tools. Universal compatibility: Claude Code, OpenCode, Aider, Goose, etc.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "project_id": {
+                    "type": "string",
+                    "description": "RAG project ID"
+                },
+                "user_message": {
+                    "type": "string",
+                    "description": "User's message (what was said)"
+                },
+                "agent_response": {
+                    "type": "string",
+                    "description": "Agent's response (what was replied)"
+                },
+                "context": {
+                    "type": "object",
+                    "description": "Optional context (tool calls, session info)"
+                },
+                "auto_store": {
+                    "type": "boolean",
+                    "description": "Auto-store learnings (default: true)"
+                },
+                "return_only": {
+                    "type": "boolean",
+                    "description": "Return learnings without storing (default: false)"
+                },
+                "extraction_mode": {
+                    "type": "string",
+                    "description": "Extraction mode (heuristic, llm, hybrid)",
+                    "enum": ["heuristic", "llm", "hybrid"],
+                    "default": "hybrid"
+                }
+            },
+            "required": ["project_id", "user_message", "agent_response"]
         }
     ),
     Tool(

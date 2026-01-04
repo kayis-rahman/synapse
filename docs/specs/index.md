@@ -8,11 +8,12 @@ This is the "Source of Truth" for all SYNAPSE features. Each feature follows the
 
 ## Feature List
 
- | Feature ID | Title | Status | Completion Date |
-|-------------|--------|---------|-----------------|
-| 001-comprehensive-test-suite | Comprehensive Test Suite | [In Progress] | ⏳ Pending |
-| 002-auto-learning | Automatic Learning System | [Completed] | 2026-01-04 |
-| 003-rag-quality-metrics | RAG Quality Metrics Dashboard | [Deferred] | ⏳ Pending |
+  | Feature ID | Title | Status | Completion Date |
+  |-------------|--------|---------|-----------------|
+  | 001-comprehensive-test-suite | Comprehensive Test Suite | [In Progress] | ⏳ Pending |
+  | 002-auto-learning | Automatic Learning System | [Completed] | 2026-01-04 |
+  | 003-rag-quality-metrics | RAG Quality Metrics Dashboard | [Deferred] | ⏳ Pending |
+  | 004-universal-hook-auto-learning | Universal Multi-Agent Hook Auto-Learning | [In Progress] | ⏳ Pending |
 
 ---
 
