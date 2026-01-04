@@ -8,8 +8,8 @@
   "query_expansion_enabled": true,
   "num_expansions": 3,
 
-  "index_path": "/opt/pi-rag/data/rag_index",
-  "docs_path": "/opt/pi-rag/data/docs",
+  "index_path": "/opt/synapse/data/rag_index",
+  "docs_path": "/opt/synapse/data/docs",
 
   "rag_disable_keyword": "disable-rag",
 
@@ -36,7 +36,7 @@
   "rag_api_host": "0.0.0.0",
 
   "memory_enabled": true,
-  "memory_db_path": "/opt/pi-rag/data/memory.db",
+  "memory_db_path": "/opt/synapse/data/memory.db",
   "memory_scope": "session",
   "memory_min_confidence": 0.7,
   "memory_max_facts": 10,

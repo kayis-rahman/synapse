@@ -27,7 +27,9 @@ services:
     environment:
       # RAG Configuration
       - RAG_DATA_DIR=/app/data
+      - RAG_CONFIG_PATH=/app/configs/rag_config.json
       - LOG_LEVEL=INFO
+      - RAG_ENV=docker
 
       # Python configuration
       - PYTHONUNBUFFERED=1
@@ -35,9 +37,9 @@ services:
 
     # Volume mounts for persistence and configuration
     volumes:
-      # Data - named volume for databases and vector index
-      - type: volume
-        source: rag-mcp-data
+      # Data - bind mount to shared local system
+      - type: bind
+        source: /opt/synapse/data
         target: /app/data
 
       # Models - named volume for GGUF models
@@ -76,9 +78,6 @@ services:
 
 # Named volumes for persistence
 volumes:
-  rag-mcp-data:
-    driver: local
-
   rag-mcp-models:
     driver: local
 
@@ -88,4 +87,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.21.0.0/16
+        - subnet: 172.22.0.0/16

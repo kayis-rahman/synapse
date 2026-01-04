@@ -51,11 +51,12 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install runtime dependencies only
-# NOTE: sqlite3, libgomp1 already installed in builder stage
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ # Install runtime dependencies only
+ # NOTE: libgomp1 is required by llama-cpp-python
+ RUN apt-get update && apt-get install -y --no-install-recommends \
+     curl \
+     libgomp1 \
+     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Copy from builder
 COPY --from=builder /usr/local/lib/python3.11 /usr/local/lib/python3.11
@@ -74,5 +75,5 @@ ENV LOG_LEVEL=INFO
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "from rag import MemoryStore; store = MemoryStore(); print('healthy')" || exit 1
 
-# Run MCP server
-CMD ["python", "-m", "mcp_server.rag_server"]
+# Run MCP server (HTTP wrapper for remote access)
+CMD ["python", "mcp_server/http_wrapper.py"]
