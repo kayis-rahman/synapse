@@ -1,4 +1,5 @@
-import { docs } from "@/.source";
+import { docs as rawDocs } from "@/.source";
+import { loader } from "fumadocs-core/source";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import {
   DocsBody,
@@ -7,8 +8,13 @@ import {
   DocsTitle,
 } from "fumadocs-ui/page";
 
+const source = loader({
+  baseUrl: '/synapse/docs',
+  source: rawDocs.toFumadocsSource(),
+});
+
 export async function generateStaticParams() {
-  const pages = docs.getPages();
+  const pages = source.getPages();
   return pages.map((page: any) => ({
     slug: page.slugs,
     lang: 'en',
@@ -17,7 +23,7 @@ export async function generateStaticParams() {
 
 export default async function Page({ params }: { params: Promise<{ lang?: string; slug?: string[] }> }) {
   const { slug } = await params;
-  const page = docs.getPage(slug) as any;
+  const page = source.getPage(slug) as any;
 
   if (!page) {
     return <div>Not Found</div>;

@@ -4,18 +4,20 @@
 # Separate error log file for easier debugging
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$SCRIPT_DIR"
 PID_FILE="/tmp/mcp_server.pid"
-LOG_FILE="/tmp/mcp_server.log"
+LOG_DIR="${HOME}/.synapse/logs"
+LOG_FILE="${LOG_DIR}/mcp_server.log"
 
 # NEW: Error log configuration (persistent across reboots)
-ERROR_LOG_DIR="/var/log/SYNAPSE"
+ERROR_LOG_DIR="${LOG_DIR}"
 ERROR_LOG_FILE="$ERROR_LOG_DIR/error.log"
 MAIN_LOG_FILE="$LOG_FILE"  # Renamed for clarity
 
 HOST="0.0.0.0"
 PORT=8002
 SERVER_MODULE="mcp_server.http_wrapper"
-CONFIG_FILE="/home/dietpi/synapse/configs/rag_config.json"
+CONFIG_FILE="${PROJECT_ROOT}/configs/rag_config.json"
 
 # Colors
 RED='\033[0;31m'
@@ -51,9 +53,7 @@ setup_error_logging() {
     # Create error log directory if it doesn't exist
     if [ ! -d "$ERROR_LOG_DIR" ]; then
         echo "Creating error log directory: $ERROR_LOG_DIR"
-        sudo mkdir -p "$ERROR_LOG_DIR"
-        sudo chown dietpi:adm "$ERROR_LOG_DIR"
-        sudo chmod 750 "$ERROR_LOG_DIR"
+        mkdir -p "$ERROR_LOG_DIR"
         echo -e "${GREEN}✓${NC} Error log directory created"
     fi
 
@@ -313,9 +313,7 @@ show_status() {
     # Setup error logging directory check
     if [ ! -d "$ERROR_LOG_DIR" ]; then
         echo -e "${YELLOW}⚠ Creating error log directory: $ERROR_LOG_DIR${NC}"
-        sudo mkdir -p "$ERROR_LOG_DIR"
-        sudo chown dietpi:adm "$ERROR_LOG_DIR"
-        sudo chmod 750 "$ERROR_LOG_DIR"
+        mkdir -p "$ERROR_LOG_DIR"
         echo -e "${GREEN}✓ Error log directory created${NC}"
     fi
 
