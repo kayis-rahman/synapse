@@ -1,8 +1,8 @@
-# Upgrading from SYNAPSE v1.0.0 to v2.0.0
+# Upgrading from pi-rag to SYNAPSE v1.0.0
 
 ## Overview
 
-This guide helps you upgrade from SYNAPSE v1.0.0 (pi-rag naming) to v2.0.0 (synapse naming).
+This guide helps you upgrade from old **pi-rag** naming to new **SYNAPSE v1.0.0** branding.
 
 ## Breaking Changes
 
