@@ -156,7 +156,7 @@ def setup_model(
 
     if offline:
         console.print("\n[yellow]→ Offline mode: Skipping model download[/yellow]")
-        console.print("  Download later with: synapse models download bge-m3")
+        console.print("  Download later with: synapse models download embedding")
         return False
 
     # Prompt to download
@@ -165,7 +165,7 @@ def setup_model(
         default=True
     ):
         console.print("\n[cyan]Starting download...[/cyan]")
-        success = download_model("bge-m3", force=False)
+        success = download_model("embedding", force=False)
 
         if success:
             console.print("\n[green]✓ Model downloaded successfully[/green]")
@@ -175,7 +175,7 @@ def setup_model(
             return False
     else:
         console.print("\n[yellow]→ Model download skipped[/yellow]")
-        console.print("  Download later with: synapse models download bge-m3")
+        console.print("  Download later with: synapse models download embedding")
         return False
 
 
