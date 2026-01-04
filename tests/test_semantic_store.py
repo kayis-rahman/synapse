@@ -6,7 +6,7 @@ import os
 
 def test_ingest_text():
     """Test ingesting text into semantic memory"""
-    from synapse.rag.semantic_ingest import SemanticIngestor
+    from rag.semantic_ingest import SemanticIngestor
     from synapse.rag.semantic_store import SemanticStore
     
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:
@@ -85,7 +85,7 @@ def test_retrieve_by_source():
 
 def test_chunk_metadata():
     """Test that chunk metadata is properly stored"""
-    from synapse.rag.semantic_ingest import SemanticIngestor
+    from rag.semantic_ingest import SemanticIngestor
     from synapse.rag.semantic_store import SemanticStore
     
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:

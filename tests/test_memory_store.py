@@ -2,11 +2,13 @@
 import pytest
 import tempfile
 import os
+import sys
+from pathlib import Path
 
+# Add project root to Python path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-def test_store_memory_fact():
-    """Test storing a symbolic memory fact"""
-    from synapse.rag import MemoryStore, MemoryFact
+from rag import MemoryStore, MemoryFact
     
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:
         store = MemoryStore(temp_db)
@@ -51,7 +53,7 @@ def test_store_memory_fact():
 
 def test_query_memory_by_scope():
     """Test querying all facts for a scope"""
-    from synapse.rag import MemoryStore
+    from rag import MemoryStore
     
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:
         store = MemoryStore(temp_db)
@@ -75,7 +77,7 @@ def test_query_memory_by_scope():
 
 def test_query_memory_by_min_confidence():
     """Test querying facts with minimum confidence"""
-    from synapse.rag import MemoryStore
+    from rag import MemoryStore
     
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:
         store = MemoryStore(temp_db)
@@ -99,7 +101,7 @@ def test_query_memory_by_min_confidence():
 
 def test_query_memory_by_category():
     """Test querying facts by category"""
-    from synapse.rag import MemoryStore
+    from rag import MemoryStore
     
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:
         store = MemoryStore(temp_db)

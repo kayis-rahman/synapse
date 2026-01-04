@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 def test_store_episode():
     """Test storing an episodic memory episode"""
-    from synapse.rag.episodic_store import EpisodicStore, Episode
+    from rag.episodic_store import EpisodicStore, Episode
     
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:
         store = EpisodicStore(temp_db)
@@ -34,7 +34,7 @@ def test_store_episode():
 
 def test_list_recent_episodes():
     """Test listing recent episodes for a project"""
-    from synapse.rag.episodic_store import EpisodicStore
+    from rag.episodic_store import EpisodicStore
     
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:
         store = EpisodicStore(temp_db)
@@ -64,7 +64,7 @@ def test_list_recent_episodes():
 
 def test_query_episodes_by_lesson():
     """Test querying episodes by lesson content"""
-    from synapse.rag.episodic_store import EpisodicStore
+    from rag.episodic_store import EpisodicStore
     
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:
         store = EpisodicStore(temp_db)
@@ -97,7 +97,7 @@ def test_query_episodes_by_lesson():
 
 def test_update_episode():
     """Test updating an existing episode"""
-    from synapse.rag.episodic_store import EpisodicStore
+    from rag.episodic_store import EpisodicStore
     
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:
         store = EpisodicStore(temp_db)
@@ -127,7 +127,7 @@ def test_update_episode():
 
 def test_query_episodes_by_project():
     """Test querying episodes by project_id"""
-    from synapse.rag.episodic_store import EpisodicStore
+    from rag.episodic_store import EpisodicStore
     
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:
         store = EpisodicStore(temp_db)
