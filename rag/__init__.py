@@ -1,16 +1,5 @@
 """
-pi-rag - Local RAG system using llama-cpp-python
-
-Components:
-- ModelManager: Multi-model load/unload management
-- EmbeddingService: Generate embeddings using GGUF models
-- VectorStore: CPU-based vector storage with cosine similarity
-- Retriever: Semantic document search
-- RAGOrchestrator: Coordinate retrieval and LLM generation
-- ingest_file/ingest_directory: Document ingestion tools
-- SymbolicMemory: Deterministic, auditable memory subsystem (Phase 1)
-- EpisodicMemory: Agent experience and lessons (Phase 3)
-- SemanticMemory: Document and code retrieval (Phase 4)
+synapse - Local RAG system using llama-cpp-python
 """
 
 from .model_manager import ModelManager, ModelConfig, get_model_manager

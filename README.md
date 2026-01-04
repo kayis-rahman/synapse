@@ -39,7 +39,23 @@ A local-first RAG (Retrieval-Augmented Generation) system where your stored know
 
 ## Quick Start
 
-### Installation
+### Option 1: Docker Hub (Recommended) ⭐
+
+```bash
+# Pull and run SYNAPSE
+docker pull docker.io/kayisrahman/synapse:1.0.0
+docker run -d --name synapse-mcp -p 8002:8002 \
+  -v synapse-data:/app/data \
+  -v synapse-models:/app/models \
+  docker.io/kayisrahman/synapse:1.0.0
+
+# Or use Docker Compose
+git clone https://github.com/kayis-rahman/synapse.git
+cd synapse
+docker compose -f docker-compose.mcp.yml up -d
+```
+
+### Option 2: pip Installation
 
 ```bash
 # Install SYNAPSE
@@ -52,38 +68,15 @@ pip install synapse[mcp]
 pip install synapse[dev]
 ```
 
-### Configuration
-
-Create `.env` file:
-```bash
-# Server configuration
-HOST=0.0.0.0
-PORT=8002
-
-# RAG configuration
-PROJECT_ROOT=/opt/synapse/data
-CHUNK_SIZE=500
-CHUNK_OVERLAP=50
-```
-
-### Usage
+### Option 3: From Source
 
 ```bash
-# Start SYNAPSE MCP Server
-synapse-mcp-server
-
-# Check system status
-synapse-system-status
-
-# Bulk ingest project files
-synapse-bulk-ingest --dry-run
-
-# Query your knowledge base
-synapse query "How does RAG system work?"
-
-# List available projects
-synapse list-projects
+git clone https://github.com/kayis-rahman/synapse.git
+cd synapse
+pip install -e .
 ```
+
+> **Note**: Linux service approach (start_http_server.sh) is deprecated. Please use Docker instead - see [DOCKER_INSTALLATION.md](DOCKER_INSTALLATION.md)
 
 ---
 
@@ -140,9 +133,66 @@ Add episodic lesson to synapses (85% confidence).
 
 ---
 
+## CLI Commands
+
+### Neurobiological Commands (Docker) 🧠
+
+These short, creative commands provide a neurobiological metaphor for SYNAPSE operations:
+
+#### `synapse-ignite` - Ignite SYNAPSE
+**Ignite synaptic transmission (start MCP server)**
+
+```bash
+./scripts/synapse-ignite
+```
+
+#### `synapse-sense` - Sense Neural State
+**Check neural system status**
+
+```bash
+./scripts/synapse-sense
+```
+
+#### `synapse-feed` - Feed Neurons
+**Feed data to neurons (bulk ingest)**
+
+```bash
+./scripts/synapse-feed --dry-run
+```
+
+### Standard Commands (All Methods)
+
+**With Docker**:
+```bash
+# System status
+docker exec synapse-mcp python -m scripts.rag_status
+
+# Bulk ingest
+docker exec synapse-mcp python -m scripts.bulk_ingest --help
+
+# Interactive shell
+docker exec -it synapse-mcp bash
+```
+
+**With pip/Source**:
+```bash
+# Start MCP Server
+synapse-mcp-server
+
+# Check system status
+synapse-system-status
+
+# Bulk ingest project files
+synapse-bulk-ingest --dry-run
+```
+
+---
+
 ## Documentation
 
 - 📚 [Full Documentation](https://kayis-rahman.github.io/synapse/docs)
+- 🚀 [Docker Installation Guide](DOCKER_INSTALLATION.md) - Comprehensive Docker deployment guide
+- 🏗️ [Architecture Overview](https://kayis-rahman.github.io/synapse/docs/architecture/overview)
 - 🚀 [Installation Guide](https://kayis-rahman.github.io/synapse/docs/getting-started/installation)
 - 🧠 [Memory System](https://kayis-rahman.github.io/synapse/docs/architecture/memory-system)
 - 🔧 [MCP Tools Reference](https://kayis-rahman.github.io/synapse/docs/usage/mcp-tools)
@@ -163,19 +213,18 @@ Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidel
 
 ## Roadmap
 
-### v1.2.0 (Current) - ✅
+### v1.0.0 (Current) - ✅
 - ✅ Core rebranding to SYNAPSE
+- ✅ Docker Hub publishing (docker.io/kayisrahman/synapse)
+- ✅ Multi-platform builds (AMD64, ARM64)
+- ✅ Neurobiological CLI commands (synapse-ignite, synapse-sense, synapse-feed)
+- ✅ Docker-first installation guide
 - ✅ Packaging files (setup.py, pyproject.toml)
 - ✅ Documentation update with SYNAPSE branding
 - ✅ MCP tool descriptions with neurobiological metaphor
+- ✅ Linux service deprecated (use Docker instead)
 
-### v1.3.0 (Next)
-- ⏳ Update branding in bulk_ingest.py and start_http_server.sh
-- ⏳ Create synapse-bulk-ingest and synapse-system-status CLI tools
-- ⏳ Fumadocs documentation system
-
-### v1.4.0 (Future)
-- ⏳ Register in MCP registry
-- ⏳ Create installation guide
-- ⏳ Add docker-compose.yml
-- ⏳ Create performance benchmarks
+### v1.1.0 (Next)
+- ⏳ CLI tool enhancements
+- ⏳ Performance optimization
+- ⏳ Additional memory types

@@ -33,14 +33,8 @@ from starlette.datastructures import UploadFile
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
-# Add parent directory to path for imports
-sys.path.insert(0, '/home/dietpi/pi-rag')
-
-# Import RAG backend
-from mcp_server.rag_server import RAGMemoryBackend
-
-# Load RAG config once at module level for performance
-_config_path = os.environ.get("RAG_CONFIG_PATH", "/home/dietpi/pi-rag/configs/rag_config.json")
+# Configuration paths (use Docker-friendly defaults)
+_config_path = os.environ.get("RAG_CONFIG_PATH", "/app/configs/rag_config.json")
 with open(_config_path, 'r') as f:
     _rag_config = json.load(f)
 _context_injection_enabled = _rag_config.get("context_injection_enabled", False)
@@ -52,6 +46,9 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
+
+# Import RAG backend
+from mcp_server.rag_server import RAGMemoryBackend
 
 # Initialize RAG Backend
 backend = RAGMemoryBackend()

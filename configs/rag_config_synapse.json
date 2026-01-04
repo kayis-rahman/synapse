@@ -1,0 +1,48 @@
+{
+  "rag_enabled": true,
+  "chunk_size": 500,
+  "chunk_overlap": 50,
+  "top_k": 3,
+  "min_retrieval_score": 0.3,
+
+  "query_expansion_enabled": true,
+  "num_expansions": 3,
+
+  "index_path": "/opt/synapse/data/rag_index",
+  "docs_path": "/opt/synapse/data/docs",
+
+  "rag_disable_keyword": "disable-rag",
+
+  "embedding_model_path": "/home/dietpi/models/bge-small-en-v1.5-q8_0.gguf",
+  "embedding_model_name": "embedding",
+  "embedding_n_ctx": 8194,
+  "embedding_n_gpu_layers": 0,
+  "embedding_cache_enabled": true,
+  "embedding_cache_size": 1000,
+
+  "chat_model_path": "~/models/gemma-3-1b-it-UD-Q4_K_XL.gguf",
+  "chat_model_name": "gemma-3-1b-it",
+  "chat_n_ctx": 8192,
+  "chat_n_gpu_layers": 0,
+
+  "external_chat_api_url": "https://u425-afb3-687d7019.singapore-a.gpuhub.com:8443/v1/chat/completions",
+  "external_chat_api_key": "",
+  "use_external_chat_model": false,
+
+  "temperature": 0.7,
+  "max_tokens": 2048,
+
+  "rag_api_port": 8001,
+  "rag_api_host": "0.0.0.0",
+
+  "memory_enabled": true,
+  "memory_db_path": "/opt/synapse/data/memory.db",
+  "memory_scope": "session",
+  "memory_min_confidence": 0.7,
+  "memory_max_facts": 10,
+
+  "remote_file_upload_enabled": true,
+  "remote_upload_directory": "/tmp/rag-uploads",
+  "remote_upload_max_age_seconds": 3600,
+  "remote_upload_max_file_size_mb": 50
+}

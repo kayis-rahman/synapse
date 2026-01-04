@@ -37,8 +37,8 @@ class ProductionLogger:
         
         # Configuration
         self.log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
-        self.log_file = os.environ.get("LOG_FILE", "/opt/pi-rag/logs/rag-mcp.log")
-        self.metrics_file = os.environ.get("METRICS_FILE", "/opt/pi-rag/loki-data/metrics.json")
+        self.log_file = os.environ.get("LOG_FILE", "/app/logs/rag-mcp.log")
+        self.metrics_file = os.environ.get("METRICS_FILE", "/app/data/loki-data/metrics.json")
         
         # Enable flags
         self.debug_enabled = self.log_level == "DEBUG"

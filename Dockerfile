@@ -1,10 +1,27 @@
 # syntax=docker/dockerfile:1.4
 # check=experimental=true
 # ================================================================================
+# SYNAPSE v1.0.0 - Your Data Meets Intelligence
+# ================================================================================
+# Multi-stage build for SYNAPSE MCP Server
+#
+# Docker Hub: https://hub.docker.com/r/kayisrahman/synapse
+# Repository: https://github.com/kayis-rahman/synapse
 # Build Optimization: BuildKit inline cache enabled
 # ================================================================================
-# Multi-stage build for RAG MCP Server
+
 FROM python:3.11-slim as builder
+
+# Docker Hub Metadata
+LABEL maintainer="kaisbk1@gmail.com"
+LABEL version="1.0.0"
+LABEL description="SYNAPSE - Your Data Meets Intelligence"
+LABEL repository="https://github.com/kayis-rahman/synapse"
+LABEL org.opencontainers.image.source="https://github.com/kayis-rahman/synapse"
+LABEL org.opencontainers.image.title="SYNAPSE"
+LABEL org.opencontainers.image.description="Your Data Meets Intelligence - A local-first RAG system with semantic, episodic and symbolic memory"
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.vendor="Kayis Rahman"
 
 WORKDIR /app
 
@@ -49,12 +66,18 @@ RUN python -c "from mcp.server import Server; from mcp.types import Tool; print(
 # Final stage
 FROM python:3.11-slim
 
+# Docker Hub Metadata (inherit from builder)
+LABEL maintainer="kaisbk1@gmail.com"
+LABEL version="1.0.0"
+LABEL description="SYNAPSE - Your Data Meets Intelligence"
+
 WORKDIR /app
 
 # Install runtime dependencies only
-# NOTE: sqlite3, libgomp1 already installed in builder stage
+# CRITICAL: libgomp1 is required by llama-cpp-python (runtime dependency)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Copy from builder
@@ -74,5 +97,5 @@ ENV LOG_LEVEL=INFO
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "from rag import MemoryStore; store = MemoryStore(); print('healthy')" || exit 1
 
-# Run MCP server
-CMD ["python", "-m", "mcp_server.rag_server"]
+# Run MCP HTTP server (for HTTP transport support)
+CMD ["python", "-m", "mcp_server.http_wrapper"]

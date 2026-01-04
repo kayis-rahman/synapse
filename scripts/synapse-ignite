@@ -1,0 +1,58 @@
+#!/bin/bash
+# SYNAPSE Ignite - Ignite synaptic transmission (start MCP server)
+# Usage: synapse-ignite
+# Equivalent to: docker compose -f docker-compose.mcp.yml up -d
+
+CONTAINER="synapse-mcp"
+COMPOSE_FILE="docker-compose.mcp.yml"
+
+# Check if Docker is running
+if ! docker info > /dev/null 2>&1; then
+    echo "❌ Docker is not running. Please start Docker first."
+    exit 1
+fi
+
+# Check if container is already running
+if docker ps --filter "name=$CONTAINER" --format '{{.Names}}' | grep -q "^$CONTAINER$"; then
+    echo "✓ SYNAPSE already ignited (container running)"
+    echo "  Container: $CONTAINER"
+    echo "  MCP endpoint: http://localhost:8002/mcp"
+    echo "  Health check: http://localhost:8002/health"
+    exit 0
+fi
+
+# Check if compose file exists
+if [ ! -f "$COMPOSE_FILE" ]; then
+    echo "❌ Docker Compose file not found: $COMPOSE_FILE"
+    echo "   Current directory: $(pwd)"
+    echo "   Make sure you're in the SYNAPSE project directory."
+    exit 1
+fi
+
+# Start the container
+echo "⚡ Igniting SYNAPSE..."
+docker compose -f "$COMPOSE_FILE" up -d
+
+# Wait for container to start
+sleep 3
+
+# Verify container is running
+if docker ps --filter "name=$CONTAINER" --format '{{.Names}}' | grep -q "^$CONTAINER$"; then
+    echo ""
+    echo "✓ SYNAPSE ignited successfully!"
+    echo "  Container: $CONTAINER"
+    echo "  MCP endpoint: http://localhost:8002/mcp"
+    echo "  Health check: http://localhost:8002/health"
+    echo ""
+    echo "Useful commands:"
+    echo "  Check status:   synapse-sense"
+    echo "  Feed neurons:   synapse-feed --help"
+    echo "  View logs:      docker logs -f $CONTAINER"
+    echo "  Stop server:    docker compose -f $COMPOSE_FILE down"
+    exit 0
+else
+    echo ""
+    echo "❌ Failed to ignite SYNAPSE"
+    echo "   Check logs: docker logs $CONTAINER"
+    exit 1
+fi

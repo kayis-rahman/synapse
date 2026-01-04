@@ -1,0 +1,23 @@
+#!/bin/bash
+# SYNAPSE Feed - Feed data to neurons (bulk ingest)
+# Usage: synapse-feed [options]
+# Equivalent to: docker exec synapse-mcp python -m scripts.bulk_ingest
+
+CONTAINER="synapse-mcp"
+
+# Check if Docker is running
+if ! docker info > /dev/null 2>&1; then
+    echo "❌ Docker is not running. Please start Docker first."
+    exit 1
+fi
+
+# Check if container is running
+if ! docker ps --filter "name=$CONTAINER" --format '{{.Names}}' | grep -q "^$CONTAINER$"; then
+    echo "❌ SYNAPSE container not running."
+    echo "   Start with: synapse-ignite"
+    echo "   Or use: docker compose -f docker-compose.mcp.yml up -d"
+    exit 1
+fi
+
+# Execute feed command in container
+docker exec "$CONTAINER" python -m scripts.bulk_ingest "$@"

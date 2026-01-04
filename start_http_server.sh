@@ -1,7 +1,22 @@
 #!/bin/bash
+# SYNAPSE Linux Service Controller - DEPRECATED
+#
+# ⚠️  DEPRECATED: This Linux service approach is deprecated.
+# Please use Docker instead: See DOCKER_INSTALLATION.md
+#
+# This script is kept for backward compatibility only.
+# It will be removed in a future release.
+#
+# Docker Installation:
+#   docker pull docker.io/kayisrahman/synapse:1.0.0
+#   docker run -d --name synapse-mcp -p 8002:8002 ...
+#   Or: docker compose -f docker-compose.mcp.yml up -d
+#
+# ==============================================================================
 # RAG MCP HTTP Server Startup Script - Config-Aware Version with Error Logging
 # Shows which ingestion modes are available based on config
 # Separate error log file for easier debugging
+# ==============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PID_FILE="/tmp/mcp_server.pid"

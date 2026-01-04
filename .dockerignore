@@ -3,6 +3,8 @@
 .gitignore
 .gitattributes
 .gitmodules
+.github/
+.beads/
 
 # Python cache
 __pycache__/
@@ -25,11 +27,14 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.pyc
 
 # Virtual environments
 venv/
 env/
 ENV/
+
+# Environment files
 .env
 .env.local
 .env.*.local
@@ -57,25 +62,21 @@ logs/
 .cache/
 .huggingface/
 
-# ========================================
 # DOCKER OPTIMIZATION: Exclude large directories
-# ========================================
+
+# CRITICAL: Exclude entire docs directory (contains node_modules, .next, build artifacts)
+docs/
 
 # Models - Exclude ALL GGUF files (large, not needed for build)
 *.gguf
 models/
-build/
-dist/
-downloads/
-test_*.py
 
-# Docker
+# Docker files (not needed in image)
 Dockerfile*
 docker-compose*.yml
 .dockerignore
 
 # CI/CD
-.github/
 .gitlab-ci.yml
 Jenkinsfile
 
@@ -89,104 +90,55 @@ build/
 wheels/
 *.egg-info/
 *.egg
-
-# Logs
-logs/
-*.log
-
-# Backup files
-*.backup
-*.bak
-
-# Config files with secrets (if any)
-.env.local
-*.local.*
-config.local.*
-models_config.local.*
-
-# Beads project files (if present)
-.beads/
-
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.temp
-
-# Test files
-test_*.py
-*_test.py
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Documentation
-*.md
-!README.md
-!README-DOCKER.md
-
-# Docker
-Dockerfile
-docker-compose*.yml
-.dockerignore
-
-# CI/CD
-.github/
-.gitlab-ci.yml
-Jenkinsfile
-
-# OS package files
-*.deb
-*.rpm
-
-# Build artifacts
-dist/
-build/
 *.tar.gz
 *.zip
 
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.temp
-
 # Logs
 logs/
 *.log
+*.pid
 
 # Backup files
 *.backup
 *.bak
 
 # Config files with secrets
-.env*
+config.local.*
+rag_config.local.*
+models_config.local.*
 *.key
 *.pem
 *.crt
-*.key
+
+# Test files and coverage
+test_*.py
+*_test.py
+.pytest_cache/
+.coverage
+htmlcov/
+coverage/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
 
 # Node modules (if any)
 node_modules/
+.next/
 
 # Local configuration files
 config.local.yaml
-rag_config.local.json
-models_config.local.json
-
-# Beads project files
-.beads/
-*.jsonl
-
-# Coverage reports
-coverage/
-*.coverage
+*.local.*
 
 # Profiling
 *.prof
-*.pyc
+
+# Documentation - Keep only specific files
+*.md
+!README.md
+!DOCKERHUB_README.md
+
+# Archive
+archive/

@@ -11,7 +11,7 @@ import os
 import sys
 
 # Read version
-version = "1.2.0"
+version = "2.0.0"
 if os.path.exists("VERSION"):
     with open("VERSION") as f:
         version = f.read().strip()

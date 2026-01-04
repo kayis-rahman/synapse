@@ -101,7 +101,7 @@ class RAGMemoryBackend:
             logger.warning(f"Failed to read data dir from config: {e}")
 
         # Fallback to environment variable
-        return os.environ.get("RAG_DATA_DIR", "/opt/pi-rag/data")
+        return os.environ.get("RAG_DATA_DIR", "/app/data")
 
     def _get_symbolic_store(self) -> MemoryStore:
         """Get or create symbolic memory store (Phase 1)."""
