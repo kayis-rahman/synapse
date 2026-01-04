@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Optional
 
 # Import CLI commands
-from synapse.cli.commands import start, stop, status, ingest, query, setup, models, onboard
+from synapse.cli.commands import start, stop, status, ingest, query, models, onboard
+from synapse.cli.commands import setup as setup_cmd
 
 # Import configuration
 from synapse.config import get_config, print_config_summary, DEFAULT_CONFIG
@@ -248,6 +249,11 @@ def setup(
         False,
         "--offline",
         help="Use offline mode (no model downloads)"
+    ),
+    no_model_check: bool = typer.Option(
+        False,
+        "--no-model-check",
+        help="Skip model download check (for CI/automation)"
     )
 ):
     """
@@ -257,46 +263,10 @@ def setup(
     - Auto-detects data directory
     - Creates necessary directories
     - Validates setup complete
-    - Downloads required models (BGE-M3) if missing
+    - Downloads BGE-M3 embedding model (if not offline and not --no-model-check)
     """
-    # Load configuration
-    config = get_config()
-    
-    print("🚀 SYNAPSE Setup")
-    print("=" * 50)
-    
-    print(f"\nForce mode: {force}")
-    print(f"  Offline mode: {offline}")
-    
-    print(f"\n📁 Auto-detection enabled")
-    print(f"  Environment: {config['environment']}")
-    print(f"  Data Directory: {config['data_dir']}")
-    print(f"  Models Directory: {config['models_dir']}")
-    
-    print(f"\n⚙️  Configuration:")
-    print(f"  ✓ Auto-detection enabled")
-    print(f"  ✓ Sensible defaults loaded")
-    print(f"  ℹ️  Optional: Create ~/.synapse/config.json for custom config")
-    
-    print(f"\n📂 Directories:")
-    print(f"  ✓ Data: {config['data_dir']}")
-    print(f"  ✓ Models: {config['models_dir']}")
-    print(f"  ✓ RAG Index: {config['rag_index_dir']}")
-    print(f"  ✓ Docs: {config['docs_dir']}")
-    print(f"  ✓ Logs: {config['logs_dir']}")
-    
-    print(f"\n🧠 Models:")
-    print(f"  ✗ BGE-M3 (embedding): Not installed")
-    print(f"    Download with: synapse models download embedding")
-    print(f"  ℹ️  Gemma-3-1B (chat): Not installed")
-    print(f"    Download with: synapse models download chat")
-    
-    print("\n" + "=" * 50)
-    print("✓ SYNAPSE setup complete!")
-    print("\n  Next steps:")
-    print("    1. Start server: synapse start")
-    print("    2. Ingest documents: synapse ingest <path>")
-    print("    3. Query knowledge: synapse query 'your question'")
+    # Call setup command
+    setup_cmd.run_setup(force=force, offline=offline, no_model_check=no_model_check)
 
 
 @app.command("onboard")
