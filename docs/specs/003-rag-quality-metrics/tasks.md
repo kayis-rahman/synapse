@@ -1,7 +1,7 @@
 # Tasks: RAG Quality Metrics Dashboard
 
 **Feature ID**: 003-rag-quality-metrics
-**Status**: Planning Phase
+**Status**: [Deferred] (Postponed - priority shifted to other features)
 **Created**: January 4, 2026
 
 ---
