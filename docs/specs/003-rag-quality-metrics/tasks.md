@@ -6,7 +6,7 @@
 
 ---
 
-## Phase 1: Metrics Collection Foundation (1-2 hours)
+## Phase 1: Metrics Collection Foundation (2 hours)
 
 ### 1.1 Setup & Configuration
 - [x] Create `configs/metrics_config.json` configuration file
@@ -38,6 +38,19 @@
 - [x] Implement `record_auto_learning()` method
 - [x] Implement `record_system_resources()` method
 - [x] Add logging for debugging
+
+**Linked to**: Requirement FR-1
+
+### 1.4 Background Collection Thread
+- [ ] Create `rag/metrics_thread.py` module
+- [ ] Implement `__init__()` with APScheduler setup
+- [ ] Implement `start()` method
+- [ ] Implement `stop()` method for graceful shutdown
+- [ ] Implement `_schedule_resource_monitoring()` (every 1 second)
+- [ ] Implement `_schedule_data_aggregation()` (every 1 minute)
+- [ ] Implement `_schedule_data_cleanup()` (every 1 hour)
+- [ ] Add `get_scheduled_jobs()` method
+- [ ] Add `get_status()` method
 
 **Linked to**: Requirement FR-1
 
