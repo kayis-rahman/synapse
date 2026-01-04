@@ -1,9 +1,7 @@
 """
-SYNAPSE CLI: Unified Command-Line Interface
-
-Agent-first local RAG system with semantic, episodic, and symbolic memory.
+SYNAPSE CLI Module
 """
 
-from synapse.cli.main import cli
+from synapse.cli.main import main
 
-__all__ = ["cli"]
+__all__ = ["main"]
