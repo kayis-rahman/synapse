@@ -44,6 +44,43 @@ For full workflow details: `bd prime`
 
 ---
 
+# Spec-Driven Development (SDD) Protocol
+
+You must follow this lifecycle for every new feature. Do not begin coding until Task phase is approved.
+
+## 1. Feature Scoping (Folder Creation)
+- Create a new directory for every feature: `docs/specs/[feature-id]-[slug]/` (e.g., `docs/specs/001-user-auth/`).
+- All related artifacts (spec, plan, tasks) must live inside this specific folder.
+- Update **Central Progress Index** at `docs/specs/index.md` with new feature entry and status: `[In Progress]`.
+
+## 2. Planning Phase
+- **Specification (`requirements.md`)**: Define "What" and "Why." Include User Stories and testable Acceptance Criteria.
+- **Technical Plan (`plan.md`)**: Define "How." Detail architectural changes, data schemas, dependencies, and risk assessments.
+- **Wait for Approval**: Present plan to user. Do not proceed until you receive explicit confirmation.
+
+## 3. Task Breakdown (`tasks.md`)
+- Create a granular checklist of atomic steps.
+- **Format**: `- [ ] Task Description (Linked to Requirement #X)`.
+- Group tasks into logical phases (e.g., Setup, Core, UI, Testing).
+
+## 4. Implementation & Progress Tracking
+- Implement one task at a time.
+- **Rule**: Update `tasks.md` immediately by marking task as completed: `- [x]`.
+- If a task requires a design change, you must revert to Plan phase and update documentation before resuming code.
+- **Completion**: Once all tasks are checked, update `docs/specs/index.md` to `[Completed]` and include final commit hash.
+
+## Directory Structure Example
+```text
+docs/specs/
+├── index.md             <-- The "Source of Truth" for all features
+└── 001-new-feature/
+    ├── requirements.md  <-- User stories & AC
+    ├── plan.md          <-- Architecture & Tech Stack
+    └── tasks.md         <-- Checklist with [ ] and [x]
+```
+
+---
+
 # RAG STRICT MANDATE - ALL PROMPTS MUST USE RAG TOOLS
 
 ## ZERO TOLERANCE POLICY
