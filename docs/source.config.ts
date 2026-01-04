@@ -1,27 +1,11 @@
-import { defineDocs, defineConfig } from "fumadocs-mdx/config";
+import { defineDocs, frontmatterSchema } from "fumadocs-mdx/config";
 
 export const docs = defineDocs({
-  dir: 'content/content',
+  dir: 'content/docs',
   docs: {
-    schema: {
-      frontmatter: {
-        title: {
-          type: 'string',
-          required: true,
-        },
-        description: {
-          type: 'string',
-        },
-      },
-    },
-  },
-  meta: {
-    dir: 'content',
-  },
-});
-
-export default defineConfig({
-  mdx: {
-    lastModifiedTime: 'git',
+    schema: frontmatterSchema.extend({
+      title: { type: 'string', required: true },
+      description: { type: 'string' },
+    }),
   },
 });

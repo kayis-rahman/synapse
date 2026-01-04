@@ -1,4 +1,4 @@
-// File: /home/dietpi/synapse/docs/app/[lang]/docs/page.tsx
+// File: /Users/kayisrahman/Documents/workspace/ideas/synapse/docs/app/[lang]/docs/page.tsx
 import * as entry from '../../../../../app/[lang]/docs/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

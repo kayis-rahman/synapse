@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && touch out/.nojekyll",
     "start": "next start",
     "lint": "next lint"
   },
@@ -12,8 +12,8 @@
     "next": "^15.0.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "fumadocs-ui": "^14.0.0",
-    "fumadocs-core": "^13.0.0",
+    "fumadocs-ui": "^14.7.7",
+    "fumadocs-core": "^14.0.0",
     "fumadocs-mdx": "^11.0.0",
     "next-themes": "^0.3.0",
     "lucide-react": "^0.400.0"

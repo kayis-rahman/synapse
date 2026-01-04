@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { DocsLayout } from "fumadocs-ui/page";
-import { base } from "../../../source.config";
+import { DocsLayout } from "fumadocs-ui/layouts/docs";
+import { source, pageTree } from "@/lib/source";
 
 export const metadata: Metadata = {
   title: 'Documentation',
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <DocsLayout tree={base}>
+    <DocsLayout tree={pageTree}>
       {children}
     </DocsLayout>
   );
