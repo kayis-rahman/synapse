@@ -12,7 +12,7 @@ This is the "Source of Truth" for all SYNAPSE features. Each feature follows the
 |-------------|--------|---------|-----------------|
 | 001-comprehensive-test-suite | Comprehensive Test Suite | [In Progress] | ⏳ Pending |
 | 002-auto-learning | Automatic Learning System | [Completed] | 2026-01-04 |
-| 003-rag-quality-metrics | RAG Quality Metrics Dashboard | [In Progress] | ⏳ Pending |
+| 003-rag-quality-metrics | RAG Quality Metrics Dashboard | [Deferred] | ⏳ Pending |
 
 ---
 
