@@ -35,6 +35,12 @@ jobs:
         working-directory: ./docs
         run: npm install --legacy-peer-deps
 
+      - name: Generate source map
+        working-directory: ./docs
+        run: npm run dev > /dev/null 2>&1 &
+          sleep 5
+          pkill -f "next dev"
+
       - name: Build docs
         working-directory: ./docs
         run: npm run build
