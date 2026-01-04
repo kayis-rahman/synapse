@@ -43,5 +43,11 @@
     "track_operations": true,
     "min_episode_confidence": 0.6,
     "episode_deduplication": true
+  },
+  "metrics": {
+    "enabled": true,
+    "collection_interval_seconds": 1,
+    "retention_days": 90,
+    "database_path": "/opt/synapse/data/metrics.db"
   }
 }

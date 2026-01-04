@@ -8,6 +8,7 @@ import pytest
 import tempfile
 from pathlib import Path
 from typer.testing import CliRunner
+from synapse.cli.main import app
 from tests.utils.helpers import (
     save_test_config,
     create_test_document,
@@ -26,7 +27,7 @@ class TestCLIQueryCommand:
 
         # Run query command
         runner = CliRunner()
-        result = runner.invoke("synapse", ["query", "What is authentication?", "--config", str(tmp_path / "test_config.json")])
+        result = runner.invoke(app, ["query", "What is authentication?", "--config", str(tmp_path / "test_config.json")])
 
         # Verify command executed successfully
         assert result.exit_code == 0, f"Query should succeed: {result.output}"
@@ -35,7 +36,7 @@ class TestCLIQueryCommand:
     def test_result_formatting(self, tmp_path):
         """Test result formatting."""
         runner = CliRunner()
-        result = runner.invoke("synapse", ["query", "Test query", "--config", str(tmp_path / "test_config.json")])
+        result = runner.invoke(app, ["query", "Test query", "--config", str(tmp_path / "test_config.json")])
 
         # Verify output is properly formatted
         assert result.exit_code == 0, f"Query should succeed: {result.output}"
@@ -47,7 +48,7 @@ class TestCLIQueryCommand:
         """Test streaming output."""
         runner = CliRunner()
         # Most CLI commands don't support streaming yet, so test normal output
-        result = runner.invoke("synapse", ["query", "Test query", "--config", str(tmp_path / "test_config.json")])
+        result = runner.invoke(app, ["query", "Test query", "--config", str(tmp_path / "test_config.json")])
 
         # Verify output is returned
         assert result.exit_code == 0, f"Query should succeed: {result.output}"
@@ -58,7 +59,7 @@ class TestCLIQueryCommand:
         runner = CliRunner()
 
         # Test with non-existent config
-        result = runner.invoke("synapse", ["query", "Test", "--config", "/nonexistent/config.json"])
+        result = runner.invoke(app, ["query", "Test", "--config", "/nonexistent/config.json"])
 
         # Should fail gracefully
         assert result.exit_code != 0, "Should fail with non-existent config"
@@ -71,7 +72,7 @@ class TestCLIQueryCommand:
         save_test_config(empty_config)
 
         runner = CliRunner()
-        result = runner.invoke("synapse", ["query", "Test query", "--config", str(empty_config)])
+        result = runner.invoke(app, ["query", "Test query", "--config", str(empty_config)])
 
         # Verify empty results are handled
         assert result.exit_code == 0, "Query should succeed even with empty KB"
@@ -82,7 +83,7 @@ class TestCLIQueryCommand:
         runner = CliRunner()
 
         # Test with empty query
-        result = runner.invoke("synapse", ["query", "", "--config", str(tmp_path / "test_config.json")])
+        result = runner.invoke(app, ["query", "", "--config", str(tmp_path / "test_config.json")])
 
         # Verify error handling
         assert result.exit_code != 0 or "error" in result.stderr.lower(), "Should handle empty query"
@@ -93,12 +94,12 @@ class TestCLIQueryCommand:
         runner = CliRunner()
 
         # Test with top_k=1
-        result = runner.invoke("synapse", ["query", "Test query", "--top-k", "1", "--config", str(tmp_path / "test_config.json")])
+        result = runner.invoke(app, ["query", "Test query", "--top-k", "1", "--config", str(tmp_path / "test_config.json")])
 
         assert result.exit_code == 0, f"Query with top_k=1 should succeed: {result.output}"
 
         # Test with top_k=100 (high value)
-        result2 = runner.invoke("synapse", ["query", "Test query", "--top-k", "100", "--config", str(tmp_path / "test_config.json")])
+        result2 = runner.invoke(app, ["query", "Test query", "--top-k", "100", "--config", str(tmp_path / "test_config.json")])
 
         assert result.exit_code == 0, f"Query with top_k=100 should succeed: {result2.output}"
 
@@ -107,12 +108,12 @@ class TestCLIQueryCommand:
         runner = CliRunner()
 
         # Test with min_score=0.1 (low threshold)
-        result = runner.invoke("synapse", ["query", "Test query", "--min-score", "0.1", "--config", str(tmp_path / "test_config.json")])
+        result = runner.invoke(app, ["query", "Test query", "--min-score", "0.1", "--config", str(tmp_path / "test_config.json")])
 
         assert result.exit_code == 0, f"Query with min_score=0.1 should succeed: {result.output}"
 
         # Test with min_score=0.9 (high threshold)
-        result2 = runner.invoke("synapse", ["query", "Test query", "--min-score", "0.9", "--config", str(tmp_path / "test_config.json")])
+        result2 = runner.invoke(app, ["query", "Test query", "--min-score", "0.9", "--config", str(tmp_path / "test_config.json")])
 
         # With high threshold, might return no results
         assert result2.exit_code == 0, f"Query with min_score=0.9 should succeed: {result2.output}"

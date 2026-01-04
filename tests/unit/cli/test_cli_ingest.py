@@ -8,6 +8,7 @@ import pytest
 import tempfile
 from pathlib import Path
 from typer.testing import CliRunner
+from synapse.cli.main import app
 from tests.utils.helpers import (
     save_test_config,
     load_test_config,
@@ -25,11 +26,10 @@ class TestCLIIngestCommand:
         # Create test file
         test_file = tmp_path / "test_file.py"
         test_file.write_text("# Test file content\nprint('hello')")
-        test_file.mkdir(parents=tmp_path)
 
         # Run ingest command
         runner = CliRunner()
-        result = runner.invoke("synapse", ["ingest", str(test_file)])
+        result = runner.invoke(app, ["ingest", str(test_file)])
 
         # Verify command executed successfully
         assert result.exit_code == 0, f"Ingest should succeed: {result.output}"
@@ -47,7 +47,7 @@ class TestCLIIngestCommand:
 
         # Run ingest command
         runner = CliRunner()
-        result = runner.invoke("synapse", ["ingest", str(test_dir)])
+        result = runner.invoke(app, ["ingest", str(test_dir)])
 
         # Verify command executed
         assert result.exit_code == 0, f"Ingest should succeed: {result.output}"
@@ -64,7 +64,7 @@ class TestCLIIngestCommand:
 
         # Run ingest and verify progress shown
         runner = CliRunner()
-        result = runner.invoke("synapse", ["ingest", str(test_dir)])
+        result = runner.invoke(app, ["ingest", str(test_dir)])
 
         assert result.exit_code == 0
         assert "processed" in result.output.lower()
@@ -72,7 +72,7 @@ class TestCLIIngestCommand:
     def test_error_handling_invalid_path(self, tmp_path):
         """Test error handling with invalid path."""
         runner = CliRunner()
-        result = runner.invoke("synapse", ["ingest", "/nonexistent/path"])
+        result = runner.invoke(app, ["ingest", "/nonexistent/path"])
 
         # Should fail gracefully
         assert result.exit_code != 0
@@ -84,7 +84,7 @@ class TestCLIIngestCommand:
         empty_dir.mkdir()
 
         runner = CliRunner()
-        result = runner.invoke("synapse", ["ingest", str(empty_dir)])
+        result = runner.invoke(app, ["ingest", str(empty_dir)])
 
         # Should handle gracefully (no files to ingest)
         assert result.exit_code == 0
@@ -94,7 +94,7 @@ class TestCLIIngestCommand:
         """Test with empty input."""
         runner = CliRunner()
 
-        result = runner.invoke("synapse", ["ingest"])
+        result = runner.invoke(app, ["ingest"])
 
         # Should show usage/help for empty input
         assert result.exit_code != 0
@@ -105,7 +105,7 @@ class TestCLIIngestCommand:
         # Most file systems only support regular files
 
         runner = CliRunner()
-        result = runner.invoke("synapse", ["ingest", "/dev/invalid"])
+        result = runner.invoke(app, ["ingest", "/dev/invalid"])
 
         # Should fail or show error
         assert result.exit_code != 0

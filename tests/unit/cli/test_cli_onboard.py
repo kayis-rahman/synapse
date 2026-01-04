@@ -8,6 +8,7 @@ import pytest
 import tempfile
 from pathlib import Path
 from typer.testing import CliRunner
+from synapse.cli.main import app
 from tests.utils.helpers import (
     save_test_config,
     create_test_document,
@@ -28,10 +29,10 @@ class TestCLIOboardCommand:
         (test_project / "README.md").write_text("# Test Project\n\n")
 
         config_path = tmp_path / "test_config.json"
-        save_test_config(config_path)
+        save_test_config(str(config_path), {})
 
         runner = CliRunner()
-        result = runner.invoke("synapse", ["onboard", str(test_project), "--config", str(config_path)])
+        result = runner.invoke(app, ["onboard", str(test_project), "--config", str(config_path)])
 
         assert result.exit_code in [0, 1], "Onboard should complete"
         assert "ingested" in result.output.lower() or "processing" in result.output.lower() or "files" in result.output.lower(), "Should mention ingestion"
@@ -43,11 +44,11 @@ class TestCLIOboardCommand:
         (test_project / "main.py").write_text("def main():\n    print('hello')\n")
 
         config_path = tmp_path / "test_config.json"
-        save_test_config(config_path)
+        save_test_config(str(config_path), {})
 
         # Test interactive mode (simulate with auto-yes for testing)
         runner = CliRunner()
-        result = runner.invoke("synapse", ["onboard", str(test_project), "--interactive", "--yes", "--config", str(config_path)])
+        result = runner.invoke(app, ["onboard", str(test_project), "--interactive", "--yes", "--config", str(config_path)])
 
         assert result.exit_code in [0, 1], "Interactive mode should be accepted"
         assert "interactive" in result.output.lower() or "setup" in result.output.lower(), "Should indicate interactive mode"
@@ -59,10 +60,10 @@ class TestCLIOboardCommand:
         (test_project / "README.md").write_text("# Test Project\n\nA Python project\n")
 
         config_path = tmp_path / "test_config.json"
-        save_test_config(config_path)
+        save_test_config(str(config_path), {})
 
         runner = CliRunner()
-        result = runner.invoke("synapse", ["onboard", str(test_project), "--config", str(config_path)])
+        result = runner.invoke(app, ["onboard", str(test_project), "--config", str(config_path)])
 
         assert result.exit_code in [0, 1], "Should generate config"
         # Verify config file was created
@@ -74,10 +75,10 @@ class TestCLIOboardCommand:
         (test_project / "main.py").write_text("def main():\n    print('hello')\n")
 
         config_path = tmp_path / "test_config.json"
-        save_test_config(config_path)
+        save_test_config(str(config_path), {})
 
         runner = CliRunner()
-        result = runner.invoke("synapse", ["onboard", str(test_project), "--yes", "--config", str(config_path)])
+        result = runner.invoke(app, ["onboard", str(test_project), "--yes", "--config", str(config_path)])
 
         assert result.exit_code in [0, 1], "Non-interactive mode should work"
         assert "auto" in result.output.lower() or "yes" in result.output.lower() or "generated" in result.output.lower(), "Should indicate auto mode"
@@ -91,10 +92,10 @@ class TestCLIOboardCommand:
         (test_project / "requirements.txt").write_text("pytest\n")
 
         config_path = tmp_path / "test_config.json"
-        save_test_config(config_path)
+        save_test_config(str(config_path), {})
 
         runner = CliRunner()
-        result = runner.invoke("synapse", ["onboard", str(test_project), "--config", str(config_path)])
+        result = runner.invoke(app, ["onboard", str(test_project), "--config", str(config_path)])
 
         assert result.exit_code in [0, 1], "Should detect project type"
         assert "python" in result.output.lower() or "project" in result.output.lower(), "Should indicate Python project"
@@ -108,10 +109,10 @@ class TestCLIOboardCommand:
         (test_project / "requirements.txt").write_text("pytest\n")
 
         config_path = tmp_path / "test_config.json"
-        save_test_config(config_path)
+        save_test_config(str(config_path), {})
 
         runner = CliRunner()
-        result = runner.invoke("synapse", ["onboard", str(test_project), "--config", str(config_path)])
+        result = runner.invoke(app, ["onboard", str(test_project), "--config", str(config_path)])
 
         assert result.exit_code in [0, 1], "Should detect language"
         assert "python" in result.output.lower() or "detected" in result.output.lower(), "Should indicate Python detection"
@@ -125,10 +126,10 @@ class TestCLIOboardCommand:
         (test_project / "requirements.txt").write_text("flask\n")
 
         config_path = tmp_path / "test_config.json"
-        save_test_config(config_path)
+        save_test_config(str(config_path), {})
 
         runner = CliRunner()
-        result = runner.invoke("synapse", ["onboard", str(test_project), "--config", str(config_path)])
+        result = runner.invoke(app, ["onboard", str(test_project), "--config", str(config_path)])
 
         assert result.exit_code in [0, 1], "Should detect framework"
         assert "flask" in result.output.lower() or "web" in result.output.lower(), "Should indicate Flask framework"
@@ -140,10 +141,10 @@ class TestCLIOboardCommand:
         (test_project / "main.py").write_text("def main():\n    pass\n")
 
         config_path = tmp_path / "test_config.json"
-        save_test_config(config_path)
+        save_test_config(str(config_path), {})
 
         runner = CliRunner()
-        result = runner.invoke("synapse", ["onboard", str(test_project), "--verbose", "--yes", "--config", str(config_path)])
+        result = runner.invoke(app, ["onboard", str(test_project), "--verbose", "--yes", "--config", str(config_path)])
 
         assert result.exit_code in [0, 1], "Verbose mode should be accepted"
         # Should show progress indicators
@@ -152,7 +153,7 @@ class TestCLIOboardCommand:
         """Test error scenarios."""
         # Test with non-existent directory
         runner = CliRunner()
-        result = runner.invoke("synapse", ["onboard", "/nonexistent/project", "--yes", "--config", str(tmp_path / "test_config.json")])
+        result = runner.invoke(app, ["onboard", "/nonexistent/project", "--yes", "--config", str(tmp_path / "test_config.json")])
 
         assert result.exit_code in [0, 1], "Should handle non-existent path gracefully"
         assert "not found" in result.output.lower() or "error" in result.stderr.lower() or "does not exist" in result.stderr.lower(), "Should indicate path not found"
@@ -164,10 +165,10 @@ class TestCLIOboardCommand:
         (test_project / "main.py").write_text("def main():\n    pass\n")
 
         config_path = tmp_path / "test_config.json"
-        save_test_config(config_path)
+        save_test_config(str(config_path), {})
 
         runner = CliRunner()
-        result = runner.invoke("synapse", ["onboard", str(test_project), "--yes", "--config", str(config_path)])
+        result = runner.invoke(app, ["onboard", str(test_project), "--yes", "--config", str(config_path)])
 
         # Verify onboarding completed
         assert result.exit_code in [0, 1], "Onboard should complete"

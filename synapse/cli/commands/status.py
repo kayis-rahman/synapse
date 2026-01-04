@@ -11,7 +11,7 @@ import typer
 from pathlib import Path
 
 
-def check_mcp_server(port: int) -> dict:
+def check_mcp_server(port) -> dict:
     """Check if MCP server is running and healthy."""
     try:
         response = httpx.get(
@@ -125,7 +125,7 @@ def check_status():
     
     # Check MCP Server
     print("\n📡 MCP Server Status:")
-    mcp_status = check_mcp_server()
+    mcp_status = check_mcp_server(8002)
     if mcp_status["running"] and mcp_status["healthy"]:
         print(f"  ✓ Running and healthy")
         print(f"    Port: 8002")
