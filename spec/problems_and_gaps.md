@@ -10,7 +10,67 @@
 
 ---
 
-## 1. CLI/UX Problems (🔴 CRITICAL)
+## 8. Agent OS Comparison
+
+### 8.1 Overview
+
+**Agent OS** = Workflow system for spec-driven development with AI agents
+
+- **Focus**: Make agents build consistently like you
+- **Target**: Teams building with specialized AI agents
+- **Features**: Multi-agent orchestration, goals & guardrails, composable skills
+
+**SYNAPSE** = Three-tier cognitive memory system
+
+- **Focus**: Give your agent a brain for your codebase
+- **Target**: Individual developers using AI agents for coding
+- **Features**: Semantic memory, episodic memory, symbolic memory, RAG retrieval
+
+**Relationship**: Complementary, not competitive. They solve different layers of the agent stack.
+
+### 8.2 Key Differences
+
+| Dimension               | Agent OS                           | SYNAPSE                             |
+| ----------------------- | ---------------------------------- | ----------------------------------- |
+| **Problem Focus**       | Agent consistency/reliability      | Agent knowledge/memory              |
+| **Solution Type**       | Workflow/orchestration system      | Knowledge/retrieval system          |
+| **Architecture**        | Modular, tool-agnostic, composable | Monolithic, tightly coupled tiers   |
+| **Development Process** | Structured 6-phase workflow        | Issues-based gap analysis + roadmap |
+| **Documentation**       | CLAUDE.md + WORKFLOW.md formalized | Mixed (code comments + docs)        |
+| **Community**           | Active development, user feedback  | Minimal community engagement        |
+
+**Insight**: Agent OS is more modular (tool-agnostic), SYNAPSE needs modularity improvements (vector DB abstraction, CLI unification). Agent OS has proven workflow, SYNAPSE has better technical implementation but less formalized process.
+
+### 8.3 What SYNAPSE Can Learn from Agent OS
+
+✅ **Should Adopt:**
+
+1. **Structured Workflows** - Document clear phases (Plan → Align → Brief → Implement → Test → Deploy → Refine)
+2. **Modularity** - Create composable components (vector stores, ingestors, retrievers)
+3. **Community-Driven Development** - Public roadmap, metrics tracking, feedback loops
+4. **Formal Documentation** - CLAUDE.md for project context, WORKFLOW.md for development process
+
+❌ **Should NOT Adopt:**
+
+1. **Becoming a Framework/Platform** - Stay as focused tool, don't add orchestration layers
+2. **Multi-Agent Orchestration** - Wrong market (target is individual developers)
+3. **Goals & Guardrails** - Over-engineering for single-user tool
+4. **Composable Skills** - Unnecessary complexity for memory system
+5. **Tool-Agnostic Design** - Lose focus on specific optimizations
+
+### 8.4 Strategic Alignment
+
+**Insight**: Agent OS is a methodology/framework. SYNAPSE is a specific tool. They don't compete.
+
+**Recommendation**: Keep SYNAPSE as focused memory/knowledge tool. Don't add orchestration or workflow management. Learn from Agent OS's **process** (structured development), not its features.
+
+**Path Forward**:
+
+- Week 1-2: Focus on SYNAPSE core (unified CLI, config, code indexing)
+- Week 3-4: Optionally integrate with Agent OS workflows
+- Offer Agent OS users: "SYNAPSE as memory module" (not trying to be Agent OS)
+
+---
 
 ### Problem 1.1: Fragmented CLI Commands
 
@@ -614,7 +674,7 @@ Auto-validate and fix missing values
 
 ---
 
-## 8. Testing & Quality Gaps (🟢 MEDIUM)
+## 8. No Token Efficiency & Confidence Routing (🔴 CRITICAL)
 
 ### Problem 8.1: Missing Integration Tests
 
