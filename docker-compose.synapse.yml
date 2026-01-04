@@ -8,7 +8,7 @@ services:
         - BUILDKIT_INLINE_CACHE=1
     
     # Container identification
-    image: synapse:v2.0.0
+    image: synapse:v1.0.0
     container_name: synapse-mcp
     
     # Container hostname (for internal identification)
