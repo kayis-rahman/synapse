@@ -3,11 +3,11 @@
 ## Executive Summary
 
 **Total Tasks**: 186 (estimated)
-**Completed**: 40 (21.5%)
+**Completed**: 48 (25.8%)
 **In Progress**: 0 (0%)
-**Pending**: 146 (78.5%)
+**Pending**: 138 (74.2%)
 
-**Current Phase**: Phase 3b - Onboarding Wizard (95% complete)
+**Current Phase**: Phase 3 - Model Bundling & Management (50% complete)
 
 ---
 
@@ -122,62 +122,7 @@
 
 ## Phase 3: Model Bundling & Management 🔄
 
-### 3.1 Model Download Implementation
-- 🔄 Implement download_model() in synapse/cli/commands/models.py
-- ⏳ Add huggingface_hub integration
-- ⏳ Implement progress bar for downloads
-- ⏳ Add resume support for interrupted downloads
-- ⏳ Implement retry logic for failed downloads
-- ⏳ Add checksum verification
-
-### 3.2 Model Registry
-- ⏳ Create synapse/config/models.json
-- ⏳ Define available models (BGE-M3, Gemma-3-1B)
-- ⏳ Add download URLs
-- ⏳ Add file sizes
-- ⏳ Add checksums
-- ⏳ Add descriptions
-- ⏳ Support external models (OpenAI, Anthropic)
-
-### 3.3 Model CLI Commands
-- ⏳ Implement models list command (show installed status)
-- ⏳ Implement models download command (full functionality)
-- ⏳ Implement models verify command (size/checksum checks)
-- ⏳ Implement models remove command (with cleanup)
-- ⏳ Add models info command (show details for specific model)
-
-### 3.4 Auto-Download on First Run
-- ⏳ Add model check to synapse setup
-- ⏳ Add model check to synapse start
-- ⏳ Implement user prompt before download
-- ⏳ Download BGE-M3 on first run
-- ⏳ Download progress bar
-- ⏳ Verify download after completion
-
-### 3.5 Docker Bundling (Optional)
-- ⏳ Update Dockerfile for model bundling
-- ⏳ Add multi-stage build
-- ⏳ Add --build-arg INCLUDE_MODELS=true
-- ⏳ Create lightweight image (no models)
-- ⏳ Create bundled image (with models)
-- ⏳ Update docker-compose.mcp.yml
-
-### 3.6 Testing & Validation
-- ⏳ Test model download (BGE-M3 730MB)
-- ⏳ Test model download (Gemma-3-1B 400MB)
-- ⏳ Test resume functionality
-- ⏳ Test checksum verification
-- ⏳ Test model verification
-- ⏳ Test model removal
-- ⏳ Test Docker bundling
-
-### 3.7 Documentation
-- ⏳ Document model download process
-- ⏳ Document Docker bundling option
-- ⏳ Document model registry format
-- ⏳ Add troubleshooting for downloads
-
-**Phase 3 Status**: 🔄 IN PROGRESS (10% complete)
+**Phase 3 Status**: 🔄 IN PROGRESS (50% complete - download & registry done, pending setup integration & testing)
 **Timeline**: Week 2-3 - Started 2026-01-04
 
 ---
