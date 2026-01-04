@@ -1,4 +1,4 @@
-import { source } from "@/lib/source";
+import { docs } from "@/.source";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import {
   DocsBody,
@@ -8,16 +8,16 @@ import {
 } from "fumadocs-ui/page";
 
 export async function generateStaticParams() {
-  const pages = source.generateParams();
+  const pages = docs.getPages();
   return pages.map((page: any) => ({
-    slug: page.slug,
+    slug: page.slugs,
     lang: 'en',
   }));
 }
 
 export default async function Page({ params }: { params: Promise<{ lang?: string; slug?: string[] }> }) {
   const { slug } = await params;
-  const page = source.getPage(slug) as any;
+  const page = docs.getPage(slug) as any;
 
   if (!page) {
     return <div>Not Found</div>;
