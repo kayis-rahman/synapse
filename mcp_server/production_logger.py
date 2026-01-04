@@ -209,4 +209,4 @@ def get_logger(name: str) -> ProductionLogger:
 
 def get_metrics_file_path() -> str:
     """Get the metrics file path for Grafana/Promtail."""
-    return os.environ.get("METRICS_FILE", "/opt/pi-rag/loki-data/metrics.json")
+    return os.environ.get("METRICS_FILE", "/opt/synapse/loki-data/metrics.json")

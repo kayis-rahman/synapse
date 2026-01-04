@@ -9,7 +9,7 @@ ensuring compatibility with opencode and other MCP clients.
 Clean version created from scratch with all fixes applied:
 - Content mode for remote file ingestion
 - Transport security for remote connections
-- Correct data directory (/opt/pi-rag/data)
+- Correct data directory (/opt/synapse/data)
 - Fixed query parameter handling for episodic search
 - Embedding model filename fixed (embedding-gemma, not embeddinggemma)
 """
@@ -419,7 +419,7 @@ async def upload_file(request) -> Response:
             )
 
         # Load upload config from rag_config.json
-        config_path = os.environ.get("RAG_CONFIG_PATH", "/home/dietpi/pi-rag/configs/rag_config.json")
+        config_path = os.environ.get("RAG_CONFIG_PATH", "/home/dietpi/synapse/configs/rag_config.json")
         with open(config_path, 'r') as f:
             config = json.load(f)
 
