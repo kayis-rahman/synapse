@@ -4,13 +4,14 @@ SYNAPSE CLI: Status Command
 Check SYNAPSE system health and status.
 """
 
+import os
 import subprocess
 import httpx
 import typer
 from pathlib import Path
 
 
-def check_mcp_server(port: int = 8002) -> dict:
+def check_mcp_server(port: int) -> dict:
     """Check if MCP server is running and healthy."""
     try:
         response = httpx.get(

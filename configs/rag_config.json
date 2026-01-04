@@ -36,8 +36,8 @@
   "remote_upload_max_age_seconds": 3600,
   "remote_upload_max_file_size_mb": 50,
   "automatic_learning": {
-    "enabled": false,
-    "mode": "moderate",
+    "enabled": true,
+    "mode": "aggressive",
     "track_tasks": true,
     "track_code_changes": true,
     "track_operations": true,
