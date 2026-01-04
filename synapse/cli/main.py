@@ -1,23 +1,16 @@
 """
-SYNAPSE CLI: Unified Command-Line Interface
-
-This module provides main CLI entry point for synapse.
-Commands are organized into logical groups for better user experience.
-
-Usage:
-    synapse start          # Start Synapse server
-    synapse stop           # Stop Synapse server
-    synapse status         # Check system status
-    synapse ingest <path>  # Ingest documents
-    synapse query <text>    # Query knowledge base
-    synapse setup          # First-time setup
-    synapse models list    # Manage models
+SYNAPSE CLI: Main entry point with configuration integration
 """
 
 import typer
-from typing import Optional
 from pathlib import Path
-import subprocess
+from typing import Optional
+
+# Import CLI commands
+from synapse.cli.commands import start, stop, status, ingest, query, setup, models
+
+# Import configuration
+from synapse.config import get_config, print_config_summary, DEFAULT_CONFIG
 
 # CLI app with rich styling
 app = typer.Typer(
@@ -36,35 +29,34 @@ def start(
         "--docker", "-d",
         help="Use Docker container instead of native mode"
     ),
-    port: int = typer.Option(
-        8002,
+    port: Optional[int] = typer.Option(
+        None,
         "--port", "-p",
-        help="Port for MCP server"
+        help="Port for MCP server (default: from config or 8002)"
     )
 ):
     """
     Start SYNAPSE server.
 
-    Starts the MCP server in either Docker or native mode.
+    Starts MCP server in either Docker or native mode.
     Auto-detects models and configuration.
     """
-    print(f"🚀 Starting SYNAPSE server on port {port}...")
+    # Load configuration
+    config = get_config()
     
-    if docker:
-        print("🐳 Docker mode selected")
-        try:
-            subprocess.run(
-                ["docker", "compose", "-f", "docker-compose.mcp.yml", "up", "-d"],
-                check=True,
-                timeout=60
-            )
-            print("✓ SYNAPSE server started successfully")
-        except Exception as e:
-            print(f"❌ Failed to start Docker container: {e}")
-    else:
-        print("🏠 Native mode selected")
-        print("ℹ️  Note: Full implementation coming in Phase 1")
-        print("  Starting server requires integration with MCP server")
+    # Override port if specified
+    if port is not None:
+        config["mcp_port"] = port
+    
+    print(f"🚀 Starting SYNAPSE server...")
+    print(f"  Port: {config['mcp_port']}")
+    print(f"  Environment: {config['environment']}")
+    
+    # Call start command
+    start.start_server(
+        docker=docker,
+        port=config["mcp_port"]
+    )
 
 
 @app.command()
@@ -72,15 +64,20 @@ def stop():
     """
     Stop SYNAPSE server.
 
-    Stops the running MCP server (either Docker or native mode).
+    Stops running MCP server (either Docker or native mode).
     """
     print("🛑 Stopping SYNAPSE server...")
-    print("ℹ️  Note: Full implementation coming in Phase 1")
-    print("  Stop functionality requires daemon management")
+    stop.stop_server()
 
 
 @app.command()
-def status():
+def status(
+    verbose: bool = typer.Option(
+        False,
+        "--verbose", "-v",
+        help="Show detailed configuration"
+    )
+):
     """
     Check SYNAPSE system status.
 
@@ -90,19 +87,36 @@ def status():
     - Model availability
     - Configuration status
     """
-    print("🔍 SYNAPSE System Status Check")
-    print("=" * 50)
-    print("\n📡 MCP Server Status:")
-    print("  ℹ️  Health check endpoint: http://localhost:8002/health")
-    print("\n🧠 Model Status:")
-    print("  ℹ️  Full model checking coming in Phase 1")
-    print("\n📁 Data Directory Status:")
-    print("  ℹ️  Auto-detection: Docker /opt/synapse/data or ~/.synapse/data")
-    print("\n" + "=" * 50)
-    print("✓ SYNAPSE CLI framework is working")
-    print("  Next steps:")
-    print("    1. Run setup: synapse setup")
-    print("    2. Start server: synapse start")
+    # Load configuration
+    config = get_config()
+    
+    if verbose:
+        # Print full configuration
+        print_config_summary(config)
+    else:
+        # Print brief status
+        print("🔍 SYNAPSE System Status Check")
+        print("=" * 50)
+        
+        print(f"\nEnvironment: {config['environment']}")
+        print(f"Data Directory: {config['data_dir']}")
+        print(f"Models Directory: {config['models_dir']}")
+        
+        print(f"\n📡 MCP Server Status:")
+        print(f"  ℹ️  Health check endpoint: http://localhost:{config['mcp_port']}/health")
+        
+        print(f"\n🧠 Model Status:")
+        print(f"  ℹ️  Check with: synapse models list")
+        
+        print(f"\n📁 Configuration Status:")
+        print(f"  ✓ Auto-detection enabled")
+        print(f"  ✓ Sensible defaults loaded")
+        
+        print("\n" + "=" * 50)
+        print("✓ SYNAPSE CLI framework is working")
+        print("  Next steps:")
+        print("    1. Run setup: synapse setup")
+        print("    2. Start server: synapse start")
 
 
 @app.command()
@@ -122,10 +136,10 @@ def ingest(
         "--code-mode", "-c",
         help="Enable code indexing mode (AST parsing)"
     ),
-    chunk_size: int = typer.Option(
-        500,
+    chunk_size: Optional[int] = typer.Option(
+        None,
         "--chunk-size",
-        help="Chunk size in characters"
+        help="Chunk size in characters (default: from config or 500)"
     )
 ):
     """
@@ -134,9 +148,16 @@ def ingest(
     Processes files/directories and adds them to semantic memory.
     Supports regular text mode and code indexing mode with AST parsing.
     """
+    # Load configuration
+    config = get_config()
+    
+    # Override chunk size if specified
+    if chunk_size is not None:
+        config["chunk_size"] = chunk_size
+    
     print(f"📄 Ingesting: {path}")
     print(f"  Project ID: {project_id}")
-    print(f"  Chunk size: {chunk_size}")
+    print(f"  Chunk size: {config['chunk_size']}")
     print(f"  Code mode: {code_mode}")
     
     if code_mode:
@@ -146,16 +167,16 @@ def ingest(
     else:
         print("\n🔄 Starting ingestion...")
         print("ℹ️  Note: Full implementation coming in Phase 1")
-        print("  Current: Wrapper for existing bulk_ingest functionality")
+        print("  Use: python -m scripts.bulk_ingest <path>")
 
 
 @app.command()
 def query(
     text: str = typer.Argument(..., help="Query text to search knowledge base"),
-    top_k: int = typer.Option(
-        3,
+    top_k: Optional[int] = typer.Option(
+        None,
         "--top-k", "-k",
-        help="Number of results to return"
+        help="Number of results to return (default: from config or 3)"
     ),
     format: str = typer.Option(
         "json",
@@ -174,8 +195,15 @@ def query(
     Searches semantic, episodic, and symbolic memory for relevant information.
     Returns structured JSON output for AI agents by default.
     """
+    # Load configuration
+    config = get_config()
+    
+    # Override top_k if specified
+    if top_k is not None:
+        config["top_k"] = top_k
+    
     print(f"🔍 Query: {text}")
-    print(f"  Top K: {top_k}")
+    print(f"  Top K: {config['top_k']}")
     print(f"  Format: {format}")
     print(f"  Mode: {mode}")
     
@@ -186,6 +214,27 @@ def query(
     else:
         print("\nℹ️  Text output format selected")
         print("  Full implementation coming in Phase 1")
+
+
+@app.command()
+def config(
+    verbose: bool = typer.Option(
+        False,
+        "--verbose", "-v",
+        help="Show detailed configuration"
+    )
+):
+    """
+    Show SYNAPSE configuration.
+
+    Displays current configuration including paths, settings,
+    and detected environment.
+    """
+    # Load configuration
+    config = get_config()
+    
+    # Print configuration
+    print_config_summary(config)
 
 
 @app.command()
@@ -206,30 +255,41 @@ def setup(
 
     Initializes SYNAPSE with auto-configuration:
     - Auto-detects data directory
-    - Downloads required models (BGE-M3) if missing
     - Creates necessary directories
     - Validates setup complete
+    - Downloads required models (BGE-M3) if missing
     """
+    # Load configuration
+    config = get_config()
+    
     print("🚀 SYNAPSE Setup")
     print("=" * 50)
     
-    print(f"\n📁 Data directory: Auto-detection enabled")
-    print(f"  Force mode: {force}")
+    print(f"\nForce mode: {force}")
     print(f"  Offline mode: {offline}")
     
-    print("\n📂 Creating directories...")
-    print("  ✓ ~/.synapse/data structure created")
-    print("  ✓ ~/.synapse/models structure created")
+    print(f"\n📁 Auto-detection enabled")
+    print(f"  Environment: {config['environment']}")
+    print(f"  Data Directory: {config['data_dir']}")
+    print(f"  Models Directory: {config['models_dir']}")
     
-    print("\n🧠 Checking models...")
-    print("  ✓ BGE-M3 (embedding): ~730 MB")
-    print("  ℹ️  Model download coming in Phase 2 (Model Bundling)")
-    print("  ℹ️  Gemma-3 1B (chat): ~400 MB (optional)")
+    print(f"\n⚙️  Configuration:")
+    print(f"  ✓ Auto-detection enabled")
+    print(f"  ✓ Sensible defaults loaded")
+    print(f"  ℹ️  Optional: Create ~/.synapse/config.json for custom config")
     
-    print("\n⚙️  Configuration:")
-    print("  ✓ Auto-detection enabled")
-    print("  ✓ Sensible defaults loaded")
-    print("  ℹ️  Optional: Create ~/.synapse/config.json for custom config")
+    print(f"\n📂 Directories:")
+    print(f"  ✓ Data: {config['data_dir']}")
+    print(f"  ✓ Models: {config['models_dir']}")
+    print(f"  ✓ RAG Index: {config['rag_index_dir']}")
+    print(f"  ✓ Docs: {config['docs_dir']}")
+    print(f"  ✓ Logs: {config['logs_dir']}")
+    
+    print(f"\n🧠 Models:")
+    print(f"  ✗ BGE-M3 (embedding): Not installed")
+    print(f"    Download with: synapse models download embedding")
+    print(f"  ℹ️  Gemma-3-1B (chat): Not installed")
+    print(f"    Download with: synapse models download chat")
     
     print("\n" + "=" * 50)
     print("✓ SYNAPSE setup complete!")
@@ -246,20 +306,7 @@ models_app = typer.Typer(help="Model management commands")
 @models_app.command("list")
 def models_list():
     """List available and installed models."""
-    print("📦 Available Models:")
-    print("=" * 50)
-    print("\nembedding (BGE-M3):")
-    print("  Name: bge-m3-q8_0.gguf")
-    print("  Size: ~730 MB")
-    print("  Status: Not installed (download in Phase 2)")
-    print("  Description: BGE-M3 embedding model for semantic search")
-    print("  HuggingFace: BAAI/bge-m3/gguf/bge-m3-q8_0.gguf")
-    print("\nchat (Gemma-3 1B):")
-    print("  Name: gemma-3-1b-it-UD-Q4_K_XL.gguf")
-    print("  Size: ~400 MB")
-    print("  Status: Not installed (download in Phase 2)")
-    print("  Description: Gemma-3 1B chat model for local chat")
-    print("  HuggingFace: google/gemma-3-1b-it/gguf/gemma-3-1b-it-UD-Q4_K_XL.gguf")
+    models.list_models()
 
 
 @models_app.command("download")
@@ -268,22 +315,13 @@ def models_download(
     force: bool = typer.Option(False, "--force", "-f", help="Force re-download")
 ):
     """Download model from HuggingFace."""
-    print(f"📥 Downloading {model_name}...")
-    print("⚠️  Model download functionality coming in Phase 2 (Model Bundling)")
-    print("  For now, please download manually:")
-    print(f"   1. Visit HuggingFace to get download URL")
-    print("  2. Download model file")
-    print("  3. Place in: ~/.synapse/models/")
+    models.download_model(model_name=model_name, force=force)
 
 
 @models_app.command("verify")
 def models_verify():
     """Verify installed model integrity."""
-    print("🔍 Verifying Models:")
-    print("=" * 50)
-    print("⚠️  Model verification coming in Phase 2 (Model Bundling)")
-    print("  This will validate model file sizes and checksums")
-    print("  Run: synapse models download to install models first")
+    models.verify_models()
 
 
 @models_app.command("remove")
@@ -291,9 +329,7 @@ def models_remove(
     model_name: str = typer.Argument(..., help="Model name to remove")
 ):
     """Remove installed model."""
-    print(f"🗑️  Removing {model_name}...")
-    print("⚠️  Model removal functionality coming in Phase 2 (Model Bundling)")
-    print("  This will safely remove model files from ~/.synapse/models/")
+    models.remove_model(model_name=model_name)
 
 
 # Add models subcommand to main app
