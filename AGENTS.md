@@ -429,6 +429,71 @@ Confidence: [Level based on sources]
 
 ---
 
+## AUTOMATIC LEARNING SYSTEM
+
+### Overview
+Synapse now includes an **automatic learning system** that tracks all MCP tool operations and automatically extracts episodes and facts from task completions, code changes, and repeated patterns.
+
+### What is Automatically Learned
+
+**Task Completions (3+ consecutive successful operations):**
+- Multi-step workflows (search → context → code modification)
+- File ingestion batches (3+ consecutive ingest_file calls)
+- Pattern: "Task completed successfully" episodes are auto-created
+
+**Code Changes (from ingest_file tool):**
+- Dependencies extracted from import statements
+- Framework detection (FastAPI, Express, React, etc.)
+- API endpoint patterns (@app.get, @app.post, etc.)
+- Pattern: "System uses X framework" facts are auto-created
+
+**Repeated Patterns:**
+- Repeated failures (2+ same tool errors): "Pattern: operation failing repeatedly" episodes
+- Repeated successes (aggressive mode, 3+ same tool): "Pattern: operation consistently succeeds" episodes
+
+### Configuration
+Auto-learning is controlled via `configs/rag_config.json`:
+
+```json
+{
+  "automatic_learning": {
+    "enabled": true,           // Master switch (default: false)
+    "mode": "aggressive",      // aggressive/moderate/minimal
+    "track_tasks": true,        // Track task completions
+    "track_code_changes": true,  // Extract facts from code
+    "track_operations": true,    // Track all operations
+    "min_episode_confidence": 0.6,  // Filter low-confidence episodes
+    "episode_deduplication": true  // Avoid duplicate episodes
+  }
+}
+```
+
+**Modes:**
+- **aggressive**: Detects repeated successes + all other patterns
+- **moderate**: Task completion + repeated failures only
+- **minimal**: Only explicit manual additions
+
+### Manual Override
+You can override auto-learning for any tool call:
+
+```json
+{
+  "auto_learn": false  // Explicitly disable for this call
+}
+```
+
+**Note**: Manual `add_fact()` and `add_episode()` calls ALWAYS work, regardless of auto-learning setting.
+
+### When is Learning NOT Automatic
+
+You MUST still manually add facts/episodes when:
+- User provides specific information NOT from operations
+- Learning from conversation that wasn't from code/operations
+- Adding project preferences or constraints
+- Documenting decisions or agreements
+
+---
+
 ## STRICT VERIFICATION REQUIREMENTS
 
 ### Before ANY Answer, Verify:

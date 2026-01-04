@@ -67,14 +67,17 @@ OUTPUT FORMAT (JSON only):
 
 If NO lesson qualifies, return: {{"should_extract": false}"""
     
-    def __init__(self, model_manager: Optional[Any] = None):
+    def __init__(self, model_manager: Optional[Any] = None, config: Optional[Dict[str, Any]] = None):
         """
         Initialize learning extractor.
-        
+
         Args:
             model_manager: Optional ModelManager for LLM access
+            config: Optional auto-learning configuration
         """
         self.model_manager = model_manager
+        self.config = config or {}
+        self.track_code_changes = self.config.get("track_code_changes", True)
     
     def extract_episode_from_task(self, task: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """

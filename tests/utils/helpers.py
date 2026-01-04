@@ -1,7 +1,7 @@
 """
 Test utility functions for SYNAPSE tests.
 
-Provides helper functions for creating test data, assertions, etc.
+Provides helper functions for creating test data, assertions, mocks, etc.
 """
 
 import json
@@ -236,3 +236,240 @@ def load_test_config(path: str) -> Dict[str, Any]:
     """
     with open(path, 'r') as f:
         return json.load(f)
+
+
+# ============================================================================
+# Assertion Helpers
+# ============================================================================
+
+def assert_valid_uuid(uuid_str: str, msg: str = ""):
+    """
+    Assert that a string is a valid UUID.
+
+    Args:
+        uuid_str: UUID string to validate
+        msg: Optional error message
+
+    Raises:
+        AssertionError if invalid UUID
+    """
+    try:
+        uuid.UUID(uuid_str)
+    except ValueError:
+        raise AssertionError(f"Invalid UUID: {uuid_str}. {msg}")
+
+
+def assert_valid_embedding(embedding: List[float], msg: str = ""):
+    """
+    Assert that a vector is a valid embedding.
+
+    Args:
+        embedding: Embedding vector to validate
+        msg: Optional error message
+
+    Raises:
+        AssertionError if invalid embedding
+    """
+    assert isinstance(embedding, list), f"Embedding must be a list. {msg}"
+    assert len(embedding) > 0, f"Embedding must not be empty. {msg}"
+    assert all(isinstance(x, (int, float)) for x in embedding), \
+        f"Embedding must contain numbers. {msg}"
+    assert all(0.0 <= x <= 1.0 for x in embedding), \
+        f"Embedding values must be normalized [0, 1]. {msg}"
+
+
+def assert_valid_fact(fact: Dict[str, Any], msg: str = ""):
+    """
+    Assert that a dictionary is a valid fact structure.
+
+    Args:
+        fact: Fact dictionary to validate
+        msg: Optional error message
+
+    Raises:
+        AssertionError if invalid fact
+    """
+    required_keys = ["id", "scope", "category", "key", "value", "confidence", "source"]
+    for key in required_keys:
+        assert key in fact, f"Missing required key '{key}' in fact. {msg}"
+    assert_valid_uuid(fact["id"], msg)
+
+
+def assert_valid_episode(episode: Dict[str, Any], msg: str = ""):
+    """
+    Assert that a dictionary is a valid episode structure.
+
+    Args:
+        episode: Episode dictionary to validate
+        msg: Optional error message
+
+    Raises:
+        AssertionError if invalid episode
+    """
+    required_keys = ["id", "situation", "action", "outcome", "lesson", "confidence", "lesson_type", "quality"]
+    for key in required_keys:
+        assert key in episode, f"Missing required key '{key}' in episode. {msg}"
+    assert_valid_uuid(episode["id"], msg)
+
+
+def assert_valid_chunk(chunk: Dict[str, Any], msg: str = ""):
+    """
+    Assert that a dictionary is a valid chunk structure.
+
+    Args:
+        chunk: Chunk dictionary to validate
+        msg: Optional error message
+
+    Raises:
+        AssertionError if invalid chunk
+    """
+    required_keys = ["id", "content"]
+    for key in required_keys:
+        assert key in chunk, f"Missing required key '{key}' in chunk. {msg}"
+    assert "content" in chunk and len(chunk["content"]) > 0, \
+        f"Chunk content must not be empty. {msg}"
+
+
+# ============================================================================
+# Mock Factories
+# ============================================================================
+
+class MockEmbeddingService:
+    """Mock embedding service for fast tests."""
+
+    def __init__(self, embedding_dim: int = 768):
+        """
+        Initialize mock embedding service.
+
+        Args:
+            embedding_dim: Dimension of embeddings (default: 768)
+        """
+        self.embedding_dim = embedding_dim
+        self.embed_count = 0
+
+    def embed(self, texts: List[str]) -> List[List[float]]:
+        """
+        Generate mock embeddings.
+
+        Args:
+            texts: List of text strings
+
+        Returns:
+            List of embedding vectors
+        """
+        self.embed_count += len(texts)
+        return [[0.1] * self.embedding_dim for _ in texts]
+
+    def embed_single(self, text: str) -> List[float]:
+        """
+        Generate mock embedding for single text.
+
+        Args:
+            text: Text string
+
+        Returns:
+            Embedding vector
+        """
+        self.embed_count += 1
+        return [0.1] * self.embedding_dim
+
+
+class MockLLMService:
+    """Mock LLM service for fast tests."""
+
+    def __init__(self):
+        """Initialize mock LLM service."""
+        self.generate_count = 0
+
+    def generate(self, prompt: str) -> str:
+        """
+        Generate mock response.
+
+        Args:
+            prompt: Input prompt
+
+        Returns:
+            Mock response string
+        """
+        self.generate_count += 1
+        return f"Mock response to: {prompt[:50]}..."
+
+
+class MockHTTPClient:
+    """Mock HTTP client for MCP server tests."""
+
+    def __init__(self, mock_responses: Optional[Dict[str, Any]] = None):
+        """
+        Initialize mock HTTP client.
+
+        Args:
+            mock_responses: Optional dictionary of mock responses
+        """
+        self.mock_responses = mock_responses or {}
+
+    def get(self, url: str, **kwargs):
+        """Mock GET request."""
+        return MockResponse(status_code=200, json_data=self.mock_responses.get(url, {}))
+
+    def post(self, url: str, **kwargs):
+        """Mock POST request."""
+        return MockResponse(status_code=200, json_data=self.mock_responses.get(url, {}))
+
+
+class MockResponse:
+    """Mock HTTP response."""
+
+    def __init__(self, status_code: int = 200, json_data: Any = None):
+        """
+        Initialize mock response.
+
+        Args:
+            status_code: HTTP status code (default: 200)
+            json_data: JSON response data
+        """
+        self.status_code = status_code
+        self.json_data = json_data
+
+    def json(self):
+        """Return JSON data."""
+        return self.json_data
+
+
+class MockDatabase:
+    """Mock database for fast tests."""
+
+    def __init__(self):
+        """Initialize mock database."""
+        self.data = {}
+
+    def execute(self, query: str, params: Optional[Dict] = None):
+        """Mock SQL execute."""
+        return []
+
+    def cursor(self):
+        """Return mock cursor."""
+        return MockCursor()
+
+
+class MockCursor:
+    """Mock database cursor."""
+
+    def __init__(self):
+        """Initialize mock cursor."""
+        self.results = []
+
+    def execute(self, query: str, params: Optional[Dict] = None):
+        """Mock execute."""
+        pass
+
+    def fetchall(self):
+        """Mock fetchall."""
+        return []
+
+    def fetchone(self):
+        """Mock fetchone."""
+        return None
+
+    def close(self):
+        """Mock close."""
+        pass

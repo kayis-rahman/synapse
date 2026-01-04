@@ -5,7 +5,6 @@ Tests cover all 7 MCP tools: list_projects, list_sources, get_context, search, i
 """
 
 import pytest
-from mcp_server.rag_server import get_server
 
 
 @pytest.mark.integration

@@ -107,16 +107,19 @@ class AutoLearningTracker:
             tool_name = operation.get("tool_name", "unknown")
             logger.warning(f"Pattern detected: {tool_name} failed 3 times consecutively")
     
-    def detect_task_completion(self) -> Optional[Dict[str, Any]]:
+    def detect_task_completion(self, operations: Optional[List[Dict[str, Any]]] = None) -> Optional[Dict[str, Any]]:
         """
         Detect completed task from operation sequence.
-        
+
         Patterns:
         1. Multi-step operations (3+ tools used)
         2. Successful file ingestion (rag.ingest_file success)
         3. Bug fix sequence (search → read → edit)
         4. Deployment sequence (build → test → deploy)
-        
+
+        Args:
+            operations: Optional list of operations (uses internal buffer if None)
+
         Returns:
             Task completion dict with:
                 - type: "task_completion"
@@ -125,57 +128,74 @@ class AutoLearningTracker:
                 - outcome: success/failure
                 - confidence: float (0.6-0.9)
         """
-        if len(self.operation_buffer) < 3:
+        ops = operations if operations is not None else self.operation_buffer
+
+        if len(ops) < 3:
             return None
-        
-        last_3 = self.operation_buffer[-3:]
-        
-        # Pattern 1: File ingestion success
+
+        last_3 = ops[-3:]
+
+        # Generic multi-step pattern (any 3+ successful operations)
         if self.track_tasks:
-            if all(op.get("tool_name") == "rag.ingest_file" for op in last_3):
-                if all(op.get("result") == "success" for op in last_3):
+            if all(op.get("result") == "success" for op in last_3):
+                # Check for specific patterns first
+                # Pattern 1: File ingestion success
+                if all(op.get("tool_name") == "rag.ingest_file" for op in last_3):
                     return {
                         "type": "task_completion",
                         "situation": "Multiple files needed to be ingested",
                         "action": "File ingestion completed successfully for multiple files",
-                        "outcome": "All files processed without errors",
+                        "outcome": "success",
                         "confidence": 0.8
                     }
-        
-        # Pattern 2: Search → Get Context → Code modification
-        if self.track_tasks:
-            tools_used = [op.get("tool_name") for op in last_3]
-            
-            # Check for search + context retrieval
-            has_search = "rag.search" in tools_used
-            has_get_context = "rag.get_context" in tools_used
-            
-            # Check for file operations
-            has_file_ops = any(t in tools_used for t in ["read", "edit", "write"])
-            
-            if has_search and has_get_context and has_file_ops:
-                # Check all succeeded
-                all_success = all(op.get("result") == "success" for op in last_3)
-                if all_success:
+
+                # Pattern 2: Search → Get Context → Code modification
+                tools_used = [op.get("tool_name") for op in last_3]
+
+                # Check for search + context retrieval
+                has_search = "rag.search" in tools_used
+                has_get_context = "rag.get_context" in tools_used
+
+                # Check for file WRITE operations (excludes read)
+                has_write_ops = any(t in tools_used for t in ["edit_file", "write_file", "edit", "write"])
+
+                if has_search and has_get_context and has_write_ops:
                     return {
                         "type": "task_completion",
-                        "situation": "Information retrieval and code modification",
+                        "situation": "Search and code modification",
                         "action": "Searched semantic memory, retrieved context, and modified code",
-                        "outcome": "Task completed with updated codebase",
+                        "outcome": "success",
                         "confidence": 0.75
                     }
-        
+
+                # Generic multi-step pattern (any 3 successful operations, excluding file ingestion)
+                tool_names = [op.get("tool_name") for op in last_3]
+                unique_tools = len(set(tool_names))
+                is_file_ingestion = all(op.get("tool_name") == "rag.ingest_file" for op in last_3)
+
+                if not is_file_ingestion and not has_search and not has_get_context:
+                    return {
+                        "type": "task_completion",
+                        "situation": f"Multi-step operation using {unique_tools} different tools",
+                        "action": "Executed multiple operations successfully",
+                        "outcome": "success",
+                        "confidence": 0.7
+                    }
+
         return None
     
-    def detect_pattern(self) -> Optional[Dict[str, Any]]:
+    def detect_pattern(self, operations: Optional[List[Dict[str, Any]]] = None) -> Optional[Dict[str, Any]]:
         """
         Detect repeated patterns across operations.
-        
+
         Patterns:
         1. Same tool fails 2+ times consecutively
         2. Same operation succeeds 3+ times
         3. Specific query pattern repeats
-        
+
+        Args:
+            operations: Optional list of operations (uses internal buffer if None)
+
         Returns:
             Pattern dict with:
                 - type: "pattern"
@@ -184,14 +204,17 @@ class AutoLearningTracker:
                 - outcome: pattern description
                 - confidence: float (0.7-0.9)
         """
-        if len(self.operation_buffer) < 5:
+        ops = operations if operations is not None else self.operation_buffer
+
+        if len(ops) < 2:
             return None
-        
-        last_5 = self.operation_buffer[-5:]
-        
-        # Check for repeated failures
-        failures = [op for op in last_5 if op.get("result") == "error"]
-        
+
+        # Use all available operations (not just last 5)
+        recent_ops = ops[-5:] if len(ops) >= 5 else ops
+
+        # Check for repeated failures (need at least 2)
+        failures = [op for op in recent_ops if op.get("result") == "error"]
+
         if len(failures) >= 2:
             # Check if same tool failed
             failed_tools = [op.get("tool_name") for op in failures]
@@ -201,14 +224,14 @@ class AutoLearningTracker:
                     "type": "pattern",
                     "situation": f"Repeated failures in {tool_name}",
                     "action": f"Attempted {tool_name} {len(failures)} times consecutively without success",
-                    "outcome": "Pattern detected: operation failing repeatedly",
+                    "outcome": "failure",
                     "confidence": 0.85
                 }
-        
-        # Check for repeated successes
-        if self.mode == "aggressive":
-            successes = [op for op in last_5 if op.get("result") == "success"]
-            
+
+        # Check for repeated successes (need at least 3 consecutive in aggressive mode, AND 5+ total ops)
+        if self.mode == "aggressive" and len(ops) >= 5:
+            successes = [op for op in recent_ops if op.get("result") == "success"]
+
             if len(successes) >= 3:
                 success_tools = [op.get("tool_name") for op in successes]
                 if len(set(success_tools)) == 1:
@@ -217,10 +240,10 @@ class AutoLearningTracker:
                         "type": "pattern",
                         "situation": f"Repeated success with {tool_name}",
                         "action": f"Successfully used {tool_name} {len(successes)} times",
-                        "outcome": "Pattern detected: operation consistently succeeds",
+                        "outcome": "success",
                         "confidence": 0.8
                     }
-        
+
         return None
     
     def should_auto_track(self, operation: Dict[str, Any]) -> bool:
@@ -251,27 +274,27 @@ class AutoLearningTracker:
         # Default: respect global setting
         return True
     
-    def get_buffer_stats(self) -> Dict[str, int]:
+    def get_buffer_stats(self) -> Dict[str, Any]:
         """
         Get statistics about operation buffer.
-        
+
         Returns:
             Dict with counts of various metrics
         """
         total = len(self.operation_buffer)
         successes = len([op for op in self.operation_buffer if op.get("result") == "success"])
         errors = len([op for op in self.operation_buffer if op.get("result") == "error"])
-        
+
         # Count by tool
         tool_counts = {}
         for op in self.operation_buffer:
             tool = op.get("tool_name", "unknown")
             tool_counts[tool] = tool_counts.get(tool, 0) + 1
-        
+
         # Calculate average duration
         durations = [op.get("duration_ms", 0) for op in self.operation_buffer if "duration_ms" in op]
         avg_duration = sum(durations) / len(durations) if durations else 0
-        
+
         return {
             "total_operations": total,
             "successful_operations": successes,

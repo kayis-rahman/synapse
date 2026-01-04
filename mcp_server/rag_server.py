@@ -37,6 +37,9 @@ from rag import (
     SemanticIngestor, get_semantic_ingestor,
     SemanticRetriever, get_semantic_retriever
 )
+from rag.auto_learning_tracker import AutoLearningTracker
+from rag.learning_extractor import LearningExtractor
+from rag.model_manager import get_model_manager
 
 # Local imports
 from .metrics import Metrics, get_metrics
@@ -82,6 +85,23 @@ class RAGMemoryBackend:
 
         # Upload configuration for remote file ingestion
         self._upload_config = self._load_upload_config()
+
+        # Auto-learning components
+        self.auto_learning_config = self._load_auto_learning_config()
+        self._auto_learning_tracker: Optional[AutoLearningTracker] = None
+        self._learning_extractor: Optional[LearningExtractor] = None
+        self.operation_buffer: List[Dict[str, Any]] = []
+
+        # Initialize auto-learning if enabled
+        if self.auto_learning_config.get("enabled", False):
+            self._auto_learning_tracker = AutoLearningTracker(
+                config=self.auto_learning_config,
+                model_manager=get_model_manager()
+            )
+            self._learning_extractor = LearningExtractor(
+                model_manager=get_model_manager()
+            )
+            logger.info(f"Auto-learning enabled: mode={self.auto_learning_config.get('mode', 'moderate')}")
 
     def _get_data_dir(self) -> str:
         """Get data directory from config file."""
@@ -190,6 +210,45 @@ class RAGMemoryBackend:
             logger.warning(f"Failed to load upload config: {e}")
 
         logger.info(f"Upload config: enabled={config['enabled']}, dir={config['directory']}")
+
+        return config
+
+    def _load_auto_learning_config(self) -> Dict[str, Any]:
+        """
+        Load automatic learning configuration from rag_config.json.
+
+        Returns:
+            Auto-learning configuration dictionary
+        """
+        config = {
+            "enabled": False,
+            "mode": "moderate",
+            "track_tasks": True,
+            "track_code_changes": True,
+            "track_operations": True,
+            "min_episode_confidence": 0.6,
+            "episode_deduplication": True
+        }
+
+        try:
+            config_path = os.environ.get("RAG_CONFIG_PATH", "./configs/rag_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, 'r') as f:
+                    file_config = json.load(f)
+
+                if "automatic_learning" in file_config:
+                    auto_config = file_config["automatic_learning"]
+                    config["enabled"] = auto_config.get("enabled", config["enabled"])
+                    config["mode"] = auto_config.get("mode", config["mode"])
+                    config["track_tasks"] = auto_config.get("track_tasks", config["track_tasks"])
+                    config["track_code_changes"] = auto_config.get("track_code_changes", config["track_code_changes"])
+                    config["track_operations"] = auto_config.get("track_operations", config["track_operations"])
+                    config["min_episode_confidence"] = auto_config.get("min_episode_confidence", config["min_episode_confidence"])
+                    config["episode_deduplication"] = auto_config.get("episode_deduplication", config["episode_deduplication"])
+        except Exception as e:
+            logger.warning(f"Failed to load auto-learning config: {e}, using defaults")
+
+        logger.info(f"Auto-learning config: enabled={config['enabled']}, mode={config['mode']}")
 
         return config
 
@@ -320,6 +379,16 @@ class RAGMemoryBackend:
             Dict with projects list and metadata
         """
         project_id = "global"
+        start_time = datetime.now()
+
+        # Build operation record
+        operation = {
+            "tool_name": "rag.list_projects",
+            "project_id": project_id,
+            "arguments": {"scope_type": scope_type},
+            "start_time": start_time
+        }
+
         request_id = self.metrics.record_tool_call(project_id, "list_projects")
 
         try:
@@ -335,6 +404,9 @@ class RAGMemoryBackend:
             if scope_type:
                 projects = [p for p in projects if p == scope_type]
 
+            operation["result"] = "success"
+            operation["outcome"] = "completed"
+
             self.metrics.record_tool_completion(project_id, "list_projects", request_id)
 
             return {
@@ -345,12 +417,25 @@ class RAGMemoryBackend:
             }
 
         except Exception as e:
+            operation["result"] = "error"
+            operation["outcome"] = "failed"
+            operation["error"] = str(e)
+
             logger.error(f"Error listing projects: {e}", exc_info=True)
             self.metrics.record_tool_completion(
                 project_id, "list_projects", request_id,
                 error=True, error_message=str(e)
             )
             raise
+        finally:
+            # Calculate duration
+            operation["duration_ms"] = (datetime.now() - start_time).total_seconds() * 1000
+            operation["timestamp"] = start_time
+
+            # Track operation (if auto-learning enabled)
+            if self._auto_learning_tracker and self._should_auto_track(operation):
+                self._auto_learning_tracker.track_operation(operation)
+                self.operation_buffer.append(operation)
 
     async def list_sources(
         self,
@@ -367,6 +452,14 @@ class RAGMemoryBackend:
         Returns:
             Dict with sources list and metadata
         """
+        start_time = datetime.now()
+        operation = {
+            "tool_name": "rag.list_sources",
+            "project_id": project_id,
+            "arguments": {"source_type": source_type},
+            "start_time": start_time
+        }
+
         request_id = self.metrics.record_tool_call(project_id, "list_sources")
 
         try:
@@ -397,6 +490,9 @@ class RAGMemoryBackend:
 
             sources_list = list(sources.values())
 
+            operation["result"] = "success"
+            operation["outcome"] = "completed"
+
             self.metrics.record_tool_completion(project_id, "list_sources", request_id)
 
             return {
@@ -407,12 +503,23 @@ class RAGMemoryBackend:
             }
 
         except Exception as e:
+            operation["result"] = "error"
+            operation["outcome"] = "failed"
+            operation["error"] = str(e)
+
             logger.error(f"Error listing sources for project {project_id}: {e}", exc_info=True)
             self.metrics.record_tool_completion(
                 project_id, "list_sources", request_id,
                 error=True, error_message=str(e)
             )
             raise
+        finally:
+            operation["duration_ms"] = (datetime.now() - start_time).total_seconds() * 1000
+            operation["timestamp"] = start_time
+
+            if self._auto_learning_tracker and self._should_auto_track(operation):
+                self._auto_learning_tracker.track_operation(operation)
+                self.operation_buffer.append(operation)
 
     async def get_context(
         self,
@@ -438,6 +545,18 @@ class RAGMemoryBackend:
         Returns:
             Dict with context from each memory type
         """
+        start_time = datetime.now()
+        operation = {
+            "tool_name": "rag.get_context",
+            "project_id": project_id,
+            "arguments": {
+                "context_type": context_type,
+                "query": query,
+                "max_results": max_results
+            },
+            "start_time": start_time
+        }
+
         request_id = self.metrics.record_tool_call(project_id, "get_context")
 
         try:
@@ -525,17 +644,41 @@ class RAGMemoryBackend:
             total_results = len(result["symbolic"]) + len(result["episodic"]) + len(result["semantic"])
             result["message"] = f"Retrieved {total_results} context item(s)"
 
+            operation["result"] = "success"
+            operation["outcome"] = "completed"
+
             self.metrics.record_tool_completion(project_id, "get_context", request_id)
 
             return result
 
         except Exception as e:
+            operation["result"] = "error"
+            operation["outcome"] = "failed"
+            operation["error"] = str(e)
+
             logger.error(f"Error getting context for project {project_id}: {e}", exc_info=True)
             self.metrics.record_tool_completion(
                 project_id, "get_context", request_id,
                 error=True, error_message=str(e)
             )
             raise
+        finally:
+            operation["duration_ms"] = (datetime.now() - start_time).total_seconds() * 1000
+            operation["timestamp"] = start_time
+
+            if self._auto_learning_tracker and self._should_auto_track(operation):
+                self._auto_learning_tracker.track_operation(operation)
+                self.operation_buffer.append(operation)
+
+                # Check for task completion
+                task_completion = self._auto_learning_tracker.detect_task_completion()
+                if task_completion and self.auto_learning_config.get("track_tasks", True):
+                    await self._auto_store_episode(project_id, task_completion)
+
+                # Check for patterns
+                pattern = self._auto_learning_tracker.detect_pattern()
+                if pattern and self.auto_learning_config.get("track_operations", True):
+                    await self._auto_store_episode(project_id, pattern)
 
     async def search(
         self,
@@ -558,6 +701,19 @@ class RAGMemoryBackend:
         Returns:
             Dict with search results
         """
+        start_time = datetime.now()
+        operation = {
+            "tool_name": "rag.search",
+            "project_id": project_id,
+            "arguments": {
+                "query": query,
+                "memory_type": memory_type,
+                "top_k": top_k,
+                "situation_contains": situation_contains
+            },
+            "start_time": start_time
+        }
+
         request_id = self.metrics.record_tool_call(project_id, "search")
 
         try:
@@ -639,6 +795,9 @@ class RAGMemoryBackend:
             authority_order = {"symbolic": 0, "episodic": 1, "semantic": 2}
             results.sort(key=lambda x: authority_order.get(x["type"], 99))
 
+            operation["result"] = "success"
+            operation["outcome"] = "completed"
+
             self.metrics.record_tool_completion(project_id, "search", request_id)
 
             return {
@@ -648,12 +807,33 @@ class RAGMemoryBackend:
             }
 
         except Exception as e:
+            operation["result"] = "error"
+            operation["outcome"] = "failed"
+            operation["error"] = str(e)
+
             logger.error(f"Error searching for project {project_id}: {e}", exc_info=True)
             self.metrics.record_tool_completion(
                 project_id, "search", request_id,
                 error=True, error_message=str(e)
             )
             raise
+        finally:
+            operation["duration_ms"] = (datetime.now() - start_time).total_seconds() * 1000
+            operation["timestamp"] = start_time
+
+            if self._auto_learning_tracker and self._should_auto_track(operation):
+                self._auto_learning_tracker.track_operation(operation)
+                self.operation_buffer.append(operation)
+
+                # Check for task completion
+                task_completion = self._auto_learning_tracker.detect_task_completion()
+                if task_completion and self.auto_learning_config.get("track_tasks", True):
+                    await self._auto_store_episode(project_id, task_completion)
+
+                # Check for patterns
+                pattern = self._auto_learning_tracker.detect_pattern()
+                if pattern and self.auto_learning_config.get("track_operations", True):
+                    await self._auto_store_episode(project_id, pattern)
 
     async def ingest_file(
         self,
@@ -676,9 +856,21 @@ class RAGMemoryBackend:
             source_type: Type of source (file, code, web)
             metadata: Optional metadata to attach
 
-        Returns:
+            Returns:
             Dict with ingestion results
         """
+        start_time = datetime.now()
+        operation = {
+            "tool_name": "rag.ingest_file",
+            "project_id": project_id,
+            "arguments": {
+                "file_path": file_path,
+                "source_type": source_type,
+                "metadata": metadata
+            },
+            "start_time": start_time
+        }
+
         request_id = self.metrics.record_tool_call(project_id, "ingest_file")
 
         try:
@@ -691,6 +883,9 @@ class RAGMemoryBackend:
             # Phase B: Validate remote file path
             is_valid, error_msg = self._validate_remote_file_path(file_path)
             if not is_valid:
+                operation["result"] = "error"
+                operation["outcome"] = "validation_failed"
+
                 self.metrics.record_tool_completion(
                     project_id, "ingest_file", request_id,
                     error=True, error_message=error_msg
@@ -747,12 +942,39 @@ class RAGMemoryBackend:
             }
 
         except Exception as e:
+            operation["result"] = "error"
+            operation["outcome"] = "failed"
+            operation["error"] = str(e)
+
             logger.error(f"Error ingesting file {file_path} for project {project_id}: {e}", exc_info=True)
             self.metrics.record_tool_completion(
                 project_id, "ingest_file", request_id,
                 error=True, error_message=str(e)
             )
             raise
+        finally:
+            operation["duration_ms"] = (datetime.now() - start_time).total_seconds() * 1000
+            operation["timestamp"] = start_time
+
+            if self._auto_learning_tracker and self._should_auto_track(operation):
+                self._auto_learning_tracker.track_operation(operation)
+                self.operation_buffer.append(operation)
+
+                # Auto-extract and store facts from file ingestion
+                if operation["result"] == "success" and self._learning_extractor and self.auto_learning_config.get("track_code_changes", True):
+                    facts = self._learning_extractor.extract_facts_from_ingestion(real_path)
+                    for fact in facts:
+                        await self._auto_store_fact(project_id, fact)
+
+                # Check for task completion
+                task_completion = self._auto_learning_tracker.detect_task_completion()
+                if task_completion and self.auto_learning_config.get("track_tasks", True):
+                    await self._auto_store_episode(project_id, task_completion)
+
+                # Check for patterns
+                pattern = self._auto_learning_tracker.detect_pattern()
+                if pattern and self.auto_learning_config.get("track_operations", True):
+                    await self._auto_store_episode(project_id, pattern)
 
     async def add_fact(
         self,
@@ -775,6 +997,19 @@ class RAGMemoryBackend:
         Returns:
             Dict with fact creation result
         """
+        start_time = datetime.now()
+        operation = {
+            "tool_name": "rag.add_fact",
+            "project_id": project_id,
+            "arguments": {
+                "fact_key": fact_key,
+                "fact_value": fact_value,
+                "confidence": confidence,
+                "category": category
+            },
+            "start_time": start_time
+        }
+
         request_id = self.metrics.record_tool_call(project_id, "add_fact")
 
         try:
@@ -797,6 +1032,9 @@ class RAGMemoryBackend:
             symbolic_store = self._get_symbolic_store()
             stored_fact = symbolic_store.store_memory(fact)
 
+            operation["result"] = "success"
+            operation["outcome"] = "completed"
+
             self.metrics.record_tool_completion(project_id, "add_fact", request_id)
 
             return {
@@ -809,12 +1047,23 @@ class RAGMemoryBackend:
             }
 
         except Exception as e:
+            operation["result"] = "error"
+            operation["outcome"] = "failed"
+            operation["error"] = str(e)
+
             logger.error(f"Error adding fact for project {project_id}: {e}", exc_info=True)
             self.metrics.record_tool_completion(
                 project_id, "add_fact", request_id,
                 error=True, error_message=str(e)
             )
             raise
+        finally:
+            operation["duration_ms"] = (datetime.now() - start_time).total_seconds() * 1000
+            operation["timestamp"] = start_time
+
+            if self._auto_learning_tracker and self._should_auto_track(operation):
+                self._auto_learning_tracker.track_operation(operation)
+                self.operation_buffer.append(operation)
 
     async def add_episode(
         self,
@@ -837,6 +1086,19 @@ class RAGMemoryBackend:
         Returns:
             Dict with episode creation result
         """
+        start_time = datetime.now()
+        operation = {
+            "tool_name": "rag.add_episode",
+            "project_id": project_id,
+            "arguments": {
+                "title": title,
+                "content": content,
+                "lesson_type": lesson_type,
+                "quality": quality
+            },
+            "start_time": start_time
+        }
+
         request_id = self.metrics.record_tool_call(project_id, "add_episode")
 
         try:
@@ -863,6 +1125,9 @@ class RAGMemoryBackend:
             episodic_store = self._get_episodic_store()
             stored_episode = episodic_store.store_episode(episode)
 
+            operation["result"] = "success"
+            operation["outcome"] = "completed"
+
             self.metrics.record_tool_completion(project_id, "add_episode", request_id)
 
             return {
@@ -874,12 +1139,23 @@ class RAGMemoryBackend:
             }
 
         except Exception as e:
+            operation["result"] = "error"
+            operation["outcome"] = "failed"
+            operation["error"] = str(e)
+
             logger.error(f"Error adding episode for project {project_id}: {e}", exc_info=True)
             self.metrics.record_tool_completion(
                 project_id, "add_episode", request_id,
                 error=True, error_message=str(e)
             )
             raise
+        finally:
+            operation["duration_ms"] = (datetime.now() - start_time).total_seconds() * 1000
+            operation["timestamp"] = start_time
+
+            if self._auto_learning_tracker and self._should_auto_track(operation):
+                self._auto_learning_tracker.track_operation(operation)
+                self.operation_buffer.append(operation)
 
     def _parse_episode_content(self, content: str, title: str) -> Dict[str, str]:
         """
@@ -920,6 +1196,185 @@ class RAGMemoryBackend:
             parts["lesson"] = content[:500]  # Limit lesson length
 
         return parts
+
+    def _auto_store_episode(self, project_id: str, episode_data: Dict[str, Any]) -> Optional[str]:
+        """
+        Automatically store an episode to episodic memory.
+
+        Args:
+            project_id: Project identifier
+            episode_data: Episode data from tracker/extractor
+
+        Returns:
+            Episode ID or None if not stored
+        """
+        if not self._auto_learning_tracker or not self._learning_extractor:
+            return None
+
+        try:
+            # Check if tracking enabled for this type
+            if episode_data.get("type") == "task_completion" and not self.auto_learning_config.get("track_tasks", True):
+                logger.debug(f"Task tracking disabled, skipping episode storage")
+                return None
+
+            # Extract episode using LLM
+            episode = self._learning_extractor.extract_episode_from_task(episode_data)
+            if not episode:
+                logger.debug(f"Episode extraction returned None, skipping storage")
+                return None
+
+            # Check confidence threshold
+            confidence = episode.get("confidence", 0.7)
+            min_confidence = self.auto_learning_config.get("min_episode_confidence", 0.6)
+            if confidence < min_confidence:
+                logger.debug(f"Episode confidence {confidence} below threshold {min_confidence}, skipping")
+                return None
+
+            # Check deduplication
+            if self.auto_learning_config.get("episode_deduplication", True):
+                episodic_store = self._get_episodic_store()
+                # Check for similar episodes (same lesson)
+                existing_episodes = episodic_store.query_episodes(
+                    project_id=project_id,
+                    lesson=episode.get("lesson", ""),
+                    min_confidence=0.5,
+                    limit=5
+                )
+                for existing in existing_episodes:
+                    # Simple similarity check
+                    similarity = self._calculate_episode_similarity(
+                        episode.get("lesson", ""),
+                        existing.lesson
+                    )
+                    if similarity > 0.85:  # High similarity threshold
+                        logger.debug(f"Duplicate episode detected (similarity: {similarity:.2f}), skipping")
+                        return None
+
+            # Store episode
+            episodic_store = self._get_episodic_store()
+            stored_episode = episodic_store.store_episode(
+                Episode(
+                    project_id=project_id,
+                    situation=episode.get("situation", ""),
+                    action=episode.get("action", ""),
+                    outcome=episode.get("outcome", ""),
+                    lesson=episode.get("lesson", ""),
+                    confidence=confidence
+                )
+            )
+
+            logger.info(f"Auto-stored episode: {stored_episode.lesson[:50]}... (id: {stored_episode.id})")
+            return str(stored_episode.id)
+
+        except Exception as e:
+            logger.error(f"Failed to auto-store episode for project {project_id}: {e}", exc_info=True)
+            return None
+
+    def _auto_store_fact(self, project_id: str, fact_data: Dict[str, Any]) -> Optional[str]:
+        """
+        Automatically store a fact to symbolic memory.
+
+        Args:
+            project_id: Project identifier
+            fact_data: Fact data from extractor
+
+        Returns:
+            Fact ID or None if not stored
+        """
+        if not self._auto_learning_tracker:
+            return None
+
+        try:
+            # Check if tracking enabled for facts
+            if not self.auto_learning_config.get("track_code_changes", True):
+                logger.debug(f"Fact tracking disabled, skipping fact storage")
+                return None
+
+            # Extract fact components
+            fact_key = fact_data.get("key", "")
+            fact_value = fact_data.get("value", {})
+            category = fact_data.get("category", "fact")
+            confidence = fact_data.get("confidence", 1.0)
+
+            # Check deduplication
+            symbolic_store = self._get_symbolic_store()
+            existing_facts = symbolic_store.query_memory(
+                scope=project_id,
+                key=fact_key,
+                min_confidence=0.0
+            )
+
+            for existing in existing_facts:
+                # Check for identical key
+                if existing.key == fact_key:
+                    logger.debug(f"Duplicate fact key detected: {fact_key}, skipping")
+                    return None
+
+            # Store fact
+            fact = MemoryFact(
+                scope=project_id,
+                category=category or "fact",
+                key=fact_key,
+                value=fact_value,
+                confidence=confidence,
+                source="auto_learning"
+            )
+
+            stored_fact = symbolic_store.store_memory(fact)
+
+            logger.info(f"Auto-stored fact: {fact_key} (id: {stored_fact.id})")
+            return str(stored_fact.id)
+
+        except Exception as e:
+            logger.error(f"Failed to auto-store fact for project {project_id}: {e}", exc_info=True)
+            return None
+
+    def _calculate_episode_similarity(self, lesson1: str, lesson2: str) -> float:
+        """
+        Calculate similarity between two lesson strings.
+
+        Args:
+            lesson1: First lesson string
+            lesson2: Second lesson string
+
+        Returns:
+            Similarity score (0.0 to 1.0)
+        """
+        if not lesson1 or not lesson2:
+            return 0.0
+
+        # Simple word overlap similarity
+        words1 = set(lesson1.lower().split())
+        words2 = set(lesson2.lower().split())
+
+        if not words1 or not words2:
+            return 0.0
+
+        # Calculate Jaccard similarity
+        intersection = words1.intersection(words2)
+        union = words1.union(words2)
+
+        return len(intersection) / len(union) if union else 0.0
+
+    def _should_auto_track(self, operation: Dict[str, Any]) -> bool:
+        """
+        Check if operation should be auto-tracked.
+
+        Args:
+            operation: Operation dict with arguments
+
+        Returns:
+            True if should track, False otherwise
+        """
+        # Check for manual override
+        auto_learn = operation.get("arguments", {}).get("auto_learn", None)
+
+        if auto_learn is not None:
+            # Explicit override - use it
+            return auto_learn
+
+        # Default to global setting
+        return self.auto_learning_config.get("enabled", False)
 
 
 # Create MCP server

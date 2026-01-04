@@ -85,6 +85,39 @@ synapse query "How does RAG system work?"
 synapse list-projects
 ```
 
+### Automatic Learning Configuration
+
+Synapse includes an automatic learning system that tracks operations and learns from task completions, code changes, and patterns. Enable it in `configs/rag_config.json`:
+
+```json
+{
+  "automatic_learning": {
+    "enabled": true,
+    "mode": "aggressive",
+    "track_tasks": true,
+    "track_code_changes": true,
+    "track_operations": true,
+    "min_episode_confidence": 0.6,
+    "episode_deduplication": true
+  }
+}
+```
+
+**What gets learned automatically:**
+- **Task Completions**: Multi-step workflows (search → context → code), file ingestion batches
+- **Code Changes**: Dependencies, frameworks (FastAPI, Express, React), API endpoints
+- **Patterns**: Repeated failures (2+ same tool errors), repeated successes (aggressive mode)
+- **Episodes**: Stored to episodic memory with 0.6-0.85 confidence threshold
+- **Facts**: Stored to symbolic memory with deduplication
+
+**Modes:**
+- `aggressive`: Detects repeated successes + all other patterns
+- `moderate`: Task completion + repeated failures only
+- `minimal`: Only explicit manual additions
+
+**Manual Override:**
+Add `auto_learn: false` to any tool call to disable auto-learning for that specific operation.
+
 ---
 
 ## MCP Tools
