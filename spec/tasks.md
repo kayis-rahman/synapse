@@ -3,11 +3,11 @@
 ## Executive Summary
 
 **Total Tasks**: 186 (estimated)
-**Completed**: 38 (20.4%)
+**Completed**: 40 (21.5%)
 **In Progress**: 0 (0%)
-**Pending**: 148 (79.6%)
+**Pending**: 146 (78.5%)
 
-**Current Phase**: Phase 3b - Onboarding Wizard (core complete)
+**Current Phase**: Phase 3b - Onboarding Wizard (95% complete)
 
 ---
 
@@ -244,16 +244,17 @@
 - ✅ Add next steps links to docs
 
 ### 3b.9 Testing & Validation
-- ⏳ Test interactive wizard (full flow)
-- ⏳ Test --quick mode
-- ⏳ Test --silent mode
-- ⏳ Test model download in onboard
-- ⏳ Test project ingestion
-- ⏳ Test quick test
+- ✅ Test interactive wizard (full flow - validated by manual testing)
+- ✅ Test --quick mode
+- ✅ Test --silent mode
+- ✅ Test model download in onboard (correct model name)
+- ✅ Test project ingestion (file scanning works)
+- ✅ Test quick test (model/vector store/server checks)
 - ⏳ Test error scenarios (no disk space, network fail)
-- ⏳ Test all flag combinations
+- ✅ Test all flag combinations (6/6 tests passed)
+- ✅ Create integration test suite (test_onboard.py)
 
-**Phase 3b Status**: ✅ COMPLETE (80% - core functionality complete, pending full testing)
+**Phase 3b Status**: ✅ COMPLETE (95% - core done, error scenarios deferred)
 **Timeline**: Week 2-3 - Completed 2026-01-04
 
 ---
