@@ -7,7 +7,7 @@
 
 ## Overview
 
-Created a comprehensive bulk injection script for pi-rag that injects project files via local file path ingestion mode with advanced filtering capabilities.
+Created a comprehensive bulk injection script for SYNAPSE that injects project files via local file path ingestion mode with advanced filtering capabilities.
 
 ---
 
@@ -93,7 +93,7 @@ Created a comprehensive bulk injection script for pi-rag that injects project fi
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--project-id` | Project ID for metadata | `pi-rag` |
+| `--project-id` | Project ID for metadata | `SYNAPSE` |
 | `--root-dir` | Root directory to scan | `.` |
 | `--chunk-size` | Chunk size in characters | `500` |
 | `--chunk-overlap` | Chunk overlap in characters | `50` |
@@ -196,19 +196,19 @@ Handle Errors → Save to Retry File → Update Stats
 
 ### Files Created/Updated by Script
 
-1. **Checksums**: `/opt/pi-rag/data/semantic_index/checksums.json`
+1. **Checksums**: `/opt/SYNAPSE/data/semantic_index/checksums.json`
    - Format: `{project_id: {file_path: checksum}}`
    - Used for incremental ingestion
 
-2. **Retry List**: `/opt/pi-rag/data/semantic_index/failed_ingestions.json`
+2. **Retry List**: `/opt/SYNAPSE/data/semantic_index/failed_ingestions.json`
    - Format: `[{file_path, error, timestamp}]`
    - Auto-included on subsequent runs
 
-3. **Semantic Index**: `/opt/pi-rag/data/semantic_index/chunks.json`
+3. **Semantic Index**: `/opt/SYNAPSE/data/semantic_index/chunks.json`
    - Actual ingested chunks
    - Managed by SemanticStore
 
-4. **Metadata**: `/opt/pi-rag/data/semantic_index/metadata/documents.json`
+4. **Metadata**: `/opt/SYNAPSE/data/semantic_index/metadata/documents.json`
    - Document metadata
    - Managed by SemanticStore
 
@@ -225,7 +225,7 @@ Each file ingested includes:
   "filename": "file.py",
   "relative_path": "src/module/file.py",
   "extension": ".py",
-  "project_id": "pi-rag",
+  "project_id": "SYNAPSE",
   "ingested_at": "2026-01-03T18:30:00.000Z"
 }
 ```
@@ -347,7 +347,7 @@ They will be retried on next run.
 ### Optional
 - `rich` - Progress bar and formatted logging (already installed)
 
-### pi-rag Modules
+### SYNAPSE Modules
 - `rag.SemanticStore`
 - `rag.semantic_ingest.SemanticIngestor`
 - `rag.get_semantic_store`
@@ -471,7 +471,7 @@ The bulk injection script is **fully functional** and **production-ready**. It m
 
 ## Next Steps
 
-1. **Run full ingestion** on pi-rag project:
+1. **Run full ingestion** on SYNAPSE project:
    ```bash
    python scripts/bulk_ingest.py
    ```
@@ -485,10 +485,10 @@ The bulk injection script is **fully functional** and **production-ready**. It m
 
 3. **Monitor retry files**:
    ```bash
-   cat /opt/pi-rag/data/semantic_index/failed_ingestions.json
+   cat /opt/SYNAPSE/data/semantic_index/failed_ingestions.json
    ```
 
 4. **Review checksums**:
    ```bash
-   cat /opt/pi-rag/data/semantic_index/checksums.json
+   cat /opt/SYNAPSE/data/semantic_index/checksums.json
    ```

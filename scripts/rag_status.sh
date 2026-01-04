@@ -23,11 +23,11 @@ echo ""
 
 # 2. AGENTS.md Configuration
 echo "2. AGENTS.md Configuration:"
-if [ -f /home/dietpi/pi-rag/AGENTS.md ]; then
+if [ -f /home/dietpi/synapse/AGENTS.md ]; then
     echo "   ✓ AGENTS.md exists"
-    AGENT_LINES=$(wc -l < /home/dietpi/pi-rag/AGENTS.md)
+    AGENT_LINES=$(wc -l < /home/dietpi/synapse/AGENTS.md)
     echo "   Size: $AGENT_LINES lines"
-    if grep -q "RAG STRICT MANDATE" /home/dietpi/pi-rag/AGENTS.md; then
+    if grep -q "RAG STRICT MANDATE" /home/dietpi/synapse/AGENTS.md; then
         echo "   ✓ RAG strict mandate found"
         ((PASS++))
     else
@@ -42,8 +42,8 @@ echo ""
 
 # 3. Data Statistics
 echo "3. Semantic Memory:"
-if [ -f /opt/pi-rag/data/semantic_index/chunks.json ]; then
-    CHUNKS=$(python3 -c "import json; print(len(json.load(open('/opt/pi-rag/data/semantic_index/chunks.json'))))" 2>/dev/null || echo "0")
+if [ -f /opt/synapse/data/semantic_index/chunks.json ]; then
+    CHUNKS=$(python3 -c "import json; print(len(json.load(open('/opt/synapse/data/semantic_index/chunks.json'))))" 2>/dev/null || echo "0")
     echo "   Chunks: $CHUNKS"
     if [ "$CHUNKS" -ge 4000 ]; then
         echo "   ✓ Sufficient chunks"
@@ -56,8 +56,8 @@ else
     ((FAIL++))
 fi
 
-if [ -f /opt/pi-rag/data/semantic_index/metadata/documents.json ]; then
-    DOCS=$(python3 -c "import json; d=json.load(open('/opt/pi-rag/data/semantic_index/metadata/documents.json')); print(len(d))" 2>/dev/null || echo "0")
+if [ -f /opt/synapse/data/semantic_index/metadata/documents.json ]; then
+    DOCS=$(python3 -c "import json; d=json.load(open('/opt/synapse/data/semantic_index/metadata/documents.json')); print(len(d))" 2>/dev/null || echo "0")
     echo "   Documents: $DOCS"
     if [ "$DOCS" -ge 250 ]; then
         echo "   ✓ Sufficient documents"
@@ -73,7 +73,7 @@ echo ""
 
 # 4. Symbolic Memory (Authoritative Facts)
 echo "4. Symbolic Memory (Authoritative Facts):"
-FACTS=$(sqlite3 /opt/pi-rag/data/memory.db "SELECT COUNT(*) FROM memory_facts;" 2>/dev/null || echo "0")
+FACTS=$(sqlite3 /opt/synapse/data/memory.db "SELECT COUNT(*) FROM memory_facts;" 2>/dev/null || echo "0")
 echo "   Total facts: $FACTS"
 if [ "$FACTS" -ge 20 ]; then
     echo "   ✓ Sufficient authoritative facts"
@@ -83,14 +83,14 @@ else
 fi
 
 echo "   Recent facts:"
-sqlite3 /opt/pi-rag/data/memory.db "SELECT fact_key, category FROM memory_facts WHERE scope='global' ORDER BY created_at DESC LIMIT 10;" 2>/dev/null | while read line; do
+sqlite3 /opt/synapse/data/memory.db "SELECT fact_key, category FROM memory_facts WHERE scope='global' ORDER BY created_at DESC LIMIT 10;" 2>/dev/null | while read line; do
     echo "     - $line"
 done
 echo ""
 
 # 5. Episodic Memory (Advisory Lessons)
 echo "5. Episodic Memory (Advisory Lessons):"
-EPISODES=$(sqlite3 /opt/pi-rag/data/episodic.db "SELECT COUNT(*) FROM episodic_memory WHERE project_id='pi-rag';" 2>/dev/null || echo "0")
+EPISODES=$(sqlite3 /opt/synapse/data/episodic.db "SELECT COUNT(*) FROM episodic_memory WHERE project_id='pi-rag';" 2>/dev/null || echo "0")
 echo "   Total episodes: $EPISODES"
 if [ "$EPISODES" -ge 4 ]; then
     echo "   ✓ Sufficient lessons"
@@ -100,17 +100,17 @@ else
 fi
 
 echo "   Recent episodes:"
-sqlite3 /opt/pi-rag/data/episodic.db "SELECT lesson, outcome FROM episodic_memory WHERE project_id='pi-rag' ORDER BY created_at DESC LIMIT 5;" 2>/dev/null | while read line; do
+sqlite3 /opt/synapse/data/episodic.db "SELECT lesson, outcome FROM episodic_memory WHERE project_id='pi-rag' ORDER BY created_at DESC LIMIT 5;" 2>/dev/null | while read line; do
     echo "     - $line"
 done
 echo ""
 
 # 6. Project Registration
 echo "6. Registered Projects:"
-sqlite3 /opt/pi-rag/data/registry.db "SELECT project_id, name FROM projects;" 2>/dev/null | while read line; do
+sqlite3 /opt/synapse/data/registry.db "SELECT project_id, name FROM projects;" 2>/dev/null | while read line; do
     echo "   - $line"
 done
-PROJECT_EXISTS=$(sqlite3 /opt/pi-rag/data/registry.db "SELECT COUNT(*) FROM projects WHERE project_id='pi-rag';" 2>/dev/null || echo "0")
+PROJECT_EXISTS=$(sqlite3 /opt/synapse/data/registry.db "SELECT COUNT(*) FROM projects WHERE project_id='pi-rag';" 2>/dev/null || echo "0")
 if [ "$PROJECT_EXISTS" -gt 0 ]; then
     echo "   ✓ Project 'pi-rag' is registered"
     ((PASS++))
@@ -152,10 +152,10 @@ echo ""
 # 8. Data Directory Integrity
 echo "8. Data Directory Integrity:"
 REQUIRED_FILES=(
-    "/opt/pi-rag/data/memory.db"
-    "/opt/pi-rag/data/episodic.db"
-    "/opt/pi-rag/data/semantic_index/chunks.json"
-    "/opt/pi-rag/data/semantic_index/metadata/documents.json"
+    "/opt/synapse/data/memory.db"
+    "/opt/synapse/data/episodic.db"
+    "/opt/synapse/data/semantic_index/chunks.json"
+    "/opt/synapse/data/semantic_index/metadata/documents.json"
 )
 
 ALL_PRESENT=true
@@ -176,8 +176,8 @@ fi
 
 # 9. Backup Verification
 echo "9. Backup Verification:"
-if [ -d /opt/pi-rag/data/backup_before_cleanup_* ]; then
-    BACKUP_DIRS=$(find /opt/pi-rag/data -type d -name "backup_before_cleanup_*" | wc -l)
+if [ -d /opt/synapse/data/backup_before_cleanup_* ]; then
+    BACKUP_DIRS=$(find /opt/synapse/data -type d -name "backup_before_cleanup_*" | wc -l)
     echo "   ✓ $BACKUP_DIRS backup(s) found"
     ((PASS++))
 else
@@ -207,7 +207,7 @@ else
     echo ""
     echo "  FAILED TESTS:"
     if [ $FAIL -gt 0 ]; then
-        echo "  Fix issues and re-run: bash /home/dietpi/pi-rag/scripts/rag_status.sh"
+        echo "  Fix issues and re-run: bash /home/dietpi/synapse/scripts/rag_status.sh"
     fi
     echo ""
     exit 1

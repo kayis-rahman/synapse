@@ -2,7 +2,7 @@
 
 ## Overview
 
-`bulk_ingest.py` is a comprehensive script for bulk injecting project files into the pi-rag semantic memory system via local file path ingestion mode. It features intelligent exclusion patterns, incremental ingestion with checksum verification, and retry capabilities.
+`bulk_ingest.py` is a comprehensive script for bulk injecting project files into the SYNAPSE semantic memory system via local file path ingestion mode. It features intelligent exclusion patterns, incremental ingestion with checksum verification, and retry capabilities.
 
 ## Features
 
@@ -122,7 +122,7 @@ python scripts/bulk_ingest.py \
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--project-id` | Project ID for metadata | `pi-rag` |
+| `--project-id` | Project ID for metadata | `SYNAPSE` |
 | `--root-dir` | Root directory to scan | `.` (current) |
 | `--chunk-size` | Chunk size in characters | `500` |
 | `--chunk-overlap` | Chunk overlap in characters | `50` |
@@ -241,7 +241,7 @@ Failed ingestions are automatically retried on subsequent runs:
 **Clear Failed Files:**
 To clear all failed files, delete the retry file:
 ```bash
-rm /opt/pi-rag/data/semantic_index/failed_ingestions.json
+rm /opt/SYNAPSE/data/semantic_index/failed_ingestions.json
 ```
 
 ## Output Format
@@ -251,8 +251,8 @@ rm /opt/pi-rag/data/semantic_index/failed_ingestions.json
 ======================================================================
 BULK INJECTION STARTED
 ======================================================================
-Project: pi-rag
-Root: /home/dietpi/pi-rag
+Project: SYNAPSE
+Root: /home/dietpi/SYNAPSE
 Incremental mode: Enabled
 .gitignore parsing: Enabled
 
@@ -283,8 +283,8 @@ Time: 1m 30s
 ======================================================================
 BULK INJECTION - DRY RUN
 ======================================================================
-Project: pi-rag
-Root: /home/dietpi/pi-rag
+Project: SYNAPSE
+Root: /home/dietpi/SYNAPSE
 Incremental mode: Enabled
 .gitignore parsing: Enabled
 
@@ -316,7 +316,7 @@ Each file is ingested with the following metadata:
   "filename": "file.py",
   "relative_path": "src/module/file.py",
   "extension": ".py",
-  "project_id": "pi-rag",
+  "project_id": "SYNAPSE",
   "ingested_at": "2026-01-03T18:30:00.000Z"
 }
 ```
@@ -343,7 +343,7 @@ Processing files  ████████████████████�
 ```
 
 ### Requirements
-Rich is already installed in the pi-rag environment. If needed:
+Rich is already installed in the SYNAPSE environment. If needed:
 
 ```bash
 pip install rich
@@ -415,7 +415,7 @@ fi
 
 ```bash
 # Cron job to re-ingest daily (catch changes)
-0 2 * * * cd /home/user/pi-rag && python scripts/bulk_ingest.py >> /var/log/bulk_ingest.log 2>&1
+0 2 * * * cd /home/user/SYNAPSE && python scripts/bulk_ingest.py >> /var/log/bulk_ingest.log 2>&1
 ```
 
 ## Troubleshooting
@@ -454,17 +454,17 @@ pip install tqdm
 
 ```bash
 # Check checksum file
-cat /opt/pi-rag/data/semantic_index/checksums.json
+cat /opt/SYNAPSE/data/semantic_index/checksums.json
 ```
 
 ## Files Created
 
 The script creates/updates the following files:
 
-- **`/opt/pi-rag/data/semantic_index/checksums.json`** - Per-project checksums
-- **`/opt/pi-rag/data/semantic_index/failed_ingestions.json`** - Retry list
-- **`/opt/pi-rag/data/semantic_index/chunks.json`** - Ingested chunks (semantic store)
-- **`/opt/pi-rag/data/semantic_index/metadata/documents.json`** - Document metadata (semantic store)
+- **`/opt/SYNAPSE/data/semantic_index/checksums.json`** - Per-project checksums
+- **`/opt/SYNAPSE/data/semantic_index/failed_ingestions.json`** - Retry list
+- **`/opt/SYNAPSE/data/semantic_index/chunks.json`** - Ingested chunks (semantic store)
+- **`/opt/SYNAPSE/data/semantic_index/metadata/documents.json`** - Document metadata (semantic store)
 
 ## Requirements
 
@@ -474,7 +474,7 @@ The script creates/updates the following files:
 - `json` (built-in)
 - `argparse` (built-in)
 - `tqdm` (optional, for progress bar)
-- pi-rag modules: `rag`, `rag.semantic_store`, `rag.semantic_ingest`
+- SYNAPSE modules: `rag`, `rag.semantic_store`, `rag.semantic_ingest`
 
 ### System Requirements
 - Write access to semantic store directory
@@ -491,4 +491,4 @@ The script creates/updates the following files:
 
 ## License
 
-This script is part of the pi-rag project.
+This script is part of the SYNAPSE project.

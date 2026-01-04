@@ -66,7 +66,7 @@ try:
     from rag.semantic_ingest import SemanticIngestor, get_semantic_ingestor
 except ImportError as e:
     logger.error(f"Failed to import RAG modules: {e}")
-    logger.error("Make sure you're running from pi-rag project directory")
+    logger.error("Make sure you're running from SYNAPSE project directory")
     sys.exit(1)
 
 
@@ -77,7 +77,7 @@ except ImportError as e:
 class BulkInjectConfig:
     """Configuration for bulk injection."""
     def __init__(self):
-        self.project_id: str = "pi-rag"
+        self.project_id: str = "SYNAPSE"
         self.root_dir: str = "."
         self.chunk_size: int = 500
         self.chunk_overlap: int = 50
@@ -803,8 +803,8 @@ Examples:
 
     parser.add_argument(
         "--project-id",
-        default="pi-rag",
-        help="Project ID for metadata (default: pi-rag)"
+        default="SYNAPSE",
+        help="Project ID for metadata (default: SYNAPSE)"
     )
     parser.add_argument(
         "--root-dir",
