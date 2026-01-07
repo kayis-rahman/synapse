@@ -18,7 +18,7 @@ The system exposes these capabilities via the **Model Context Protocol (MCP)**, 
     *   **Protocol:** [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
 *   **Documentation:** Next.js 15, Fumadocs UI, TailwindCSS, TypeScript.
 *   **Infrastructure:** Docker Compose.
-*   **Issue Tracking:** [Beads](https://github.com/steveyegge/beads) (Local, CLI-based).
+*   **Issue Tracking:** [GitHub Issues](https://github.com/kayis-rahman/synapse/issues) (Standard open-source workflow).
 
 ## Directory Structure
 
@@ -27,7 +27,6 @@ The system exposes these capabilities via the **Model Context Protocol (MCP)**, 
 *   `configs/`: Configuration files for RAG parameters and models.
 *   `docs/`: Documentation website source code (Next.js).
 *   `scripts/`: Utility scripts for ingestion and status checks.
-*   `.beads/`: Local issue tracking database.
 
 ## Development Setup
 

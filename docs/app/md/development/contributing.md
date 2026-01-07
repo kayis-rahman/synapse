@@ -52,10 +52,37 @@ mypy rag/
 ## Submitting Changes
 
 1. Fork repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+2. Create a feature branch from `develop` (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'feat: Add amazing feature'`)
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## Branch Workflow
+
+We follow GitFlow-style workflow with minimal branch prefixes:
+
+- `main` - Production releases
+- `develop` - Integration branch
+- `feature/*` - Feature development
+- `bug/*` - Bug fixes
+- `hotfix/*` - Critical production fixes
+
+### Workflow Steps
+
+1. Fork repository
+2. Create branch from `develop` using appropriate prefix:
+   ```bash
+   git checkout develop
+   git checkout -b feature/your-feature-name
+   # OR
+   git checkout -b bug/fix-description
+   # OR
+   git checkout -b hotfix/critical-fix
+   ```
+3. Make changes and commit
+4. Push to your fork
+5. Create Pull Request targeting `develop`
+6. After PR approval and merge to `develop`, create release PR: `develop` → `main`
 
 ## Commit Messages
 
