@@ -118,6 +118,40 @@ This document contains granular task breakdown for implementation of GitHub Page
 - Commit hash on feature branch: `77dedb6`
 
 **Next Steps:**
+1. Create PR from feature branch to main ✅ COMPLETED
+2. Request code review
+3. Merge PR after approval
+4. Workflow will run automatically after merge
+
+### 3.2.2 Create Pull Request
+- [x] Create PR using GitHub CLI (Linked to US-4)
+- [x] PR created: https://github.com/kayis-rahman/synapse/pull/1 (Linked to US-4)
+- [x] PR body includes comprehensive summary and checklist (Linked to US-4)
+- [x] Push spec documents to feature branch (Linked to US-4)
+- [x] Verify PR includes all changes (Linked to US-4)
+
+**PR Details:**
+- PR URL: https://github.com/kayis-rahman/synapse/pull/1
+- Title: Update GitHub Pages deployment workflow for self-hosted piworm runner
+- Base branch: main
+- Feature branch: feature/github-pages-deployment
+- Commits: 3 (77dedb6, af70a03, 65704f8)
+- Changed files:
+  - .github/workflows/deploy-docs.yml
+  - docs/app/md/development/deployment.md
+  - docs/specs/006-github-pages-deployment/requirements.md
+  - docs/specs/006-github-pages-deployment/plan.md
+  - docs/specs/006-github-pages-deployment/tasks.md
+  - docs/specs/index.md
+
+**Feature Branch Details:**
+- Branch name: `feature/github-pages-deployment`
+- Base commit: `69b27b8` (before workflow changes)
+- Cherry-picked commit: `c5ff8c7` (workflow changes)
+- Push URL: https://github.com/kayis-rahman/synapse/pull/new/feature/github-pages-deployment
+- Commit hash on feature branch: `77dedb6`
+
+**Next Steps:**
 1. Create PR from feature branch to main
 2. Request code review
 3. Merge PR after approval
@@ -245,16 +279,16 @@ This document contains granular task breakdown for implementation of GitHub Page
 
 ## Task Summary
 
-### Total Tasks: 53
-### Pending: 34
-### Completed: 19
+### Total Tasks: 54
+### Pending: 32
+### Completed: 22
 ### In Progress: 0
 ### Blocked: 0
 
 ### By Phase:
 - **Phase 1: Prerequisites & Verification** - 6 tasks (6/6 complete ✅)
 - **Phase 2: Workflow Updates** - 9 tasks (9/9 complete ✅)
-- **Phase 3: Testing & Deployment** - 8 tasks (4/8 complete - 50%)
+- **Phase 3: Testing & Deployment** - 9 tasks (6/9 complete - 67%)
 - **Phase 4: Validation & Completion** - 6 tasks (0/6 complete)
 
 ### By Priority:
@@ -300,16 +334,17 @@ This document contains granular task breakdown for implementation of GitHub Page
 ---
 
 ### Phase 3: Testing & Deployment
-- [ ] 4/8 tasks complete (50%)
+- [ ] 6/9 tasks complete (67%)
 
-**Blockers:** Tasks 3.3-3.6 require manual monitoring in GitHub UI
+**Blockers:** Tasks 3.3-3.6 require manual monitoring after PR merge
 
 **Notes:**
 - ✅ Workflow changes committed to feature branch (commit: 77dedb6)
 - ✅ Feature branch created: feature/github-pages-deployment
 - ✅ Cherry-picked workflow commit to feature branch
 - ✅ Feature branch pushed to remote
-- ✅ PR available for creation: https://github.com/kayis-rahman/synapse/pull/new/feature/github-pages-deployment
+- ✅ PR created: https://github.com/kayis-rahman/synapse/pull/1
+- ✅ Spec documents pushed to feature branch (commits: af70a03, 65704f8)
 - ✅ Deployment documentation updated with self-hosted runner details
 - ⚠️ Changed approach: Feature branch instead of direct main push
 - ⚠️ Tasks 3.3-3.6 require manual verification after PR merge
@@ -319,8 +354,8 @@ This document contains granular task breakdown for implementation of GitHub Page
   - 3.6: Test manual workflow dispatch from Actions tab
 
 **Monitoring Links:**
+- PR: https://github.com/kayis-rahman/synapse/pull/1 ✅ CREATED
 - GitHub Actions: https://github.com/kayis-rahman/synapse/actions (workflow will run after PR merge)
-- Feature branch PR: https://github.com/kayis-rahman/synapse/pull/new/feature/github-pages-deployment
 - Deployed docs: https://kayis-rahman.github.io/synapse/ (will update after PR merge)
 
 ---
