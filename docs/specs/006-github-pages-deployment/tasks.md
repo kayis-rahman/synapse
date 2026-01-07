@@ -297,8 +297,8 @@ This document contains granular task breakdown for implementation of GitHub Page
 
 ## Task Summary
 
-### Total Tasks: 55
-### Pending: 32
+### Total Tasks: 56
+### Pending: 33
 ### Completed: 23
 ### In Progress: 0
 ### Blocked: 0
@@ -306,7 +306,7 @@ This document contains granular task breakdown for implementation of GitHub Page
 ### By Phase:
 - **Phase 1: Prerequisites & Verification** - 6 tasks (6/6 complete ✅)
 - **Phase 2: Workflow Updates** - 9 tasks (9/9 complete ✅)
-- **Phase 3: Testing & Deployment** - 10 tasks (7/10 complete - 70%)
+- **Phase 3: Testing & Deployment** - 11 tasks (8/11 complete - 73%)
 - **Phase 4: Validation & Completion** - 6 tasks (0/6 complete)
 
 ### By Priority:
@@ -351,8 +351,25 @@ This document contains granular task breakdown for implementation of GitHub Page
 
 ---
 
-### Phase 3: Testing & Deployment
-- [ ] 7/10 tasks complete (70%)
+### 3.2.4 Revert to ubuntu-latest for Testing
+- [x] Edit `.github/workflows/deploy-docs.yml` (Linked to Risk 6)
+- [x] Revert build job to `ubuntu-latest` (was [self-hosted, piworm]) (Linked to Risk 6)
+- [x] Revert deploy job to `ubuntu-latest` (was [self-hosted, piworm]) (Linked to Risk 6)
+- [x] Commit revert to ubuntu-latest (commit: 7abeb05) (Linked to Risk 6)
+- [x] Push revert to feature branch (Linked to Risk 6)
+
+**Why This Change Was Made:**
+- GitHub Pages is not enabled yet
+- Testing on ubuntu-latest is easier (no Node.js installation needed)
+- Can switch back to piworm after GitHub Pages is enabled
+- Keep `enablement: automatic` parameter (will help enable GitHub Pages)
+
+**Next Steps:**
+1. Enable GitHub Pages in repository settings
+2. Trigger workflow on feature branch (ubuntu-latest)
+3. Verify workflow succeeds on ubuntu-latest
+4. After successful deployment, switch back to [self-hosted, piworm]
+- [ ] 8/11 tasks complete (73%)
 
 **Blockers:** Tasks 3.3-3.6 require manual monitoring after PR merge
 
@@ -362,19 +379,26 @@ This document contains granular task breakdown for implementation of GitHub Page
 - ✅ Cherry-picked workflow commit to feature branch
 - ✅ Feature branch pushed to remote
 - ✅ PR created: https://github.com/kayis-rahman/synapse/pull/1
-- ✅ Spec documents pushed to feature branch (commits: af70a03, 65704f8)
+- ✅ Spec documents pushed to feature branch (commits: af70a03, 65704f8, 97fdf66)
 - ✅ Deployment documentation updated with self-hosted runner details
+- ✅ enablement: automatic parameter added (commit: afc36df)
 - ⚠️ Changed approach: Feature branch instead of direct main push
-- ⚠️ Tasks 3.3-3.6 require manual verification after PR merge
-  - 3.3: Monitor build job logs
-  - 3.4: Monitor deploy job logs
-  - 3.5: Verify documentation deployment at https://kayis-rahman.github.io/synapse/
-  - 3.6: Test manual workflow dispatch from Actions tab
+- ⚠️ TEMPORARY: Runners reverted to ubuntu-latest for testing (commit: 7abeb05)
+  - Reason: GitHub Pages not enabled yet, easier to test on ubuntu-latest
+  - Plan: Switch back to piworm after GitHub Pages is enabled and working
+  - Keep enablement: automatic parameter (will help enable GitHub Pages)
+- ⚠️ Tasks 3.3-3.6 require manual verification after GitHub Pages is enabled and workflow runs
 
 **Monitoring Links:**
 - PR: https://github.com/kayis-rahman/synapse/pull/1 ✅ CREATED
 - GitHub Actions: https://github.com/kayis-rahman/synapse/actions (workflow will run after PR merge)
 - Deployed docs: https://kayis-rahman.github.io/synapse/ (will update after PR merge)
+
+⚠️ **CURRENT STATE**: Using ubuntu-latest runners (temporarily)
+- Reverted from [self-hosted, piworm] to ubuntu-latest
+- Reason: GitHub Pages not enabled yet, easier to test on ubuntu-latest
+- Plan: Switch back to piworm after GitHub Pages is enabled and working
+- Current workflow uses: ubuntu-latest (both build and deploy jobs)
 
 ---
 
