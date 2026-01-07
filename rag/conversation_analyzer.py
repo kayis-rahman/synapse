@@ -321,9 +321,9 @@ class ConversationAnalyzer:
     def _extract_episodes_heuristic(self, text: str) -> List[Dict[str, Any]]:
         """Extract episodes using regex patterns."""
         patterns = {
-            "workaround": r"(?:i found|there's a) workaround",
-            "mistake": r"(?:this|that) (?:didn't work|was a mistake|failed)",
-            "lesson": r"the (?:lesson is|i learned)",
+            "workaround": r"(?:i found|there(?:['\u2019])?s a) .*?workaround",
+            "mistake": r"(?:this|that) .*?(?:didn't work|was a mistake|failed)",
+            "lesson": r"(?:the |i )(?:lesson is|learned)",
             "recommendation": r"(?:i recommend|you should)",
             "success": r"(?:successfully|successfuly) (?:completed|finished)"
         }
@@ -334,6 +334,7 @@ class ConversationAnalyzer:
             if match:
                 episodes.append({
                     "type": "episode",
+                    "lesson_type": lesson_type,  # Add missing key
                     "situation": text[:100],  # First 100 chars
                     "action": "Pattern detected: " + match.group(0),
                     "outcome": "success" if lesson_type == "success" else "pattern",
