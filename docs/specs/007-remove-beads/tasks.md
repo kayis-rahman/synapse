@@ -218,19 +218,21 @@ Tasks are organized by phase and linked to requirements (FR-XXX) and plan sectio
 
 ### 3.1 Stop Beads Daemon (if running)
 
-- [ ] Check if beads daemon is running (Linked to FR-001)
+- [x] Check if beads daemon is running (Linked to FR-001)
   ```bash
   ps aux | grep bd
   ```
-  - **Validation**: Note daemon status (running or stopped)
+  - **Validation**: Note daemon status (running or stopped) ✅
+  - **Result**: Daemon not running (no output from ps aux | grep bd)
 
-- [ ] Stop beads daemon if running (Linked to FR-001)
+- [x] Stop beads daemon if running (Linked to FR-001)
   ```bash
   bd daemon stop
   # OR
   pkill -f "bd daemon"
   ```
-  - **Validation**: `ps aux | grep bd` returns no output
+  - **Validation**: `ps aux | grep bd` returns no output ✅
+  - **Result**: No action needed (daemon not running)
 
 ### 3.2 Remove .beads/ Directory
 
