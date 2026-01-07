@@ -100,23 +100,19 @@ const SynapseAutoLearningPlugin = async (ctx: PluginInput): Promise<Hooks> => {
                 return_only: false
               });
             }
+           } catch (ragError: any) {
+             // RAG tool call failed - continue silently (graceful degradation)
+           }
           } catch (ragError: any) {
-            // RAG tool call failed - continue silently (graceful degradation)
+             // Hook error - continue silently (graceful degradation)
+             return;
           }
-         } catch (ragError: any) {
-           const ragDuration = Date.now() - startTime;
-           console.error(
-             `[Synapse] RAG tool call failed: ${ragError.message || ragError} (${ragDuration}ms)`
-           );
-            console.debug("[Synapse] Continuing without analysis (graceful degradation)");
-           // Don't rethrow - allow tool to proceed
-         }
 
           return;
 
         } catch (error) {
-          // Hook error - continue silently (graceful degradation)
-          return;
+           // Hook error - continue silently (graceful degradation)
+           return;
         }
      },
 
