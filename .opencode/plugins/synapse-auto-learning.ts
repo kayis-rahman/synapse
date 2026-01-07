@@ -28,7 +28,7 @@ interface SynapseConfig {
  * Synapse Auto-Learning Plugin
  */
 const SynapseAutoLearningPlugin = async (ctx: PluginInput): Promise<Hooks> => {
-  // Load configuration
+   // Load configuration
   const config: SynapseConfig = {
     enabled: true,
     priority: 1,
@@ -40,7 +40,8 @@ const SynapseAutoLearningPlugin = async (ctx: PluginInput): Promise<Hooks> => {
     extraction_mode: "heuristic"
   };
 
-   console.log(
+   // Only log initialization in debug mode to reduce noise
+   console.debug(
      `[Synapse] Plugin initialized`, {
        mode: config.extraction_mode,
        enabled: config.enabled,
@@ -93,12 +94,12 @@ const SynapseAutoLearningPlugin = async (ctx: PluginInput): Promise<Hooks> => {
          for (const pattern of config.skip_patterns) {
            try {
              const regex = new RegExp(pattern, 'i');
-             if (regex.test(userMessage)) {
-               console.log(
-                 `[Synapse] Skipping message (matched skip pattern: "${pattern}")`
-               );
-               return;
-             }
+              if (regex.test(userMessage)) {
+                console.debug(
+                  `[Synapse] Skipping message (matched skip pattern: "${pattern}")`
+                );
+                return;
+              }
            } catch (error) {
              console.error(
                `[Synapse] Invalid skip pattern: "${pattern}" - ${error}`
@@ -126,19 +127,19 @@ const SynapseAutoLearningPlugin = async (ctx: PluginInput): Promise<Hooks> => {
                return_only: false
              });
 
-             console.log(
-               `[Synapse] Analyzed conversation: ` +
-               `${result.facts_stored} facts, ${result.episodes_stored} episodes`
-             );
-           } else {
-             console.log(`[Synapse] No conversation context available for analysis`);
-           }
+              console.debug(
+                `[Synapse] Analyzed conversation: ` +
+                `${result.facts_stored} facts, ${result.episodes_stored} episodes`
+              );
+            } else {
+              console.debug(`[Synapse] No conversation context available for analysis`);
+            }
          } catch (ragError: any) {
            const ragDuration = Date.now() - startTime;
            console.error(
              `[Synapse] RAG tool call failed: ${ragError.message || ragError} (${ragDuration}ms)`
            );
-           console.log("[Synapse] Continuing without analysis (graceful degradation)");
+            console.debug("[Synapse] Continuing without analysis (graceful degradation)");
            // Don't rethrow - allow tool to proceed
          }
 
