@@ -14,15 +14,28 @@ This is the "Source of Truth" for all SYNAPSE features. Each feature follows the
   | 002-auto-learning | Automatic Learning System | [Completed] | 2026-01-04 |
    | 003-rag-quality-metrics | RAG Quality Metrics Dashboard | [Deferred] | ⏳ Pending |
    | 004-universal-hook-auto-learning | Universal Multi-Agent Hook Auto-Learning | [Production Ready] | 2026-01-07 | 298046e |
+<<<<<<< HEAD
 | 005-cli-priority-testing | CLI Command Priority Testing | [In Progress] | ⏳ Pending | daada52 |
      | **Phase 1 (Foundation)**: ✅ Complete (43/43 tasks, 100%)
      | **Phase 2 (Server Operations)**: ⏳ Implementation Complete (58/58 tasks, 100%)
+=======
+ | 005-cli-priority-testing | CLI Command Priority Testing | [In Progress] | ⏳ Pending | a048c51 |
+     | **Phase 1 (Foundation)**: ✅ Complete (43/43 tasks, 100%)
+     | **Phase 2 (Server Operations)**: ⏳ Testing In Progress (62/62 tasks, 100%)
+>>>>>>> backup-branch
      | **Phase 2.1: Start Tests** | ✅ Complete (14/14 tasks, test_p1_start.py)
      | **Phase 2.2: Stop Tests** | ✅ Complete (12/12 tasks, test_p1_stop.py)
      | **Phase 2.3: Status Tests** | ✅ Complete (14/14 tasks, test_p1_status.py)
      | **Phase 2.4: Docker Integration** | ✅ Complete (8/8 tasks, test_p1_docker.py)
+<<<<<<< HEAD
      | **Phase 2.5: Test Execution** | ⏳ PENDING (0/5 tasks)
      | **Phase 2.6: Documentation** | ⏳ PENDING (0/3 tasks)
+=======
+     | **Phase 2.5: Test Execution** | ✅ COMPLETE (5/5 tasks, 16/24 passed, 66.7%)
+     | **Phase 2.6: Documentation** | ⏳ IN PROGRESS (0/3 tasks)
+     | **Test Results**: P1-1 (3/7), P1-2 (5/6), P1-3 (3/7), P1-4 (1/4)
+     | **Bugs Discovered**: 5 bugs (BUG-1 to BUG-5, see PHASE_2_TEST_RESULTS_2.5.md)
+>>>>>>> backup-branch
      | **Claude Code Adapter**: ⏸ Future Work (Phase 3.2: 0/20 tasks)
      | **Other Adapters**: ⏸ Future Work (Phase 3.3: 0/40 tasks)
 
