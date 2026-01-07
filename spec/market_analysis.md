@@ -444,7 +444,6 @@ synapse watch ./src --code-mode
 
 ```bash
 synapse init --workspace
-synapse workspace add beads --path /path/to/beads
 synapse workspace add synapse --path /path/to/synapse
 synapse query "auth" --workspace  # Search all repos
 ```

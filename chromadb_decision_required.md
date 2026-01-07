@@ -125,7 +125,7 @@ After detailed analysis, `rag/chroma_semantic_store.py` has **many critical issu
 2. Skip ChromaDB test file creation
 3. Use JSON vector store for semantic memory testing
 4. Document ChromaDB issues for future work
-5. Create issue in bd (beads) to track ChromaDB refactoring
+5. Create GitHub Issue to track ChromaDB refactoring
 
 ---
 

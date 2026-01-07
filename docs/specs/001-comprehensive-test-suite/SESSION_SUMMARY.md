@@ -34,7 +34,7 @@ Implement Phase 0 (ChromaDB audit) + Phase 1 (Test Utilities) + Phase 2 (CLI Tes
 **Decision**: **SKIP ChromaDB for now**
 - Focus on completing 80% of test suite
 - Defer ChromaDB as separate feature
-- Track in bd for future refactoring
+- Track in GitHub Issues for future refactoring
 
 ---
 
@@ -238,7 +238,7 @@ Implement Phase 0 (ChromaDB audit) + Phase 1 (Test Utilities) + Phase 2 (CLI Tes
 - Scripts may have issues that affect script tests
 - Production code issues would prevent ChromaDB tests
 
-**Recommendation**: Create separate bd issues for these production code problems and fix them after test suite completion.
+**Recommendation**: Create separate GitHub Issues for these production code problems and fix them after test suite completion.
 
 ---
 
@@ -369,7 +369,7 @@ Stabilize all 373 existing tests:
 4. Decision-making is critical (when to skip vs. fix)
 
 **Recommendations**:
-1. Create dedicated bd issues for production code problems
+1. Create dedicated GitHub Issues for production code problems
 2. Focus on highest-value work (stabilize existing tests, create new tests)
 3. Use risk-based prioritization for remaining work
 4. Consider reducing scope if timeline is constrained

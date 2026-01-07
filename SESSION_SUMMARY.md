@@ -322,7 +322,7 @@
 - Progress tracking becomes unreliable
 
 **Recommendation**:
-1. Create separate bd issue: "Fix production code errors blocking test suite"
+1. Create separate GitHub Issue: "Fix production code errors blocking test suite"
 2. Priority: HIGH - Fix before more tests
 3. Estimated effort: 8-12 hours
 4. Benefits: Stabilize test foundation
@@ -504,7 +504,7 @@
    - Create verification script
 
 ### Long-term Recommendations:
-1. **Separate Production Code**: Create dedicated bd issue for fixing 25+ production code issues
+1. **Separate Production Code**: Create dedicated GitHub Issue for fixing 25+ production code issues
 2. **ChromaDB Feature**: Return to ChromaDB testing after production code is refactored
 3. **Integration Tests**: Add once unit tests are stable
 4. **E2E Tests**: Add once integration and unit tests are stable
