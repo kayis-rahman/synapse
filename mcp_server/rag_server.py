@@ -40,6 +40,7 @@ from rag import (
 from rag.auto_learning_tracker import AutoLearningTracker
 from rag.learning_extractor import LearningExtractor
 from rag.model_manager import get_model_manager
+from rag.conversation_analyzer import ConversationAnalyzer
 
 # Local imports
 from .metrics import Metrics, get_metrics
@@ -102,6 +103,9 @@ class RAGMemoryBackend:
                 model_manager=get_model_manager()
             )
             logger.info(f"Auto-learning enabled: mode={self.auto_learning_config.get('mode', 'moderate')}")
+
+        # Universal hooks configuration
+        self.universal_hooks_config = self._load_universal_hooks_config()
 
     def _get_data_dir(self) -> str:
         """Get data directory from config file."""
@@ -249,6 +253,62 @@ class RAGMemoryBackend:
             logger.warning(f"Failed to load auto-learning config: {e}, using defaults")
 
         logger.info(f"Auto-learning config: enabled={config['enabled']}, mode={config['mode']}")
+
+        return config
+
+    def _load_universal_hooks_config(self) -> Dict[str, Any]:
+        """
+        Load universal hooks configuration from rag_config.json.
+
+        Returns:
+            Universal hooks configuration dictionary
+        """
+        config = {
+            "enabled": True,
+            "default_project_id": "synapse",
+            "adapters": {},
+            "conversation_analyzer": {
+                "extraction_mode": "heuristic",
+                "use_llm": False,
+                "min_fact_confidence": 0.7,
+                "min_episode_confidence": 0.6,
+                "deduplicate_facts": True,
+                "deduplicate_episodes": True,
+                "deduplication_mode": "per_day",
+                "deduplication_window_days": 7
+            },
+            "performance": {
+                "async_processing": True,
+                "analyze_every_n_messages": 1,
+                "timeout_ms": 5000
+            }
+        }
+
+        try:
+            config_path = os.environ.get("RAG_CONFIG_PATH", "./configs/rag_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, 'r') as f:
+                    file_config = json.load(f)
+
+                if "universal_hooks" in file_config:
+                    hooks_config = file_config["universal_hooks"]
+                    config["enabled"] = hooks_config.get("enabled", config["enabled"])
+                    config["default_project_id"] = hooks_config.get("default_project_id", config["default_project_id"])
+                    config["adapters"] = hooks_config.get("adapters", config["adapters"])
+
+                    # Merge conversation_analyzer config
+                    if "conversation_analyzer" in hooks_config:
+                        for key, value in hooks_config["conversation_analyzer"].items():
+                            config["conversation_analyzer"][key] = value
+
+                    # Merge performance config
+                    if "performance" in hooks_config:
+                        for key, value in hooks_config["performance"].items():
+                            config["performance"][key] = value
+        except Exception as e:
+            logger.warning(f"Failed to load universal hooks config: {e}, using defaults")
+
+        logger.info(f"Universal hooks config: enabled={config['enabled']}, extraction_mode={config['conversation_analyzer']['extraction_mode']}")
 
         return config
 
@@ -976,6 +1036,126 @@ class RAGMemoryBackend:
                 if pattern and self.auto_learning_config.get("track_operations", True):
                     await self._auto_store_episode(project_id, pattern)
 
+    async def analyze_conversation(
+        self,
+        project_id: str,
+        user_message: str,
+        agent_response: str = "",
+        context: Optional[Dict] = None,
+        auto_store: bool = True,
+        return_only: bool = False,
+        extraction_mode: str = "heuristic"
+    ) -> Dict[str, Any]:
+        """
+        Analyze conversation and extract facts/episodes using heuristics.
+
+        Args:
+            project_id: Project identifier
+            user_message: User's message
+            agent_response: Agent's response
+            context: Additional context (tool_name, etc.)
+            auto_store: Automatically store facts/episodes
+            return_only: Return facts/episodes without storing
+            extraction_mode: Extraction mode (heuristic/llm/hybrid)
+
+        Returns:
+            Dict with facts_stored, episodes_stored, facts, episodes
+        """
+        start_time = datetime.now()
+
+        # Load conversation analyzer config
+        analyzer_config = self.universal_hooks_config["conversation_analyzer"].copy()
+        analyzer_config["extraction_mode"] = extraction_mode or analyzer_config["extraction_mode"]
+
+        # Initialize conversation analyzer (no model_manager for heuristics)
+        analyzer = ConversationAnalyzer(model_manager=None, config=analyzer_config)
+
+        # Analyze conversation
+        try:
+            learnings = await analyzer.analyze_conversation_async(
+                user_message=user_message,
+                agent_response=agent_response,
+                context=context
+            )
+
+            # Separate facts and episodes
+            facts = [l for l in learnings if l["type"] == "fact"]
+            episodes = [l for l in learnings if l["type"] == "episode"]
+
+            # Filter by confidence
+            min_fact_conf = analyzer_config.get("min_fact_confidence", 0.7)
+            min_episode_conf = analyzer_config.get("min_episode_confidence", 0.6)
+
+            facts = [f for f in facts if f.get("confidence", 0) >= min_fact_conf]
+            episodes = [e for e in episodes if e.get("confidence", 0) >= min_episode_conf]
+
+            facts_stored = 0
+            episodes_stored = 0
+
+            if return_only:
+                return {
+                    "facts_stored": 0,
+                    "episodes_stored": 0,
+                    "facts": facts,
+                    "episodes": episodes,
+                    "duration_ms": (datetime.now() - start_time).total_seconds() * 1000
+                }
+
+            if auto_store:
+                # Parallel storage of facts and episodes
+                storage_tasks = []
+
+                for fact in facts:
+                    storage_tasks.append(self.add_fact(
+                        project_id=project_id,
+                        fact_key=fact.get("key", ""),
+                        fact_value=fact.get("value", ""),
+                        confidence=fact.get("confidence", 0.8),
+                        category="user"
+                    ))
+
+                for episode in episodes:
+                    storage_tasks.append(self.add_episode(
+                        project_id=project_id,
+                        title=episode.get("title", ""),
+                        content=episode.get("content", ""),
+                        lesson_type=episode.get("lesson_type", "pattern"),
+                        quality=episode.get("confidence", 0.8)
+                    ))
+
+                # Wait for all storage operations to complete
+                if storage_tasks:
+                    results = await asyncio.gather(*storage_tasks, return_exceptions=True)
+
+                    # Count successful operations
+                    facts_stored = sum(1 for r in results if isinstance(r, dict) and r.get("success"))
+                    episodes_stored = sum(1 for r in results if isinstance(r, dict) and r.get("success"))
+
+            duration_ms = (datetime.now() - start_time).total_seconds() * 1000
+
+            return {
+                "facts_stored": facts_stored,
+                "episodes_stored": episodes_stored,
+                "facts": facts,
+                "episodes": episodes,
+                "duration_ms": duration_ms,
+                "success": True
+            }
+
+        except Exception as e:
+            logger.error(f"Conversation analysis failed: {e}", exc_info=True)
+            duration_ms = (datetime.now() - start_time).total_seconds() * 1000
+
+            return {
+                "facts_stored": 0,
+                "episodes_stored": 0,
+                "facts": [],
+                "episodes": [],
+                "duration_ms": duration_ms,
+                "success": False,
+                "error": str(e)
+            }
+
     async def add_fact(
         self,
         project_id: str,
@@ -1628,10 +1808,53 @@ tools = [
                 },
                 "quality": {
                     "type": "number",
-                    "description": "Quality score (0.0-1.0)",
+                    "description": "Quality score (0.0-1.0).",
                     "minimum": 0.0,
                     "maximum": 1.0,
                     "default": 0.8
+                }
+            }
+        }
+    ),
+    Tool(
+        name="rag.analyze_conversation",
+        description="Analyze conversation and extract facts/episodes using heuristics (no LLM)",
+        inputSchema={
+            "type": "object",
+            "required": ["project_id", "user_message"],
+            "properties": {
+                "project_id": {
+                    "type": "string",
+                    "description": "Project identifier"
+                },
+                "user_message": {
+                    "type": "string",
+                    "description": "User's message"
+                },
+                "agent_response": {
+                    "type": "string",
+                    "description": "Agent's response",
+                    "default": ""
+                },
+                "context": {
+                    "type": "object",
+                    "description": "Additional context (tool_name, etc.)"
+                },
+                "auto_store": {
+                    "type": "boolean",
+                    "description": "Automatically store facts/episodes in memory",
+                    "default": True
+                },
+                "return_only": {
+                    "type": "boolean",
+                    "description": "Return facts/episodes without storing",
+                    "default": False
+                },
+                "extraction_mode": {
+                    "type": "string",
+                    "description": "Extraction mode",
+                    "enum": ["heuristic", "llm", "hybrid"],
+                    "default": "heuristic"
                 }
             }
         }
@@ -1721,6 +1944,24 @@ async def handle_tool_call(name: str, arguments: Dict[str, Any]) -> List[TextCon
                 content=content,
                 lesson_type=lesson_type,
                 quality=quality
+            )
+
+        elif name == "rag.analyze_conversation":
+            project_id = arguments.get("project_id")
+            user_message = arguments.get("user_message")
+            agent_response = arguments.get("agent_response", "")
+            context = arguments.get("context")
+            auto_store = arguments.get("auto_store", True)
+            return_only = arguments.get("return_only", False)
+            extraction_mode = arguments.get("extraction_mode", "heuristic")
+            result = await backend.analyze_conversation(
+                project_id=project_id,
+                user_message=user_message,
+                agent_response=agent_response,
+                context=context,
+                auto_store=auto_store,
+                return_only=return_only,
+                extraction_mode=extraction_mode
             )
 
         else:
