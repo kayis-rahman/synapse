@@ -236,17 +236,19 @@ Tasks are organized by phase and linked to requirements (FR-XXX) and plan sectio
 
 ### 3.2 Remove .beads/ Directory
 
-- [ ] Remove .beads/ from git tracking (Linked to FR-001.1)
+- [x] Remove .beads/ from git tracking (Linked to FR-001.1)
   ```bash
   git rm -r --cached .beads/
   ```
-  - **Validation**: Git shows `.beads/` as deleted
+  - **Validation**: Git shows `.beads/` as deleted ✅
+  - **Result**: 6 files deleted from git tracking
 
-- [ ] Move .beads/ to backup location (Linked to FR-001.2)
+- [x] Move .beads/ to backup location (Linked to FR-001.2)
   ```bash
   mv .beads/ .beads-backup-$(date +%Y%m%d)/
   ```
-  - **Validation**: `.beads/` directory removed from filesystem, `.beads-backup-*/` exists
+  - **Validation**: `.beads/` directory removed from filesystem, `.beads-backup-*/` exists ✅
+  - **Result**: .beads/ moved to .beads-backup-20260107/
 
 ### 3.3 Commit Removal
 
