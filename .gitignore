@@ -87,3 +87,8 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# VitePress (Documentation)
+docs/app/.vitepress/dist/
+docs/app/.vitepress/cache/
+docs/app/.vitepress/cache_deps/

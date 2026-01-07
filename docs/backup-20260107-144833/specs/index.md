@@ -24,7 +24,6 @@ This is the "Source of Truth" for all SYNAPSE features. Each feature follows the
     | **Claude Code Adapter**: ⏸ Future Work (Phase 3.2: 0/20 tasks)
     | **Other Adapters**: ⏸ Future Work (Phase 3.3: 0/40 tasks)
     | **Release**: v1.0.0 - 40/41 tests passing (97.6%)
-  | 005-vitepress-simple-docs | VitePress Simple Documentation | [Completed] | 2026-01-07 | Phase 1-6 complete
   | 005-vitepress-simple-docs | VitePress Simple Documentation | [In Progress] | ⏳ Pending |
 
 ## Feature Status Legend
