@@ -222,6 +222,24 @@ This document contains granular task breakdown for implementation of GitHub Page
 3. Click "Run workflow" button on the right
 4. Verify workflow starts and runs successfully
 5. This tests that manual triggering works in addition to automatic push triggers
+ 
+### 3.2.3 Add enablement Parameter to Workflow
+- [x] Edit `.github/workflows/deploy-docs.yml` (Linked to Risk 6)
+- [x] Add `enablement: automatic` parameter to configure-pages@v4 step (Linked to Risk 6)
+- [x] Verify YAML syntax is correct (Linked to Risk 6)
+- [x] Commit enablement parameter fix (commit: afc36df) (Linked to Risk 6)
+- [x] Push enablement fix to feature branch (Linked to Risk 6)
+
+**Why This Fix Was Needed:**
+- Workflow failed with: `Error: Get Pages site failed`
+- GitHub Pages was not enabled in repository settings
+- `enablement: automatic` parameter allows configure-pages action to automatically enable GitHub Pages
+- This is a backup fix in case Option A (manual enabling) doesn't work
+
+**Expected Result:**
+- configure-pages@v4 action will automatically enable GitHub Pages
+- Workflow will succeed even if Pages is not manually enabled
+- Removes manual configuration dependency
 
 ### 3.7 Documentation Updates
 - [x] Update `docs/specs/index.md` with new feature (Linked to AGENTS.md)
@@ -279,16 +297,16 @@ This document contains granular task breakdown for implementation of GitHub Page
 
 ## Task Summary
 
-### Total Tasks: 54
+### Total Tasks: 55
 ### Pending: 32
-### Completed: 22
+### Completed: 23
 ### In Progress: 0
 ### Blocked: 0
 
 ### By Phase:
 - **Phase 1: Prerequisites & Verification** - 6 tasks (6/6 complete ✅)
 - **Phase 2: Workflow Updates** - 9 tasks (9/9 complete ✅)
-- **Phase 3: Testing & Deployment** - 9 tasks (6/9 complete - 67%)
+- **Phase 3: Testing & Deployment** - 10 tasks (7/10 complete - 70%)
 - **Phase 4: Validation & Completion** - 6 tasks (0/6 complete)
 
 ### By Priority:
@@ -334,7 +352,7 @@ This document contains granular task breakdown for implementation of GitHub Page
 ---
 
 ### Phase 3: Testing & Deployment
-- [ ] 6/9 tasks complete (67%)
+- [ ] 7/10 tasks complete (70%)
 
 **Blockers:** Tasks 3.3-3.6 require manual monitoring after PR merge
 
