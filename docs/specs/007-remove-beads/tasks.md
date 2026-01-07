@@ -76,34 +76,39 @@ Tasks are organized by phase and linked to requirements (FR-XXX) and plan sectio
 
 ### 1.1 Document Open Issues
 
-- [ ] Document open issues in migration log (Linked to FR-002.1)
+- [x] Document open issues in migration log (Linked to FR-002.1)
   - **Issue 1**: synapse-2il - "Update Docker Hub Repository Description" (Priority 4)
   - **Issue 2**: synapse-7bm - "Update docs/getting-started/installation.mdx with Docker-First Content" (Priority 3)
-  - **Validation**: Documented in `.beads/migration-log.md`
+  - **Validation**: Documented in `.beads/migration-log.md` ✅
 
 ### 1.2 Create Migration Log
 
-- [ ] Create migration log with beads ID → GitHub Issue mapping (Linked to FR-002.1)
+- [x] Create migration log with beads ID → GitHub Issue mapping (Linked to FR-002.1)
   ```bash
   # File: .beads/migration-log.md
   ```
-  - **Validation**: File exists with table mapping 2 open issues
+  - **Validation**: File exists with table mapping 2 open issues ✅
+  - **Result**: docs/archive/beads-migration-log.md created (329 bytes)
 
 ### 1.3 Archive All Issues
 
-- [ ] Create docs/archive/ directory (Linked to FR-002.4)
+- [x] Create docs/archive/ directory (Linked to FR-002.4)
   ```bash
   mkdir -p docs/archive
   ```
-  - **Validation**: Directory exists
+  - **Validation**: Directory exists ✅
 
-- [ ] Move export files to docs/archive/ (Linked to FR-002.4)
+- [x] Move export files to docs/archive/ (Linked to FR-002.4)
   ```bash
   mv .beads/issues-export-backup.json docs/archive/beads-issues-export.json
   mv .beads/open-issues-for-github.json docs/archive/beads-open-issues.json
   mv .beads/migration-log.md docs/archive/beads-migration-log.md
   ```
-  - **Validation**: All 3 files exist in `docs/archive/`
+  - **Validation**: All 3 files exist in `docs/archive/` ✅
+  - **Result**:
+    - beads-issues-export.json (68 KB, 86 issues)
+    - beads-open-issues.json (2.6 KB, 2 issues)
+    - beads-migration-log.md (329 bytes, migration plan)
 
 ---
 
