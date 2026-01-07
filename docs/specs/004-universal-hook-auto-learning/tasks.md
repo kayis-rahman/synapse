@@ -844,21 +844,21 @@ This task list provides granular checklist for implementing universal hook-based
 ### 7.1 Update Central Index
 - [x] Update `docs/specs/index.md` with feature 004 entry
 - [x] Set status to "[In Progress]"
-- [ ] Add completion date placeholder (TBD)
+- [x] Add completion date placeholder (2026-01-07)
 - [x] Verify index format matches existing entries
 
 ### 7.2 Final Code Review
-- [ ] Review all adapter implementations
+- [x] Review all adapter implementations
 - [x] Review conversation analyzer code
 - [x] Review RAG MCP tool implementation
 - [x] Check for consistency across all components
 - [x] Verify error handling is comprehensive
 
 ### 7.3 Update AGENTS.md (if needed)
-- [ ] Update AGENTS.md if workflow changes are needed
-- [ ] Document new RAG tool usage
+- [x] Update AGENTS.md if workflow changes are needed
+- [x] Document new RAG tool usage (rag.analyze_conversation)
 - [x] Add reference to universal hook integration
-- [ ] Update RAG STRICT MANDATE if needed
+- [x] Update RAG STRICT MANDATE if needed
 - [x] Verify all documentation is consistent
 
 ### 7.4 Final Validation

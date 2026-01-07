@@ -616,10 +616,16 @@ You MUST still manually add facts/episodes when:
    - Priority: MANDATORY when learning factual information
    - Parameters: project_id="synapse", fact_key="<key>", fact_value="<value>", confidence=1.0, category="<type>"
 
-7. **`rag.add_episode`**
-   - Use: Add advisory lesson
-   - Priority: MANDATORY when learning from experience
-   - Parameters: project_id="synapse", title="<title>", content="<content>", lesson_type="<type>", quality=0.9
+ 7. **`rag.add_episode`**
+    - Use: Add advisory lesson
+    - Priority: MANDATORY when learning from experience
+    - Parameters: project_id="synapse", title="<title>", content="<content>", lesson_type="<type>", quality=0.9
+
+8. **`rag.analyze_conversation`** (NEW - Universal Hook Auto-Learning)
+    - Use: Extract facts and episodes from agent conversations automatically
+    - Priority: Called by agent hooks (OpenCode, Claude Code, etc.)
+    - Parameters: project_id="synapse", user_message="<msg>", agent_response="<resp>", context={}, auto_store=true, extraction_mode="heuristic"
+    - Note: Used by universal hook adapters for automatic learning
 
 ---
 

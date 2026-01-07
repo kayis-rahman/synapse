@@ -187,27 +187,11 @@ const SynapseAutoLearningPlugin = async (ctx: PluginInput): Promise<Hooks> => {
 
          return;
 
-       } catch (error) {
-         const duration = Date.now() - startTime;
-         console.error(`[Synapse] Error in tool.execute.after: ${error} (${duration}ms)`);
-         // Never throw - allow agent to continue
-         return;
-       }
-     }
-
-        console.debug(`[Synapse] tool.execute.after: tool=${input.tool}, session=${input.sessionID}`);
-        console.debug(`[Synapse] Tool result: ${output.title}`);
-
-        // For future enhancement: Could trigger analysis based on tool results
-        // Currently just logging for debugging
-
-        return;
-
-      } catch (error) {
-        const duration = Date.now() - startTime;
-        console.error(`[Synapse] Error in tool.execute.after: ${error} (${duration}ms)`);
-        // Never throw - allow agent to continue
-        return;
+        } catch (error) {
+          const duration = Date.now() - startTime;
+          console.error(`[Synapse] Error in tool.execute.after: ${error} (${duration}ms)`);
+          // Never throw - allow agent to continue
+          return;
       }
     }
   };
