@@ -22,119 +22,119 @@ This task list provides granular checklist for implementing and executing Phase 
 ## Phase 2.1: P1-1 Start Command Tests (14 tasks)
 
 ### 2.1.1 Create Test Script: P1-1 Start
-- [ ] Create `tests/cli/test_p1_start.py` file
-- [ ] Add imports (subprocess, sys, time, pathlib)
-- [ ] Define TIMEOUTS dictionary (start: 10s, health_check: 1s)
-- [ ] Define ENVIRONMENTS dictionary (docker_compose, native)
-- [ ] Implement test result storage
-- [ ] Add main() function
-- [ ] Add error handling
-- [ ] Add test summary output
+- [x] Create `tests/cli/test_p1_start.py` file
+- [x] Add imports (subprocess, sys, time, pathlib)
+- [x] Define TIMEOUTS dictionary (start: 10s, health_check: 1s)
+- [x] Define ENVIRONMENTS dictionary (docker_compose, native)
+- [x] Implement test result storage
+- [x] Add main() function
+- [x] Add error handling
+- [x] Add test summary output
 
 ### 2.1.2 Implement: Start-1 Docker Compose Start
-- [ ] Define test function `test_start_1_docker_compose()`
-- [ ] Implement command: `docker compose up -d rag-mcp`
-- [ ] Add assertion: exit_code == 0
-- [ ] Add assertion: timeout < 10s
-- [ ] Add assertion: container starts successfully
-- [ ] Add assertion: health check returns 200 OK
-- [ ] Add assertion: server runs in background
-- [ ] Record test result
+- [x] Define test function `test_start_1_docker_compose()`
+- [x] Implement command: `docker compose up -d rag-mcp`
+- [x] Add assertion: exit_code == 0
+- [x] Add assertion: timeout < 10s
+- [x] Add assertion: container starts successfully
+- [x] Add assertion: health check returns 200 OK
+- [x] Add assertion: server runs in background
+- [x] Record test result
 
 ### 2.1.3 Implement: Start-2 Native Start
-- [ ] Define test function `test_start_2_native()`
-- [ ] Implement command: `python3 -m mcp_server.rag_server` (background)
-- [ ] Add assertion: exit_code == 0 (background process)
-- [ ] Add assertion: timeout < 10s
-- [ ] Add assertion: process starts successfully
-- [ ] Add assertion: health check returns 200 OK
-- [ ] Add assertion: server runs in background
-- [ ] Record test result
+- [x] Define test function `test_start_2_native()`
+- [x] Implement command: `python3 -m synapse.cli.main start`
+- [x] Add assertion: exit_code == 0 (background process)
+- [x] Add assertion: timeout < 10s
+- [x] Add assertion: process starts successfully
+- [x] Add assertion: health check returns 200 OK
+- [x] Add assertion: server runs in background
+- [x] Record test result
 
 ### 2.1.4 Implement: Start-3 Port Configuration
-- [ ] Define test function `test_start_3_port_config()`
-- [ ] Implement command: `synapse start --port 9000`
-- [ ] Add assertion: exit_code == 0
-- [ ] Add assertion: server starts on port 9000
-- [ ] Add assertion: health check on port 9000 succeeds
-- [ ] Add assertion: configuration shows correct port
-- [ ] Record test result
+- [x] Define test function `test_start_3_port_config()`
+- [x] Implement command: `synapse start --port 9000`
+- [x] Add assertion: exit_code == 0
+- [x] Add assertion: server starts on port 9000
+- [x] Add assertion: health check on port 9000 succeeds
+- [x] Add assertion: configuration shows correct port
+- [x] Record test result
 
 ### 2.1.5 Implement: Start-4 Port Already in Use
-- [ ] Define test function `test_start_4_port_in_use()`
-- [ ] Setup: Start server on port 8002, then attempt another start
-- [ ] Add assertion: exit_code == non-zero
-- [ ] Add assertion: error message mentions port conflict
-- [ ] Add assertion: error message is clear and actionable
-- [ ] Add assertion: server not corrupted
-- [ ] Record test result
+- [x] Define test function `test_start_4_port_in_use()`
+- [x] Setup: Start server on port 8002, then attempt another start
+- [x] Add assertion: exit_code == non-zero
+- [x] Add assertion: error message mentions port conflict
+- [x] Add assertion: error message is clear and actionable
+- [x] Add assertion: server not corrupted
+- [x] Record test result
 
 ### 2.1.6 Implement: Start-5 Missing Dependencies
-- [ ] Define test function `test_start_5_missing_deps()`
-- [ ] Setup: Mock missing dependency (e.g., delete required module temporarily)
-- [ ] Add assertion: exit_code == non-zero
-- [ ] Add assertion: error message mentions missing dependency
-- [ ] Add assertion: error message suggests installation
-- [ ] Add assertion: no partial startup
-- [ ] Restore dependency
-- [ ] Record test result
+- [x] Define test function `test_start_5_missing_deps()`
+- [x] Setup: Mock missing dependency (e.g., delete required module temporarily)
+- [x] Add assertion: exit_code == non-zero
+- [x] Add assertion: error message mentions missing dependency
+- [x] Add assertion: error message suggests installation
+- [x] Add assertion: no partial startup
+- [x] Restore dependency
+- [x] Record test result
 
 ### 2.1.7 Implement: Start-6 Configuration Error
-- [ ] Define test function `test_start_6_config_error()`
-- [ ] Setup: Provide invalid configuration
-- [ ] Add assertion: exit_code == non-zero
-- [ ] Add assertion: error message mentions configuration issue
-- [ ] Add assertion: error message shows file/line of error
-- [ ] Add assertion: suggests fix
-- [ ] Restore valid configuration
-- [ ] Record test result
+- [x] Define test function `test_start_6_config_error()`
+- [x] Setup: Provide invalid configuration
+- [x] Add assertion: exit_code == non-zero
+- [x] Add assertion: error message mentions configuration issue
+- [x] Add assertion: error message shows file/line of error
+- [x] Add assertion: suggests fix
+- [x] Restore valid configuration
+- [x] Record test result
 
 ### 2.1.8 Implement: Start-7 Docker Mode Flag
-- [ ] Define test function `test_start_7_docker_mode()`
-- [ ] Implement command: `synapse start --docker`
-- [ ] Add assertion: exit_code == 0
-- [ ] Add assertion: Docker Compose is invoked
-- [ ] Add assertion: container starts via Docker Compose
-- [ ] Add assertion: not starting native process
-- [ ] Record test result
+- [x] Define test function `test_start_7_docker_mode()`
+- [x] Implement command: `synapse start --docker`
+- [x] Add assertion: exit_code == 0
+- [x] Add assertion: Docker Compose is invoked
+- [x] Add assertion: container starts via Docker Compose
+- [x] Add assertion: not starting native process
+- [x] Record test result
 
 ### 2.1.9 Add Health Check Utility
-- [ ] Add function to check health endpoint
-- [ ] Implement curl-based health check
-- [ ] Implement retry logic with backoff
-- [ ] Handle health check failures gracefully
-- [ ] Return health status and duration
+- [x] Add function to check health endpoint
+- [x] Implement curl-based health check
+- [x] Implement retry logic with backoff
+- [x] Handle health check failures gracefully
+- [x] Return health status and duration
 
 ### 2.1.10 Add Docker Compose Check
-- [ ] Add function to check Docker Compose version
-- [ ] Verify docker compose is available
-- [ ] Test v1 vs v2 syntax
-- [ ] Document version requirements
+- [x] Add function to check Docker Compose version
+- [x] Verify docker compose is available
+- [x] Test v1 vs v2 syntax
+- [x] Document version requirements
 
 ### 2.1.11 Add Background Process Management
-- [ ] Add function to verify process is background
-- [ ] Check for process detachment
-- [ ] Verify no blocking I/O
-- [ ] Test process cleanup
+- [x] Add function to verify process is background
+- [x] Check for process detachment
+- [x] Verify no blocking I/O
+- [x] Test process cleanup
 
 ### 2.1.12 Add Startup Timeout Handling
-- [ ] Add try-except for startup timeouts
-- [ ] Use generous timeout (30s) for health checks
-- [ ] Log clear message if timeout
-- [ ] Cleanup on timeout
+- [x] Add try-except for startup timeouts
+- [x] Use generous timeout (30s) for health checks
+- [x] Log clear message if timeout
+- [x] Cleanup on timeout
 
 ### 2.1.13 Verify Start Server Functionality
-- [ ] Verify server actually responds to requests
-- [ ] Verify MCP endpoints are available
-- [ ] Verify logging is working
-- [ ] Verify no errors in startup logs
+- [x] Verify server actually responds to requests
+- [x] Verify MCP endpoints are available
+- [x] Verify logging is working
+- [x] Verify no errors in startup logs
 
 ### 2.1.14 Verify Test Script Completeness
-- [ ] Verify all test functions are defined
-- [ ] Verify all assertions are implemented
-- [ ] Verify error handling is comprehensive
-- [ ] Verify test summary is generated
-- [ ] Verify exit codes are correct
+- [x] Verify all test functions are defined
+- [x] Verify all assertions are implemented
+- [x] Verify error handling is comprehensive
+- [x] Verify test summary is generated
+- [x] Verify exit codes are correct
 
 ---
 
@@ -569,3 +569,5 @@ Phase 2 is complete when:
 ---
 
 **Last Updated**: January 7, 2026
+**Phase 2.1 Status**: ✅ COMPLETE (14/14 tasks, test_p1_start.py created, commit: b77c029)
+**Next Phase**: Phase 2.2 - Stop Command Tests
