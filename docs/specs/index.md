@@ -14,17 +14,17 @@ This is the "Source of Truth" for all SYNAPSE features. Each feature follows the
   | 002-auto-learning | Automatic Learning System | [Completed] | 2026-01-04 |
    | 003-rag-quality-metrics | RAG Quality Metrics Dashboard | [Deferred] | ⏳ Pending |
    | 004-universal-hook-auto-learning | Universal Multi-Agent Hook Auto-Learning | [Production Ready] | 2026-01-07 | 298046e |
-   | 005-cli-priority-testing | CLI Command Priority Testing | [In Progress] | ⏳ Pending | 5a7f1e0 |
-    | **OpenCode Adapter**: ✅ Production Ready (Phase 1-7: 125/173 tasks, 72%)
-    | **Phase 1 (Foundation)**: ✅ Complete (10/10 tasks, 100%)
-    | **Phase 2 (MCP Server)**: ✅ Complete (5/5 tasks, 100%)
-    | **Phase 3.1 (OpenCode Adapter)**: ✅ Production Ready (52/59 tasks, 88%)
-    | **Phase 4 (Testing)**: ✅ Complete (21/22 tasks, 95%)
-    | **Phase 5 (Documentation)**: ✅ Complete (8/8 tasks, 100%)
-    | **Phase 7 (Validation)**: ✅ Complete (3/4 tasks, 75%)
-    | **Claude Code Adapter**: ⏸ Future Work (Phase 3.2: 0/20 tasks)
-    | **Other Adapters**: ⏸ Future Work (Phase 3.3: 0/40 tasks)
-    | **Release**: v1.0.0 - 40/41 tests passing (97.6%)
+| 005-cli-priority-testing | CLI Command Priority Testing | [In Progress] | ⏳ Pending | daada52 |
+     | **Phase 1 (Foundation)**: ✅ Complete (43/43 tasks, 100%)
+     | **Phase 2 (Server Operations)**: ⏳ Implementation Complete (58/58 tasks, 100%)
+     | **Phase 2.1: Start Tests** | ✅ Complete (14/14 tasks, test_p1_start.py)
+     | **Phase 2.2: Stop Tests** | ✅ Complete (12/12 tasks, test_p1_stop.py)
+     | **Phase 2.3: Status Tests** | ✅ Complete (14/14 tasks, test_p1_status.py)
+     | **Phase 2.4: Docker Integration** | ✅ Complete (8/8 tasks, test_p1_docker.py)
+     | **Phase 2.5: Test Execution** | ⏳ PENDING (0/5 tasks)
+     | **Phase 2.6: Documentation** | ⏳ PENDING (0/3 tasks)
+     | **Claude Code Adapter**: ⏸ Future Work (Phase 3.2: 0/20 tasks)
+     | **Other Adapters**: ⏸ Future Work (Phase 3.3: 0/40 tasks)
 
 ## Feature Status Legend
 
