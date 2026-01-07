@@ -100,8 +100,9 @@ const SynapseAutoLearningPlugin = async (ctx: PluginInput): Promise<Hooks> => {
                 return_only: false
               });
             }
-           } catch (ragError: any) {
-             // RAG tool call failed - continue silently (graceful degradation)
+           } catch (error: any) {
+              // RAG tool call or hook error - continue silently (graceful degradation)
+              return;
            }
           } catch (ragError: any) {
              // Hook error - continue silently (graceful degradation)
