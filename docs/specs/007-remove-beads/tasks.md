@@ -21,49 +21,54 @@ Tasks are organized by phase and linked to requirements (FR-XXX) and plan sectio
 
 ### 0.1 Export Beads Issues
 
-- [ ] Export all beads issues to JSON backup (Linked to FR-002.4)
+- [x] Export all beads issues to JSON backup (Linked to FR-002.4)
   ```bash
   jq -s '.' .beads/issues.jsonl > .beads/issues-export-backup.json
   ```
-  - **Validation**: File exists and is valid JSON (`jq empty .beads/issues-export-backup.json`)
+  - **Validation**: File exists and is valid JSON (`jq empty .beads/issues-export-backup.json`) ✅
+  - **Result**: 86 issues exported (1517 lines)
 
-- [ ] Export open issues for GitHub migration (Linked to FR-002.2, FR-002.3)
+- [x] Export open issues for GitHub migration (Linked to FR-002.2, FR-002.3)
   ```bash
   jq -s 'map(select(.status=="open"))' .beads/issues.jsonl > .beads/open-issues-for-github.json
   ```
-  - **Validation**: File contains exactly 2 issues (synapse-2il, synapse-7bm)
+  - **Validation**: File contains exactly 2 issues (synapse-2il, synapse-7bm) ✅
+  - **Result**: 2 open issues exported (24 lines)
 
-- [ ] Verify exports are valid JSON (Linked to FR-002.4)
+- [x] Verify exports are valid JSON (Linked to FR-002.4)
   ```bash
   jq empty .beads/issues-export-backup.json
   jq empty .beads/open-issues-for-github.json
   ```
-  - **Validation**: Both commands complete without errors
+  - **Validation**: Both commands complete without errors ✅
 
 ### 0.2 Create Backup Branch
 
-- [ ] Create backup branch from current state (Linked to NFR-002.1)
+- [x] Create backup branch from current state (Linked to NFR-002.1)
   ```bash
   git checkout main
   git branch backup-before-beads-removal-$(date +%Y%m%d)
   git push origin backup-before-beads-removal-$(date +%Y%m%d)
   ```
-  - **Validation**: Branch exists on remote (`git branch -a | grep backup-before-beads-removal`)
+  - **Validation**: Branch exists on remote (`git branch -a | grep backup-before-beads-removal`) ✅
+  - **Result**: Branch `backup-before-beads-removal-20260107` created and pushed
 
 ### 0.3 Verify Git Sync Status
 
-- [ ] Check for uncommitted changes (Linked to D-001)
+- [x] Check for uncommitted changes (Linked to D-001)
   ```bash
   git status
   ```
-  - **Validation**: Shows "Your branch is up to date with 'origin/main'"
+  - **Validation**: Shows "Your branch is up to date with 'origin/main'" ✅
+  - **Result**: Only untracked files (export backups, BEADS_REMOVAL_SDD_PLAN.md) - expected
 
-- [ ] Verify local and remote are in sync (Linked to D-001)
+- [x] Verify local and remote are in sync (Linked to D-001)
   ```bash
   git fetch origin
   git log main..origin/main --oneline
   ```
-  - **Validation**: No output (branches are identical)
+  - **Validation**: No output (branches are identical) ✅
+  - **Result**: Local main is in sync with origin/main
 
 ---
 
