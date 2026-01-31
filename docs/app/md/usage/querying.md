@@ -7,6 +7,21 @@ description: Query SYNAPSE memory system
 
 SYNAPSE provides multiple ways to query your knowledge base.
 
+## CLI Querying
+
+Use the `synapse query` command to search your knowledge base:
+
+```bash
+# Simple query
+synapse query "How does SYNAPSE work?"
+
+# Get more results
+synapse query "your question" --top-k 5
+
+# JSON output for automation
+synapse query "your question" --format json
+```
+
 ## MCP-Based Querying
 
 Query via MCP tools:
@@ -64,11 +79,11 @@ When querying, SYNAPSE respects the memory authority hierarchy:
 # Get context from all memory types
 synapse query "How does the memory system work?"
 
-# Search only semantic memory
-synapse search "architecture" --memory-type semantic
+# Get more results
+synapse query "your question" --top-k 5
 
-# Get specific facts
-synapse facts --category system
+# JSON output for automation
+synapse query "your question" --format json
 ```
 
 Back to: [MCP Tools](./mcp-tools)

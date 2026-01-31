@@ -7,25 +7,46 @@ description: Bulk and single file ingestion
 
 SYNAPSE provides multiple ways to ingest your data into memory.
 
-## Bulk Ingestion
+## CLI Ingestion
 
-Ingest entire projects with .gitignore-aware processing:
+Use the `synapse ingest` command to ingest files and directories:
+
+```bash
+# Ingest current directory
+synapse ingest .
+
+# Ingest specific directory
+synapse ingest /path/to/your/docs
+
+# Ingest specific file
+synapse ingest /path/to/file.py
+
+# Filter by file type
+synapse ingest . --file-type code --file-type doc
+
+# Custom exclusions
+synapse ingest . --exclude "*.log" --exclude "*.tmp"
+```
+
+## Bulk Ingestion Script
+
+For advanced ingestion with .gitignore awareness and incremental updates:
 
 ```bash
 # Preview what will be ingested
-synapse-bulk-ingest --dry-run
+python3 -m scripts.bulk_ingest --root-dir . --dry-run
 
 # Ingest all files
-synapse-bulk-ingest
+python3 -m scripts.bulk_ingest --root-dir .
 
 # Ingest specific directory
-synapse-bulk-ingest --root-dir /path/to/project
+python3 -m scripts.bulk_ingest --root-dir /path/to/project
 
 # Filter by file type
-synapse-bulk-ingest --file-type code --file-type doc
+python3 -m scripts.bulk_ingest --root-dir . --file-type code --file-type doc
 
 # Custom exclusions
-synapse-bulk-ingest --no-gitignore --exclude "*.log"
+python3 -m scripts.bulk_ingest --root-dir . --no-gitignore --exclude "*.log"
 ```
 
 ## File Type Filters

@@ -91,7 +91,7 @@ This is the "Source of Truth" for all SYNAPSE features. Each feature follows the
          | **Timeline**: 8-12 hours (52 tasks across 5 phases)
          | **Status**: ✅ COMPLETE - Merged into Feature 010
           | **Commit**: 63bef8b - All bugs fixed and tested
-     | 013-getting-started-docs | Getting Started Documentation Refresh | [Planning] | ⏳ Pending |
+      | 013-getting-started-docs | Getting Started Documentation Refresh | [Completed] | 2026-01-31 | e2defeb |
           | **Objective**: Update fumadocs getting started section for speed-first experience
           | **Key Changes**:
           | - Trim introduction to minimal hook + link
@@ -99,9 +99,9 @@ This is the "Source of Truth" for all SYNAPSE features. Each feature follows the
           | - Speed-first quick start (< 5 minutes to query)
           | - Expandable details for learning
           | - Demote configuration to reference
-          | **Files**: 4 files in docs/app/md/getting-started/
-          | **Timeline**: ~1.5 hours (10 tasks)
-          | **Status**: 📋 SDD created, ready for implementation
+          | - Updated all docs to use `synapse` CLI command
+          | **Files**: 4 files in docs/app/md/getting-started/ + 3 usage docs
+          | **Status**: ✅ COMPLETE - All documentation updated with correct CLI commands
 
 - **[In Progress]** - Feature is currently being worked on
 - **[Completed]** - Feature is fully implemented and tested

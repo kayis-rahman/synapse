@@ -20,12 +20,12 @@ cd synapse
 pip install -e .
 
 # Verify installation
-python -m synapse.cli.main --help
+synapse --help
 ```
 
 **Expected output:**
 ```
- Usage: python -m synapse.cli.main [OPTIONS] COMMAND [ARGS]...
+ Usage: synapse [OPTIONS] COMMAND [ARGS]...
 
  SYNAPSE: Your Data Meets Intelligence - Local RAG System for AI Agents
 
@@ -59,12 +59,12 @@ cd synapse
 pip install -e .
 
 # Verify installation
-python -m synapse.cli.main --help
+synapse --help
 ```
 
 **Expected output:**
 ```
- Usage: python -m synapse.cli.main [OPTIONS] COMMAND [ARGS]...
+ Usage: synapse [OPTIONS] COMMAND [ARGS]...
 
  SYNAPSE: Your Data Meets Intelligence - Local RAG System for AI Agents
 

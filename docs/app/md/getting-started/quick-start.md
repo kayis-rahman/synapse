@@ -10,7 +10,7 @@ description: Get your first query in under 5 minutes
 ## 1️⃣ Start the Server
 
 ```bash
-python -m synapse.cli.main start
+synapse start
 ```
 
 > **Server URL:** http://localhost:8002/mcp
@@ -38,10 +38,10 @@ Open a **new terminal** and run:
 
 ```bash
 # Ingest the current directory
-python -m synapse.cli.main ingest .
+synapse ingest .
 
 # Or ingest a specific path
-python -m synapse.cli.main ingest /path/to/your/docs
+synapse ingest /path/to/your/docs
 ```
 
 ::details{label="What does this do?"}
@@ -65,7 +65,7 @@ python -m synapse.cli.main ingest /path/to/your/docs
 ## 3️⃣ Query Your Knowledge
 
 ```bash
-python -m synapse.cli.main query "What is SYNAPSE?"
+synapse query "What is SYNAPSE?"
 ```
 
 ::details{label="What does this do?"}
@@ -78,10 +78,10 @@ python -m synapse.cli.main query "What is SYNAPSE?"
 **Query options:**
 ```bash
 # Get more results
-python -m synapse.cli.main query "question" --top-k 5
+synapse query "question" --top-k 5
 
 # JSON output for automation
-python -m synapse.cli.main query "question" --format json
+synapse query "question" --format json
 ```
 ::
 
@@ -100,14 +100,14 @@ You now have a working SYNAPSE installation with:
 :::card{label="Ingest More Data"}
 Add more knowledge to your system:
 ```bash
-python -m synapse.cli.main ingest /path/to/more/docs
+synapse ingest /path/to/more/docs
 ```
 [Learn More →](../usage/ingestion)
 :::
 :::card{label="Explore Commands"}
 Discover what else SYNAPSE can do:
 ```bash
-python -m synapse.cli.main --help
+synapse --help
 ```
 [CLI Commands →](../api-reference/cli-commands)
 :::
@@ -127,11 +127,11 @@ Press `Ctrl+C` in the terminal where the server is running.
 ::details{label="Can I run in background?"}
 Yes, use `&` to run in background:
 ```bash
-python -m synapse.cli.main start &
+synapse start &
 ```
 Or use nohup:
 ```bash
-nohup python -m synapse.cli.main start > server.log 2>&1 &
+nohup synapse start > server.log 2>&1 &
 ```
 :::
 ::details{label="Where is my data stored?"}

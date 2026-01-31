@@ -18,10 +18,10 @@ description: What is SYNAPSE and how it works
 
 ```bash
 # Start server
-python -m synapse.cli.main start
+synapse start
 
 # Query your knowledge
-python -m synapse.cli.main query "What did I learn?"
+synapse query "What did I learn?"
 ```
 
 [Quick Start →](./quick-start)
