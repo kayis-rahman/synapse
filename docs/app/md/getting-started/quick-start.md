@@ -1,47 +1,142 @@
 ---
 title: Quick Start
-description: Get started with SYNAPSE in minutes
+description: Get your first query in under 5 minutes
 ---
 
 # Quick Start
 
-## 1. Create `.env` File
+**Goal:** From zero to your first query in under 5 minutes.
+
+## 1️⃣ Start the Server
 
 ```bash
-# Server configuration
-HOST=0.0.0.0
-PORT=8002
-
-# RAG configuration
-PROJECT_ROOT=/opt/synapse/data
-CHUNK_SIZE=500
-CHUNK_OVERLAP=50
+python -m synapse.cli.main start
 ```
 
-## 2. Start MCP Server
+> **Server URL:** http://localhost:8002/mcp
+>
+> Keep this terminal open. The server runs in the foreground.
+
+::details{label="What does this do?"}
+**Starting the server initializes:**
+- MCP HTTP server on port 8002
+- BGE-M3 embedding model
+- Three memory systems (semantic, episodic, symbolic)
+- Health check endpoint at http://localhost:8002/mcp
+
+**Expected output:**
+```
+🚀 Starting SYNAPSE server...
+  Port: 8002
+  Environment: development
+```
+::
+
+## 2️⃣ Ingest Your Data
+
+Open a **new terminal** and run:
 
 ```bash
-synapse-mcp-server
+# Ingest the current directory
+python -m synapse.cli.main ingest .
+
+# Or ingest a specific path
+python -m synapse.cli.main ingest /path/to/your/docs
 ```
 
-## 3. Bulk Ingest Files
+::details{label="What does this do?"}
+**Ingestion processes your files:**
+- Scans for supported file types (.py, .md, .txt, etc.)
+- Chunks documents (500 chars with 50 char overlap)
+- Creates vector embeddings using BGE-M3
+- Stores in semantic memory for retrieval
+
+**Supported file types:**
+- Code: .py, .js, .ts, .java, .cpp, etc.
+- Docs: .md, .txt, .rst, .pdf, etc.
+- Config: .json, .yaml, .toml, .env
+
+**Progress indicators show:**
+- Files scanned
+- Documents created
+- Embeddings generated
+::
+
+## 3️⃣ Query Your Knowledge
 
 ```bash
-# Preview what will be ingested
-synapse-bulk-ingest --dry-run
-
-# Ingest all project files
-synapse-bulk-ingest
+python -m synapse.cli.main query "What is SYNAPSE?"
 ```
 
-## 4. Query Your Knowledge Base
+::details{label="What does this do?"}
+**Querying searches your knowledge:**
+1. Creates query embedding using BGE-M3
+2. Searches semantic memory (vectors)
+3. Retrieves top-K most relevant chunks
+4. Returns results with source attribution
 
+**Query options:**
 ```bash
-# List available projects
-synapse list-projects
+# Get more results
+python -m synapse.cli.main query "question" --top-k 5
 
-# Search your documents
-synapse query "How does SYNAPSE work?"
+# JSON output for automation
+python -m synapse.cli.main query "question" --format json
 ```
+::
 
-Next: [Configuration](./configuration)
+---
+
+## 🎉 You Did It!
+
+You now have a working SYNAPSE installation with:
+- ✅ Server running at http://localhost:8002/mcp
+- ✅ Your data indexed and searchable
+- ✅ Query capability ready to use
+
+## Next Steps
+
+::cards
+:::card{label="Ingest More Data"}
+Add more knowledge to your system:
+```bash
+python -m synapse.cli.main ingest /path/to/more/docs
+```
+[Learn More →](../usage/ingestion)
+:::
+:::card{label="Explore Commands"}
+Discover what else SYNAPSE can do:
+```bash
+python -m synapse.cli.main --help
+```
+[CLI Commands →](../api-reference/cli-commands)
+:::
+:::card{label="Understand Memory"}
+Learn about the three memory types:
+[SYNAPSE Architecture →](../architecture/overview)
+:::
+::
+
+---
+
+## Common Questions
+
+::details{label="How do I stop the server?"}
+Press `Ctrl+C` in the terminal where the server is running.
+:::
+::details{label="Can I run in background?"}
+Yes, use `&` to run in background:
+```bash
+python -m synapse.cli.main start &
+```
+Or use nohup:
+```bash
+nohup python -m synapse.cli.main start > server.log 2>&1 &
+```
+:::
+::details{label="Where is my data stored?"}
+By default: `~/.synapse/data/`
+- `semantic_index/` - Document embeddings
+- `memory.db` - Symbolic memory (facts)
+- `episodic.db` - Episodic memory (lessons)
+:::

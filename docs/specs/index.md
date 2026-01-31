@@ -90,7 +90,18 @@ This is the "Source of Truth" for all SYNAPSE features. Each feature follows the
          | **Files**: 6 files (4 modified, 2 new test files)
          | **Timeline**: 8-12 hours (52 tasks across 5 phases)
          | **Status**: ✅ COMPLETE - Merged into Feature 010
-         | **Commit**: 63bef8b - All bugs fixed and tested
+          | **Commit**: 63bef8b - All bugs fixed and tested
+     | 013-getting-started-docs | Getting Started Documentation Refresh | [Planning] | ⏳ Pending |
+          | **Objective**: Update fumadocs getting started section for speed-first experience
+          | **Key Changes**:
+          | - Trim introduction to minimal hook + link
+          | - Tab-based installation (macOS, Linux, Docker)
+          | - Speed-first quick start (< 5 minutes to query)
+          | - Expandable details for learning
+          | - Demote configuration to reference
+          | **Files**: 4 files in docs/app/md/getting-started/
+          | **Timeline**: ~1.5 hours (10 tasks)
+          | **Status**: 📋 SDD created, ready for implementation
 
 - **[In Progress]** - Feature is currently being worked on
 - **[Completed]** - Feature is fully implemented and tested
