@@ -91,6 +91,24 @@ This is the "Source of Truth" for all SYNAPSE features. Each feature follows the
          | **Timeline**: 8-12 hours (52 tasks across 5 phases)
          | **Status**: ✅ COMPLETE - Merged into Feature 010
          | **Commit**: 63bef8b - All bugs fixed and tested
+     | 012-cli-ingestion-bug-fixes | CLI & Ingestion Bug Fixes | [In Progress] | ⏳ Pending | |
+         | **Objective**: Fix 7 bugs identified during Feature 010 validation
+         | **Bugs to Fix**:
+         | - BUG-004: Config --json output (LOW)
+         | - BUG-005: Config formatting (LOW)
+         | - BUG-006: Models list incomplete (MEDIUM)
+         | - BUG-007: Ingest not implemented (MEDIUM)
+         | - BUG-008: Query not implemented (MEDIUM)
+         | - BUG-009: Config flags missing (LOW)
+         | - BUG-INGEST-01: Ingestion persistence failure (HIGH)
+         | **Timeline**: 16-19 hours (54 tasks across 6 phases)
+         | **Progress**: 0% (0/54 tasks)
+         | **Status**: 📋 SDD created, ready for implementation
+         | **Recent Work**: 
+         |   - Created requirements.md (7 user stories, 7 bugs)
+         |   - Created plan.md (technical approaches for all fixes)
+         |   - Created tasks.md (54 tasks across 6 phases)
+         |   - Next: Phase 1 - CLI Config Fixes (BUG-004, BUG-005)
 
 - **[In Progress]** - Feature is currently being worked on
 - **[Completed]** - Feature is fully implemented and tested
