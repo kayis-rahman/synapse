@@ -9,12 +9,14 @@ final class PomodoroTimerSessionTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         FocusTimerPersistence.clear()
+        FocusSessionLifecycleStore.clear()
         NotificationManager.shared = RecordingNotificationManager()
         timer = PomodoroTimer()
     }
 
     override func tearDownWithError() throws {
         FocusTimerPersistence.clear()
+        FocusSessionLifecycleStore.clear()
         NotificationManager.resetShared()
         timer = nil
         try super.tearDownWithError()
@@ -95,7 +97,7 @@ final class PomodoroTimerSessionTests: XCTestCase {
 
     func testSessionRetainsSelectedTaskWhileRunning() {
         let taskID = UUID()
-        timer.currentTaskId = taskID
+        XCTAssertTrue(timer.selectTask(id: taskID, title: nil))
 
         timer.start()
         timer.pause()
@@ -104,7 +106,7 @@ final class PomodoroTimerSessionTests: XCTestCase {
     }
 
     func testResetClearsTaskAssociationAndRunningState() {
-        timer.currentTaskId = UUID()
+        XCTAssertTrue(timer.selectTask(id: UUID(), title: nil))
         timer.start()
 
         timer.reset()
@@ -126,8 +128,7 @@ final class PomodoroTimerSessionTests: XCTestCase {
 
     func testStartingCreatesPersistableActiveSessionSnapshot() throws {
         let taskID = UUID()
-        timer.currentTaskId = taskID
-        timer.currentTaskTitleSnapshot = "Draft test plan"
+        XCTAssertTrue(timer.selectTask(id: taskID, title: "Draft test plan"))
 
         timer.start()
         let snapshot = timer.snapshot
@@ -216,6 +217,46 @@ final class PomodoroTimerSessionTests: XCTestCase {
 
         timer.pause()
         XCTAssertEqual(notifications?.cancelledCount, 1)
+    }
+
+    func testTaskSelectionIsLockedWhileRunning() {
+        let originalID = UUID()
+        let replacementID = UUID()
+        XCTAssertTrue(timer.selectTask(id: originalID, title: "Original"))
+        timer.start()
+
+        XCTAssertFalse(timer.selectTask(id: replacementID, title: "Replacement"))
+        XCTAssertEqual(timer.currentTaskId, originalID)
+        XCTAssertEqual(timer.currentTaskTitleSnapshot, "Original")
+        timer.pause()
+    }
+
+    func testPausePersistsLifecycleAndKeepsAccumulatedDuration() {
+        let startedAt = Date(timeIntervalSince1970: 30_000)
+        let sessionID = UUID()
+        FocusSessionLifecycleStore.save(FocusSessionLifecycleRecord(
+            id: sessionID,
+            phase: .work,
+            status: .running,
+            startedAt: startedAt,
+            lastUpdatedAt: startedAt,
+            accumulatedElapsedSeconds: 4,
+            taskId: nil,
+            taskTitleSnapshot: nil
+        ))
+
+        let record = FocusSessionLifecycleStore.load()
+        XCTAssertEqual(record?.status, .running)
+        XCTAssertEqual(record?.accumulatedElapsedSeconds, 4)
+    }
+
+    func testResetMarksActiveSessionAbandoned() {
+        timer.start()
+        let sessionID = try! XCTUnwrap(timer.activeSessionId)
+        timer.reset()
+
+        XCTAssertEqual(FocusSessionLifecycleStore.load()?.id, sessionID)
+        XCTAssertEqual(FocusSessionLifecycleStore.load()?.status, .abandoned)
     }
 }
 

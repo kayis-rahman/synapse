@@ -35,13 +35,25 @@ struct PrimaryButton: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
+            .frame(minHeight: WorkspaceStyle.controlHeight)
+            .padding(.horizontal, 16)
         }
         .foregroundStyle(Color.themeButtonForeground)
-        .background(Color.themeButtonBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .glassEffectInteractiveConditional(tint: .themeButtonBackground, in: .rect(cornerRadius: 12))
-        .buttonStyle(.plain)
+        .background(Color.themeButtonBackground, in: RoundedRectangle(cornerRadius: WorkspaceStyle.cardCornerRadius, style: .continuous))
+        .glassEffectInteractiveConditional(tint: .themeButtonBackground, in: .rect(cornerRadius: WorkspaceStyle.cardCornerRadius))
+        .buttonStyle(PressFeedbackButtonStyle())
         .disabled(isLoading)
+    }
+}
+
+struct PressFeedbackButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: ButtonStyleConfiguration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
+            .opacity(configuration.isPressed ? 0.92 : 1)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 

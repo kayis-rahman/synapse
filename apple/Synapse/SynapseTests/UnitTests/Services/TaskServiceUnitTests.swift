@@ -1,10 +1,21 @@
-// Stub — original tests reference non-existent MockDataProvider and TaskStatus types
 import XCTest
 @testable import Synapse
 
-@MainActor
 final class TaskServiceUnitTests: XCTestCase {
-    func testPlaceholder() {
-        // Original tests need MockDataProvider & TaskStatus which don't exist in codebase
+    func testTaskValidationRejectsWhitespaceOnlyTitle() {
+        let task = UserTask(userId: UUID(), title: "   ")
+        XCTAssertThrowsError(try task.validate()) { error in
+            XCTAssertEqual(error as? TaskValidationError, .emptyTitle)
+        }
+    }
+
+    func testTaskStatusHelpersDistinguishActiveAndCompleted() {
+        let active = UserTask(userId: UUID(), title: "Active", status: .inProgress)
+        let completed = active.withStatus(.completed)
+
+        XCTAssertTrue(active.isActive)
+        XCTAssertFalse(active.isCompleted)
+        XCTAssertFalse(completed.isActive)
+        XCTAssertTrue(completed.isCompleted)
     }
 }

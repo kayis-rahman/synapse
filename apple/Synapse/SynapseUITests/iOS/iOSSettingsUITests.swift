@@ -44,4 +44,32 @@ final class iOSSettingsUITests: XCTestCase {
         app.buttons["settings-clear-history"].tap()
         XCTAssertTrue(app.buttons["Clear history"].waitForExistence(timeout: 3))
     }
+
+    func testNotificationsSettingsShowsMasterAndWeeklyReviewToggles() {
+        openSettings()
+        app.buttons["settings-notifications"].tap()
+        XCTAssertTrue(app.navigationBars["Notifications"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.switches["settings-notifications-enabled"].exists)
+        XCTAssertTrue(app.switches["settings-weekly-review-reminder"].exists)
+    }
+
+    func testDisablingNotificationsDisablesWeeklyReviewToggle() {
+        openSettings()
+        app.buttons["settings-notifications"].tap()
+        XCTAssertTrue(app.navigationBars["Notifications"].waitForExistence(timeout: 5))
+
+        let masterToggle = app.switches["settings-notifications-enabled"]
+        let weeklyReviewToggle = app.switches["settings-weekly-review-reminder"]
+        XCTAssertTrue(masterToggle.waitForExistence(timeout: 5))
+
+        masterToggle.tap()
+        let valueWhileDisabled = weeklyReviewToggle.value as? String
+        weeklyReviewToggle.tap()
+        XCTAssertEqual(weeklyReviewToggle.value as? String, valueWhileDisabled, "Weekly review toggle should not respond to taps while notifications are disabled")
+
+        masterToggle.tap()
+        let reenabledToggle = app.switches["settings-weekly-review-reminder"]
+        let becameHittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isHittable == true"), object: reenabledToggle)
+        XCTAssertEqual(XCTWaiter().wait(for: [becameHittable], timeout: 5), .completed, "Weekly review toggle should become interactive again once notifications are re-enabled")
+    }
 }

@@ -28,8 +28,8 @@ class PomodoroTimer {
     var isRunning: Bool = false
     var shortBreaksCompleted: Int = 0
     var autoStartNextSession: Bool = true
-    var currentTaskId: UUID?
-    var currentTaskTitleSnapshot: String?
+    private(set) var currentTaskId: UUID?
+    private(set) var currentTaskTitleSnapshot: String?
     private(set) var activeSessionId: UUID?
     private(set) var sessionStartedAt: Date?
     private(set) var accumulatedElapsedSeconds: Int = 0
@@ -94,13 +94,6 @@ class PomodoroTimer {
         self.lastModifiedTimestamp = Date().timeIntervalSince1970
     }
 
-    deinit {
-        // Use MainActor-isolated task to cancel
-        Task { @MainActor in
-            timerTask?.cancel()
-        }
-    }
-
     var progress: Double {
         let current = Double(currentDuration) - Double(remainingSeconds)
         let total = Double(currentDuration)
@@ -129,6 +122,7 @@ class PomodoroTimer {
         startTimestamp = now.timeIntervalSince1970
         endAt = now.addingTimeInterval(TimeInterval(max(0, remainingSeconds)))
         lastModifiedTimestamp = startTimestamp!
+        persistLifecycle(status: .running, now: now)
         persistState(now: now)
         scheduleCompletionNotification()
         #if os(iOS)
@@ -144,6 +138,7 @@ class PomodoroTimer {
         pauseTimestamp = Date().timeIntervalSince1970
         lastModifiedTimestamp = pauseTimestamp!
         endAt = nil
+        persistLifecycle(status: .paused)
         persistState()
         cancelCompletionNotification()
         stopTimer()
@@ -153,6 +148,9 @@ class PomodoroTimer {
     }
 
     func reset() {
+        if activeSessionId != nil {
+            persistLifecycle(status: .abandoned)
+        }
         stopTimer()
         remainingSeconds = currentDuration
         phase = .work
@@ -183,7 +181,7 @@ class PomodoroTimer {
             SessionRecord(
                 id: $0,
                 startedAt: sessionStartedAt ?? Date(),
-                duration: TimeInterval(max(0, accumulatedElapsedSeconds == 0 ? previousDuration : accumulatedElapsedSeconds)),
+                duration: TimeInterval(max(0, accumulatedElapsedSeconds)),
                 kind: sessionKind(for: previousPhase),
                 taskId: currentTaskId,
                 taskTitleSnapshot: currentTaskTitleSnapshot
@@ -209,6 +207,7 @@ class PomodoroTimer {
 
         lastModifiedTimestamp = Date().timeIntervalSince1970
         if let completedSession {
+            persistLifecycle(status: .completed)
             onFocusSessionCompleted?(completedSession)
         }
         onSessionCompleted?(previousPhase, previousDuration)
@@ -366,6 +365,18 @@ class PomodoroTimer {
         #endif
     }
 
+    /// Selects the task for the current or next session. Task attribution is
+    /// immutable once a session is running; the next session can use a new
+    /// selection after pause/reset/completion.
+    @discardableResult
+    func selectTask(id: UUID?, title: String?) -> Bool {
+        guard !isRunning else { return false }
+        currentTaskId = id
+        currentTaskTitleSnapshot = title
+        persistState()
+        return true
+    }
+
     private func startTimer() {
         stopTimer()
         timerTask = _Concurrency.Task {
@@ -386,6 +397,7 @@ class PomodoroTimer {
     }
 
     func updateDurations(workMinutes: Int, shortBreakMinutes: Int, longBreakMinutes: Int) {
+        guard !isRunning else { return }
         self.workDuration = workMinutes * 60
         self.breakDuration = shortBreakMinutes * 60
         self.longBreakDuration = longBreakMinutes * 60
@@ -428,9 +440,23 @@ class PomodoroTimer {
         guard let endAt else { return }
         NotificationManager.shared.scheduleSessionDoneNotification(
             phase: phase.rawValue,
-            taskTitle: nil,
+            taskTitle: currentTaskTitleSnapshot,
             at: endAt
         )
+    }
+
+    private func persistLifecycle(status: FocusSessionStatus, now: Date = Date()) {
+        guard let activeSessionId, let sessionStartedAt else { return }
+        FocusSessionLifecycleStore.save(FocusSessionLifecycleRecord(
+            id: activeSessionId,
+            phase: phase,
+            status: status,
+            startedAt: sessionStartedAt,
+            lastUpdatedAt: now,
+            accumulatedElapsedSeconds: max(0, accumulatedElapsedSeconds),
+            taskId: currentTaskId,
+            taskTitleSnapshot: currentTaskTitleSnapshot
+        ))
     }
 
     private func cancelCompletionNotification() {

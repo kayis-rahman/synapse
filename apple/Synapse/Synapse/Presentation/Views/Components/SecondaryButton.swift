@@ -30,18 +30,19 @@ struct SecondaryButton: View {
                     .font(.system(size: 16, weight: .medium))
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
+            .frame(minHeight: WorkspaceStyle.controlHeight)
+            .padding(.horizontal, 16)
             .foregroundColor(isDestructive ? Color.themeError : Color.themeTextPrimary)
             .background(
-                RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: WorkspaceStyle.cardCornerRadius, style: .continuous)
                     .fill(Color.themeCardBackground)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: WorkspaceStyle.cardCornerRadius, style: .continuous)
                             .stroke(isDestructive ? Color.themeError : Color.themeBorder, lineWidth: 1.5)
                     )
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressFeedbackButtonStyle())
     }
 }
 

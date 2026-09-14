@@ -21,7 +21,7 @@ struct iOSContentView: View {
         let ringSize: CGFloat = 250
 
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: WorkspaceStyle.cardSpacing) {
                 focusHeader
 
                 CircularTimerView(size: ringSize)
@@ -29,10 +29,6 @@ struct iOSContentView: View {
                 .frame(maxWidth: .infinity)
 
                 activeTaskCard
-
-                if !upNextTasks.isEmpty {
-                    upNextSection
-                }
 
                 PrimaryButton(
                     title: FocusTabBehavior.actionTitle(
@@ -51,9 +47,13 @@ struct iOSContentView: View {
                 )
                 .accessibilityIdentifier("focus-primary-action")
 
+                if !upNextTasks.isEmpty {
+                    upNextSection
+                }
+
                 focusStats
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, WorkspaceStyle.contentPadding)
             .padding(.top, 14)
             .padding(.bottom, 24)
         }
@@ -93,8 +93,7 @@ struct iOSContentView: View {
             // task it points to no longer exists, clear the dangling reference
             // instead of leaving the card in a "Working on" + placeholder state.
             if timer.currentTaskId != nil, currentTask == nil {
-                timer.currentTaskId = nil
-                timer.currentTaskTitleSnapshot = nil
+                _ = timer.selectTask(id: nil, title: nil)
             }
         }
         .onChange(of: timer.phase) { oldPhase, newPhase in
@@ -105,8 +104,7 @@ struct iOSContentView: View {
         }
         .sheet(isPresented: $showingTaskPicker) {
             TaskPickerView { selectedTask in
-                timer.currentTaskId = selectedTask?.id
-                timer.currentTaskTitleSnapshot = selectedTask?.title
+                _ = timer.selectTask(id: selectedTask?.id, title: selectedTask?.title)
             }
         }
     }
@@ -202,8 +200,7 @@ struct iOSContentView: View {
                 HStack(spacing: 10) {
                     ForEach(upNextTasks) { task in
                         Button {
-                            timer.currentTaskId = task.id
-                            timer.currentTaskTitleSnapshot = task.title
+                            _ = timer.selectTask(id: task.id, title: task.title)
                         } label: {
                             Text(task.title)
                                 .font(.caption.weight(.medium))

@@ -104,6 +104,7 @@ struct AddNextActionIntent: AppIntent {
         let item = await CaptureService.shared.processCapture(text: title)
         item.status = .nextAction
         try SynapseIntentSupport.save(item, in: context)
+        TaskDueNotificationService.shared.sync(task: item)
         return .result()
     }
 
@@ -175,6 +176,7 @@ struct CompleteTaskIntent: AppIntent {
         }
         task.status = .completed
         try SynapseIntentSupport.save(context)
+        TaskDueNotificationService.shared.sync(task: task)
         return .result(dialog: IntentDialog(stringLiteral: "Marked \(task.title) complete."))
     }
 

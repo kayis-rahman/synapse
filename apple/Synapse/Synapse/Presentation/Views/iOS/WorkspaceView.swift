@@ -90,10 +90,17 @@ private struct HomeView: View {
         return WorkspaceMetrics.tasks(matching: selectedAreaFilter, areas: areas, from: actions)
     }
 
+    private var overdueTasks: [TaskItem] {
+        let actions = tasks.filter { task in
+            task.status == .nextAction && task.dueDate.map { $0 < .now && !Calendar.current.isDateInToday($0) } == true
+        }
+        return WorkspaceMetrics.tasks(matching: selectedAreaFilter, areas: areas, from: actions)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: WorkspaceStyle.sectionSpacing) {
                     Text("Make space for what matters.")
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(Color.themeTextPrimary)
@@ -120,7 +127,7 @@ private struct HomeView: View {
                         }
                         .foregroundStyle(Color.white)
                         .padding(16)
-                        .background(Color.themeButtonBackground, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .background(Color.themeButtonBackground, in: RoundedRectangle(cornerRadius: WorkspaceStyle.heroCornerRadius, style: .continuous))
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Capture an idea")
@@ -140,6 +147,13 @@ private struct HomeView: View {
                         areaFilterMenu
                     }
                     .padding(.vertical, 4)
+
+                    HStack(spacing: 10) {
+                        DaySignal(title: "Overdue", value: overdueTasks.count, tint: .orange)
+                        DaySignal(title: "Due today", value: todayTasks.filter { $0.dueDate != nil }.count, tint: .blue)
+                        DaySignal(title: "Open", value: todayTasks.count, tint: Color.themeTextPrimary)
+                    }
+                    .accessibilityIdentifier("today-orientation-summary")
 
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
@@ -251,6 +265,26 @@ private struct HomeView: View {
 private struct DailyBriefingPresentation: Identifiable {
     let id = UUID()
     let result: DailyBriefingResult
+}
+
+private struct DaySignal: View {
+    let title: String
+    let value: Int
+    let tint: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(value, format: .number)
+                .font(.headline.weight(.bold).monospacedDigit())
+            Text(title)
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(tint.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
 }
 
 private struct DailyBriefingView: View {
@@ -442,8 +476,40 @@ private struct InboxView: View {
                         .padding(16)
                         .background(Color.themeCardBackground.opacity(0.76), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
                     }
+                    if !visibleTasks.isEmpty {
+                        VStack(alignment: .leading, spacing: 10) {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(searchText.isEmpty ? "To process" : "Results")
+                                .font(.title3.weight(.bold))
+                            Spacer()
+                            Text("\(visibleTasks.count)")
+                                .font(.subheadline.weight(.semibold).monospacedDigit())
+                                .foregroundStyle(.secondary)
+                        }
+                        LazyVStack(spacing: 10) {
+                            ForEach(visibleTasks) { task in
+                                TaskListItem(task: task, identifierPrefix: "inbox-item")
+                                    .contextMenu {
+                                        Button { task.status = .nextAction; try? modelContext.save(); TaskDueNotificationService.shared.sync(task: task) } label: {
+                                            Label("Make next action", systemImage: "arrow.right.circle")
+                                        }
+                                        Button(role: .destructive) {
+                                            let taskID = task.id
+                                            modelContext.delete(task)
+                                            try? modelContext.save()
+                                            TaskDueNotificationService.shared.cancel(taskID: taskID)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+                            }
+                        }
+                        }
+                    }
+
                     captureCard
                     triageCard
+
                     NavigationLink { TaskListsView() } label: {
                         HStack(spacing: 12) {
                             Image(systemName: "rectangle.3.group.fill")
@@ -463,33 +529,8 @@ private struct InboxView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("browse-lists")
-                if !visibleTasks.isEmpty {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(searchText.isEmpty ? "To process" : "Results")
-                                .font(.title3.weight(.bold))
-                            Spacer()
-                            Text("\(visibleTasks.count)")
-                                .font(.subheadline.weight(.semibold).monospacedDigit())
-                                .foregroundStyle(.secondary)
-                        }
-                        LazyVStack(spacing: 10) {
-                            ForEach(visibleTasks) { task in
-                                TaskListItem(task: task, identifierPrefix: "inbox-item")
-                                    .contextMenu {
-                                        Button { task.status = .nextAction; try? modelContext.save() } label: {
-                                            Label("Make next action", systemImage: "arrow.right.circle")
-                                        }
-                                        Button(role: .destructive) { modelContext.delete(task); try? modelContext.save() } label: {
-                                            Label("Delete", systemImage: "trash")
-                                        }
-                                    }
-                            }
-                        }
-                    }
                 }
-                }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, WorkspaceStyle.contentPadding)
                 .padding(.vertical, 16)
             }
             .background(TabBackground(tint: Color.themePrimary).ignoresSafeArea())
@@ -520,6 +561,9 @@ private struct InboxView: View {
             .sheet(isPresented: $showingCapture) { CaptureSheet(defaultStatus: .inbox) }
             .sheet(isPresented: $showingTriageResults) { TriageResultsSheet(tasks: triagedTasks) }
             .alert("Inbox triaged", isPresented: $showingTriageNotice) { Button("Done") {} } message: { Text(triageNotice) }
+            .onAppear {
+                InboxAgingReminderService.shared.checkAndScheduleIfNeeded(inboxTasks: inboxTasks)
+            }
         }
     }
 
@@ -648,6 +692,7 @@ private struct TaskListItem: View {
             Button {
                 task.status = .completed
                 try? modelContext.save()
+                TaskDueNotificationService.shared.sync(task: task)
             } label: {
                 Image(systemName: task.status == .completed ? "checkmark.circle.fill" : "circle")
                     .font(.title3)
@@ -1122,13 +1167,28 @@ struct TabBackground: View {
         ZStack {
             Color.themeBackground
             RadialGradient(
-                colors: [tint.opacity(0.10), .clear],
+                colors: [tint.opacity(WorkspaceStyle.backgroundGlowOpacity), .clear],
                 center: .top,
                 startRadius: 20,
-                endRadius: 430
+                endRadius: WorkspaceStyle.backgroundGlowRadius
             )
         }
     }
+}
+
+/// Shared visual language for the primary workspace tabs. Focus and Projects
+/// are the reference surfaces; keeping these values centralized prevents each
+/// tab from slowly developing its own spacing and shape vocabulary.
+enum WorkspaceStyle {
+    static let contentPadding: CGFloat = 20
+    static let sectionSpacing: CGFloat = 24
+    static let cardSpacing: CGFloat = 14
+    static let compactCornerRadius: CGFloat = 14
+    static let cardCornerRadius: CGFloat = 18
+    static let heroCornerRadius: CGFloat = 24
+    static let backgroundGlowOpacity: Double = 0.10
+    static let backgroundGlowRadius: CGFloat = 430
+    static let controlHeight: CGFloat = 48
 }
 
 struct NavigationTitle: View {
@@ -1473,6 +1533,7 @@ private struct ProjectDetailView: View {
     private func toggle(_ task: TaskItem) {
         task.status = task.status == .completed ? .nextAction : .completed
         try? modelContext.save()
+        TaskDueNotificationService.shared.sync(task: task)
     }
 }
 
@@ -1790,6 +1851,7 @@ private struct ReviewView: View {
     private func decide(_ decision: WeeklyReviewStaleDecision, task: TaskItem, review: WeeklyReview) {
         WeeklyReviewService.shared.decide(decision, for: task, review: review)
         try? modelContext.save()
+        TaskDueNotificationService.shared.sync(task: task)
     }
 }
 
@@ -2279,6 +2341,7 @@ private struct WorkspaceTaskDetailView: View {
                     task.dueDate = hasDueDate ? dueDate : nil
                     task.updatedAt = .now
                     try? modelContext.save()
+                    TaskDueNotificationService.shared.sync(task: task)
                     dismiss()
                 }
                 .accessibilityIdentifier("task-detail-save")
@@ -2620,6 +2683,7 @@ private struct CaptureSheet: View {
         let manualTags = tags.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
         item.contextTags = manualTags.isEmpty ? [] : Array(Set(manualTags)).sorted()
         item.dueDate = hasDueDate ? dueDate : nil
+        TaskDueNotificationService.shared.sync(task: item)
     }
 
     private func leaveAsInbox() {
@@ -2635,6 +2699,7 @@ private struct CaptureSheet: View {
         item.areas = []
         item.dueDate = nil
         try? modelContext.save()
+        TaskDueNotificationService.shared.cancel(taskID: item.id)
     }
 
     private func triageChoice(title: String, isSelected: Bool) -> some View {

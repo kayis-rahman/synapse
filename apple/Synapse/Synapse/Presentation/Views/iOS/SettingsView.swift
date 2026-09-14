@@ -19,6 +19,7 @@ struct SettingsView: View {
                 Section("Personalize") {
                     SettingsLink("Focus", "\(timer.workDuration / 60) min focus · \(timer.breakDuration / 60) min break", "timer", "settings-focus") { FocusSettingsView() }
                     SettingsLink("Sound & Haptics", "Feedback preferences", "speaker.wave.2.fill", "settings-sound-haptics") { SoundHapticsSettingsView() }
+                    SettingsLink("Notifications", "Reminders and alerts", "bell.badge.fill", "settings-notifications") { NotificationsSettingsView() }
                     SettingsLink("Appearance", appTheme.rawValue, "circle.lefthalf.filled", "settings-appearance") { AppearanceSettingsView() }
                 }
                 Section("More") {
@@ -32,6 +33,8 @@ struct SettingsView: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(Color.themeBackground)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
         }
@@ -92,6 +95,45 @@ struct FocusSettingsView: View {
 struct SoundHapticsSettingsView: View {
     @AppStorage("soundEnabled") private var soundEnabled = true; @AppStorage("hapticsEnabled") private var hapticsEnabled = true
     var body: some View { List { Section { Toggle("Sound", isOn: $soundEnabled); Toggle("Haptics", isOn: $hapticsEnabled) } footer: { Text("Control feedback when sessions complete and actions are confirmed.") } }.navigationTitle("Sound & Haptics").navigationBarTitleDisplayMode(.inline) }
+}
+
+struct NotificationsSettingsView: View {
+    @AppStorage("notificationsEnabled") private var notificationsEnabled = true
+    @AppStorage("weeklyReviewReminderEnabled") private var weeklyReviewReminderEnabled = true
+
+    var body: some View {
+        List {
+            Section {
+                Toggle("Enable Notifications", isOn: Binding(
+                    get: { notificationsEnabled },
+                    set: { newValue in
+                        notificationsEnabled = newValue
+                        if newValue {
+                            NotificationManager.shared.requestPermission()
+                            if weeklyReviewReminderEnabled { WeeklyReviewReminderService.shared.schedule() }
+                        } else {
+                            WeeklyReviewReminderService.shared.cancel()
+                            NotificationManager.shared.cancelSessionDoneNotification()
+                        }
+                    }
+                )).accessibilityIdentifier("settings-notifications-enabled")
+            } footer: { Text("Turn off to stop all Synapse reminders and alerts.") }
+            Section {
+                Toggle("Weekly Review Reminder", isOn: Binding(
+                    get: { weeklyReviewReminderEnabled },
+                    set: { newValue in
+                        weeklyReviewReminderEnabled = newValue
+                        if newValue { WeeklyReviewReminderService.shared.schedule() }
+                        else { WeeklyReviewReminderService.shared.cancel() }
+                    }
+                ))
+                .disabled(!notificationsEnabled)
+                .accessibilityIdentifier("settings-weekly-review-reminder")
+            } footer: { Text("A weekly reminder on Monday mornings to close open loops.") }
+        }
+        .navigationTitle("Notifications")
+        .navigationBarTitleDisplayMode(.inline)
+    }
 }
 
 struct AppearanceSettingsView: View {

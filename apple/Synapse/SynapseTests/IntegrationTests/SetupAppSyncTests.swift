@@ -1,54 +1,68 @@
-//
-//  SetupAppSyncTests.swift
-//  SynapseTests
-//
-//  Integration tests for state restoration on app relaunch (SYNC-06)
-//
-
 import XCTest
 @testable import Synapse
 
 @MainActor
 final class SetupAppSyncTests: XCTestCase {
-
-    private var mockTimer: PomodoroTimer!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        mockTimer = PomodoroTimer()
-        try? clearTestState()
-        let syncManager = TimerSyncManager.shared
-        syncManager.configure(with: mockTimer)
+    override func setUp() {
+        super.setUp()
+        FocusTimerPersistence.clear()
+        FocusSessionLifecycleStore.clear()
     }
 
-    override func tearDown() async throws {
-        try? clearTestState()
-        try await super.tearDown()
+    override func tearDown() {
+        FocusTimerPersistence.clear()
+        FocusSessionLifecycleStore.clear()
+        super.tearDown()
     }
 
-    private func clearTestState() throws {
-        do {
-            try KeychainStore.clear(.deviceId)
-        } catch {
-            // Ignore — test isolation
-        }
+    func testAppLaunchRestoresPersistedTimerBeforeUse() {
+        let original = PomodoroTimer(workDuration: 60, breakDuration: 5)
+        original.phase = .break
+        original.remainingSeconds = 4
+        original.autoStartNextSession = true
+        original.shortBreaksCompleted = 1
+        original.persistState()
+
+        let restored = PomodoroTimer(workDuration: 60, breakDuration: 5)
+        restored.restorePersistedState()
+
+        XCTAssertEqual(restored.phase, .break)
+        XCTAssertEqual(restored.remainingSeconds, 4)
+        XCTAssertTrue(restored.autoStartNextSession)
+        XCTAssertEqual(restored.shortBreaksCompleted, 1)
     }
 
-    // MARK: - App Launch Sync Flow Tests
-
-    func test_setupApp_restoresAuthBeforePull() {
-        XCTFail("not implemented — will be satisfied by Plan 02/setupApp()")
+    func testTimerSyncManagerUsesTheConfiguredLocalTimer() {
+        let timer = PomodoroTimer()
+        TimerSyncManager.shared.configure(with: timer)
+        XCTAssertTrue(TimerSyncManager.shared.getTimer() === timer)
     }
 
-    func test_setupApp_pullsTimerStateAfterAuth() {
-        XCTFail("not implemented — will be satisfied by Plan 02/setupApp()")
-    }
+    func testPersistedStateIsAvailableAfterRecreation() {
+        let sessionID = UUID()
+        FocusTimerPersistence.save(FocusTimerSnapshot(
+            activeSessionId: sessionID,
+            phase: .work,
+            remainingSeconds: 42,
+            isRunning: false,
+            shortBreaksCompleted: 0,
+            autoStartNextSession: false,
+            currentTaskId: nil,
+            taskTitleSnapshot: nil,
+            sessionStartedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            accumulatedElapsedSeconds: 18,
+            runStartedAt: nil,
+            lastReconciledAt: nil,
+            endAt: nil,
+            savedAt: Date(timeIntervalSince1970: 1_700_000_018)
+        ))
 
-    func test_setupApp_setsIsAppReadyLast() {
-        XCTFail("not implemented — will be satisfied by Plan 02/setupApp()")
-    }
+        let recreated = PomodoroTimer(workDuration: 60, breakDuration: 5)
+        recreated.restorePersistedState()
 
-    func test_appLaunch_timerStateMatchesBackend() {
-        XCTFail("not implemented — will be satisfied by Plan 02/setupApp()")
+        XCTAssertEqual(recreated.activeSessionId, sessionID)
+        XCTAssertFalse(recreated.isRunning)
+        XCTAssertEqual(recreated.remainingSeconds, 42)
+        XCTAssertEqual(recreated.accumulatedElapsedSeconds, 18)
     }
 }

@@ -6,14 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		7A1000032EAAA98600D75371 /* Synapse/Domain/Models/FocusLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1000022EAAA98600D75371 /* Synapse/Domain/Models/FocusLiveActivityAttributes.swift */; };
+		7A1000042EAAA98600D75371 /* Synapse Live Activity.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7A1000012EAAA98600D75371 /* Synapse Live Activity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
-		7A1000062EAAA98600D75371 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6D59998B2E780AE300D65722 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 7A1000052EAAA98600D75371;
-			remoteInfo = "Synapse Live Activity";
-		};
 		6D5999A52E780AE600D65722 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6D59998B2E780AE300D65722 /* Project object */;
@@ -42,11 +40,30 @@
 			remoteGlobalIDString = 6D7300EA2EAAA98400D75371;
 			remoteInfo = "SynapseWatchOs Watch App";
 		};
+		7A1000062EAAA98600D75371 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6D59998B2E780AE300D65722 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7A1000052EAAA98600D75371;
+			remoteInfo = "Synapse Live Activity";
+		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		7A1000082EAAA98600D75371 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				7A1000042EAAA98600D75371 /* Synapse Live Activity.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		7A1000012EAAA98600D75371 /* SynapseLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = wrapper.app-extension; includeInIndex = 0; path = SynapseLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		7A1000022EAAA98600D75371 /* FocusLiveActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Synapse/Domain/Models/FocusLiveActivityAttributes.swift"; sourceTree = SOURCE_ROOT; };
 		6D5999932E780AE300D65722 /* Synapse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Synapse.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D5999932E780AE301 /* Synapse iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Synapse iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D5999A42E780AE600D65722 /* SynapseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SynapseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -55,42 +72,11 @@
 		6D7300F72EAAA98600D75371 /* SynapseWatchOs Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SynapseWatchOs Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D7301012EAAA98600D75371 /* SynapseWatchOs Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SynapseWatchOs Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DF922E92EE656870031CCD1 /* Synapse iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Synapse iOS.entitlements"; sourceTree = "<group>"; };
+		7A1000012EAAA98600D75371 /* Synapse Live Activity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Synapse Live Activity.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A1000022EAAA98600D75371 /* Synapse/Domain/Models/FocusLiveActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Synapse/Domain/Models/FocusLiveActivityAttributes.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
-/* Begin PBXBuildFile section */
-		7A1000032EAAA98600D75371 /* FocusLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1000022EAAA98600D75371 /* FocusLiveActivityAttributes.swift */; };
-		7A1000042EAAA98600D75371 /* SynapseLiveActivity.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7A1000012EAAA98600D75371 /* SynapseLiveActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		6D9A00012EAAA98600D75371 /* Legacy test files excluded from SynapseTests */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				IntegrationTests/PushPayloadIntegrationTests.swift,
-				IntegrationTests/SetupAppSyncTests.swift,
-				IntegrationTests/TaskAPIIntegrationTests.swift,
-				IntegrationTests/TimerSyncIntegrationTests.swift,
-				SynapseTests.swift,
-				TestCoverage/TestCoverageAnalyzer.swift,
-				TestData/TestDataFixtures.swift,
-				TestExecution/TestExecutionOrchestrator.swift,
-				UnitTests/ApplyEventStateTests.swift,
-				UnitTests/MacAppDelegateUnitTests.swift,
-				UnitTests/Models/QueuedTimerActionUnitTests.swift,
-				UnitTests/Models/TaskModelUnitTests.swift,
-				UnitTests/PomodoroTimerDurationTests.swift,
-				UnitTests/PomodoroTimerSessionTests.swift,
-				UnitTests/PomodoroTimerUnitTests.swift,
-				UnitTests/Services/SyncFailureAlertTests.swift,
-				UnitTests/Services/TaskServiceUnitTests.swift,
-				UnitTests/Services/TimerSyncManagerBackoffTests.swift,
-				UnitTests/Services/TimerSyncManagerQueueTests.swift,
-				UnitTests/Services/TimerSyncManagerUnitTests.swift,
-				UnitTests/SessionLoggerTests.swift,
-				UnitTests/TimerSyncManagerActionQueueTests.swift,
-			);
-			target = 6D5999A32E780AE600D65722 /* SynapseTests */;
-		};
 		6D73011A2EAAAC2300D75371 /* Exceptions for "Synapse" folder in "Synapse" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -101,15 +87,26 @@
 		6D73011C2EAAAE4300D75371 /* Exceptions for "Synapse" folder in "Synapse iOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-			);
-			target = 6D5999922E780AE302 /* Synapse iOS */;
-		};
-		6D73011D2EAAAE4300D75371 /* Exceptions for "Synapse" folder in "Synapse iOS" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
 				Info.plist,
 			);
 			target = 6D5999922E780AE302 /* Synapse iOS */;
+		};
+		6D9A00012EAAA98600D75371 /* Exceptions for "SynapseTests" folder in "SynapseTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				SynapseTests.swift,
+				TestCoverage/TestCoverageAnalyzer.swift,
+				TestData/TestDataFixtures.swift,
+				TestExecution/TestExecutionOrchestrator.swift,
+				UnitTests/Models/QueuedTimerActionUnitTests.swift,
+				UnitTests/Models/TaskModelUnitTests.swift,
+				UnitTests/PomodoroTimerDurationTests.swift,
+				UnitTests/PomodoroTimerSessionTests.swift,
+				UnitTests/PomodoroTimerUnitTests.swift,
+				UnitTests/Services/TaskServiceUnitTests.swift,
+				UnitTests/SessionLoggerTests.swift,
+			);
+			target = 6D5999A32E780AE600D65722 /* SynapseTests */;
 		};
 		7A1000132EAAA98600D75371 /* Exceptions for "SynapseLiveActivity" folder in "Synapse Live Activity" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -125,7 +122,6 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				6D73011A2EAAAC2300D75371 /* Exceptions for "Synapse" folder in "Synapse" target */,
-				6D73011D2EAAAE4300D75371 /* Exceptions for "Synapse" folder in "Synapse iOS" target */,
 				6D73011C2EAAAE4300D75371 /* Exceptions for "Synapse" folder in "Synapse iOS" target */,
 			);
 			path = Synapse;
@@ -134,7 +130,7 @@
 		6D5999A72E780AE600D65722 /* SynapseTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				6D9A00012EAAA98600D75371 /* Legacy test files excluded from SynapseTests */,
+				6D9A00012EAAA98600D75371 /* Exceptions for "SynapseTests" folder in "SynapseTests" target */,
 			);
 			path = SynapseTests;
 			sourceTree = "<group>";
@@ -144,16 +140,17 @@
 			path = SynapseUITests;
 			sourceTree = "<group>";
 		};
+		7A1000072EAAA98600D75371 /* SynapseLiveActivity */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7A1000132EAAA98600D75371 /* Exceptions for "SynapseLiveActivity" folder in "Synapse Live Activity" target */,
+			);
+			path = SynapseLiveActivity;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		7A10000C2EAAA98600D75371 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		6D252E1B2EBB76DC005 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -203,6 +200,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7A10000C2EAAA98600D75371 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -216,6 +220,7 @@
 				6D5999B12E780AE600D65722 /* SynapseUITests */,
 				6D7301212EAAAFB500D75371 /* Frameworks */,
 				6D5999942E780AE300D65722 /* Products */,
+				6DEE94D130477C3B0058C5C0 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -224,7 +229,7 @@
 			children = (
 				6D5999932E780AE300D65722 /* Synapse.app */,
 				6D5999932E780AE301 /* Synapse iOS.app */,
-				7A1000012EAAA98600D75371 /* SynapseLiveActivity.appex */,
+				7A1000012EAAA98600D75371 /* Synapse Live Activity.appex */,
 				6D5999A42E780AE600D65722 /* SynapseTests.xctest */,
 				6D5999AE2E780AE600D65722 /* SynapseUITests.xctest */,
 				6D7300EB2EAAA98400D75371 /* SynapseWatchOs Watch App.app */,
@@ -234,19 +239,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		7A1000072EAAA98600D75371 /* SynapseLiveActivity */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				7A1000132EAAA98600D75371 /* Exceptions for "SynapseLiveActivity" folder in "Synapse Live Activity" target */,
-			);
-			path = SynapseLiveActivity;
-			sourceTree = "<group>";
-		};
 		6D7301212EAAAFB500D75371 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6DEE94D130477C3B0058C5C0 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				7A1000022EAAA98600D75371 /* Synapse/Domain/Models/FocusLiveActivityAttributes.swift */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -420,7 +425,7 @@
 			);
 			name = "Synapse Live Activity";
 			productName = "Synapse Live Activity";
-			productReference = 7A1000012EAAA98600D75371 /* SynapseLiveActivity.appex */;
+			productReference = 7A1000012EAAA98600D75371 /* Synapse Live Activity.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -489,27 +494,9 @@
 				7A1000052EAAA98600D75371 /* Synapse Live Activity */,
 			);
 		};
-		7A1000082EAAA98600D75371 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				7A1000042EAAA98600D75371 /* SynapseLiveActivity.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		7A10000B2EAAA98600D75371 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		6D5999912E780AE300D65722 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -553,6 +540,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		6D7300FF2EAAA98600D75371 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A10000B2EAAA98600D75371 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -615,7 +609,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7A1000032EAAA98600D75371 /* FocusLiveActivityAttributes.swift in Sources */,
+				7A1000032EAAA98600D75371 /* Synapse/Domain/Models/FocusLiveActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -788,7 +782,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Synapse/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Synapse";
+				INFOPLIST_KEY_CFBundleDisplayName = Synapse;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -807,7 +801,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapse.ios";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapse.ios;
 				PRODUCT_MODULE_NAME = Synapse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -859,7 +853,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapse";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = macosx;
@@ -883,7 +877,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Synapse/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Synapse";
+				INFOPLIST_KEY_CFBundleDisplayName = Synapse;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -902,7 +896,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapse.ios";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapse.ios;
 				PRODUCT_MODULE_NAME = Synapse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -954,7 +948,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapse";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = macosx;
@@ -980,7 +974,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapseTests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapseTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -1007,7 +1001,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapseTests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapseTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -1033,7 +1027,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapseUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapseUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -1059,7 +1053,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapseUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapseUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -1085,13 +1079,13 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SynapseWatchOs;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "com.sparkage.synapse";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.sparkage.synapse;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapse.watchkitapp";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapse.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
@@ -1121,13 +1115,13 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SynapseWatchOs;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "com.sparkage.synapse";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.sparkage.synapse;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapse.watchkitapp";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapse.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
@@ -1247,7 +1241,7 @@
 				INFOPLIST_FILE = SynapseLiveActivity/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapse.ios.liveactivity";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapse.ios.liveactivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1267,7 +1261,7 @@
 				INFOPLIST_FILE = SynapseLiveActivity/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sparkage.synapse.ios.liveactivity";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sparkage.synapse.ios.liveactivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;

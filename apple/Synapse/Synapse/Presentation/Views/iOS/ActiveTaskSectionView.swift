@@ -15,8 +15,7 @@ struct ActiveTaskSectionView: View {
                     #if os(iOS)
                     ForEach(taskService.activeTasks.prefix(3)) { task in
                         TaskCardView(task: task, style: taskCardStyle(for: task)) {
-                            timer.currentTaskId = task.id
-                            timer.currentTaskTitleSnapshot = task.title
+                            _ = timer.selectTask(id: task.id, title: task.title)
                         } completionAction: {
                             completeTask(task)
                         }

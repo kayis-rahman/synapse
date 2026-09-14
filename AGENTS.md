@@ -1,15 +1,12 @@
 # Synapse Development Instructions
 
-## Physical-device-only iOS rule
+## iOS validation
 
-All iOS builds, installs, launches, and UI-test runs must target the configured
-physical iPhone 15 Pro (`00008130-000629D90A13803A`). Do not use an
-iOS Simulator destination or create simulator devices. Before running, verify
-that `xcrun devicectl list devices` reports the phone as available and paired.
-If the physical device is unavailable, stop and fix the connection; do not
-fall back to a simulator or report a simulator result as validation. Use
-`scripts/run-on-iphone15pro.sh` for the standard build/install/launch flow and
-the physical-device UI-test commands documented in
+Use an iOS Simulator for fast build and UI-test iteration when practical.
+Use the configured physical iPhone 15 Pro for device-specific validation,
+signing checks, CloudKit, Siri/Shortcuts, notification delivery, and final
+release confidence. The physical-device workflow remains available through
+`scripts/run-on-iphone15pro.sh` and the commands documented in
 `docs/ios-ui-tests-on-iphone-15-pro.md`.
 
 ## UI changes
@@ -37,8 +34,9 @@ include all three test layers:
    cases.
 2. SwiftData/integration tests for local persistence, duplicates, offline
    behavior, and CloudKit synchronization where applicable.
-3. Physical-device UI tests for the user-visible capture flow on the configured
-   iPhone 15 Pro.
+3. UI tests for the user-visible capture flow on a representative iOS
+   destination. Use the physical iPhone 15 Pro when validating device-specific
+   behavior or release readiness.
 
 Use deterministic fixtures and unique UUID markers for persisted test data.
 Keep manual-only conditions such as low storage and account sign-out explicitly

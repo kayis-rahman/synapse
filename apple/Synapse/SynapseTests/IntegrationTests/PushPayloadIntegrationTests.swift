@@ -1,60 +1,76 @@
-//
-//  PushPayloadIntegrationTests.swift
-//  SynapseTests
-//
-//  Integration tests for push payload and delta apply (SYNC-05)
-//
-
 import XCTest
 @testable import Synapse
 
 @MainActor
 final class PushPayloadIntegrationTests: XCTestCase {
+    private var timer: PomodoroTimer!
 
-    private var mockTimer: PomodoroTimer!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        mockTimer = PomodoroTimer()
-        try? clearTestState()
-        let syncManager = TimerSyncManager.shared
-        syncManager.configure(with: mockTimer)
+    override func setUp() {
+        super.setUp()
+        FocusTimerPersistence.clear()
+        timer = PomodoroTimer()
+        TimerSyncManager.shared.configure(with: timer)
     }
 
-    override func tearDown() async throws {
-        try? clearTestState()
-        try await super.tearDown()
+    override func tearDown() {
+        FocusTimerPersistence.clear()
+        timer.reset()
+        timer = nil
+        super.tearDown()
     }
 
-    private func clearTestState() throws {
-        do {
-            try KeychainStore.clear(.deviceId)
-        } catch {
-            // Ignore — test isolation
-        }
+    func testIncomingStateWithNewerTimestampAppliesAllFields() {
+        timer.setLastModifiedTimestamp(1_000)
+        TimerSyncManager.shared.applyIncomingState([
+            "phase": "short_break", "remainingSeconds": 250,
+            "isRunning": false, "workDuration": 1_500,
+            "breakDuration": 300, "longBreakDuration": 900,
+            "autoStartNextSession": true, "shortBreaksCompleted": 2,
+            "lastModifiedTimestamp": 1_001.0
+        ])
+
+        XCTAssertEqual(timer.phase, .break)
+        XCTAssertEqual(timer.remainingSeconds, 250)
+        XCTAssertTrue(timer.autoStartNextSession)
+        XCTAssertEqual(timer.shortBreaksCompleted, 2)
     }
 
-    // MARK: - Push Payload Timestamp Comparison Tests
+    func testIncomingStateWithOlderTimestampIsIgnored() {
+        timer.setLastModifiedTimestamp(1_000)
+        timer.remainingSeconds = 700
 
-    func test_applyEventState_withNewerTimestamp_appliesState() {
-        XCTFail("not implemented — will be satisfied by Plan 02/setupApp()")
+        TimerSyncManager.shared.applyIncomingState([
+            "phase": "short_break", "remainingSeconds": 250,
+            "isRunning": false, "lastModifiedTimestamp": 999.0
+        ])
+
+        XCTAssertEqual(timer.phase, .work)
+        XCTAssertEqual(timer.remainingSeconds, 700)
     }
 
-    func test_applyEventState_withOlderTimestamp_skipsApply() {
-        XCTFail("not implemented — will be satisfied by Plan 02/setupApp()")
+    func testEqualTimestampDoesNotOverwriteLocalState() {
+        timer.setLastModifiedTimestamp(1_000)
+        timer.remainingSeconds = 700
+
+        TimerSyncManager.shared.applyIncomingState([
+            "phase": "long_break", "remainingSeconds": 250,
+            "isRunning": false, "lastModifiedTimestamp": 1_000.0
+        ])
+
+        XCTAssertEqual(timer.phase, .work)
+        XCTAssertEqual(timer.remainingSeconds, 700)
     }
 
-    // MARK: - Push Payload Field Tests
+    func testAppliedIncomingStatePersistsForRelaunch() {
+        timer.setLastModifiedTimestamp(1_000)
+        TimerSyncManager.shared.applyIncomingState([
+            "phase": "long_break", "remainingSeconds": 850,
+            "isRunning": false, "lastModifiedTimestamp": 1_001.0
+        ])
 
-    func test_applyEventState_readsAutoStartNextSession() {
-        XCTFail("not implemented — will be satisfied by Plan 02/setupApp()")
-    }
-
-    func test_applyEventState_readsShortBreaksCompleted() {
-        XCTFail("not implemented — will be satisfied by Plan 02/setupApp()")
-    }
-
-    func test_pushPayload_containsAllRequiredFields() {
-        XCTFail("not implemented — will be satisfied by Plan 01/02")
+        let restored = PomodoroTimer()
+        restored.restorePersistedState()
+        XCTAssertEqual(restored.phase, .longBreak)
+        XCTAssertEqual(restored.remainingSeconds, 850)
     }
 }

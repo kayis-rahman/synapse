@@ -50,6 +50,8 @@ struct RecycleBinView: View {
                     }
                 }
                 .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+                .background(Color.themeBackground)
 
                 if isLoading {
                     ProgressView()

@@ -23,7 +23,7 @@ struct TaskPickerView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 Section(header: Text("Active Tasks")) {
                     Button {
@@ -62,6 +62,8 @@ struct TaskPickerView: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(Color.themeBackground)
             .searchable(text: $searchText, prompt: "Search tasks")
             .navigationTitle("Select Task")
             .navigationBarTitleDisplayMode(.inline)

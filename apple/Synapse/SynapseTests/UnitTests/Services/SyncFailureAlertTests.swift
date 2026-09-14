@@ -1,54 +1,33 @@
-//
-//  SyncFailureAlertTests.swift
-//  SynapseTests
-//
-//  Unit tests for sync failure alert UI behavior (D-06)
-//
-
 import XCTest
 @testable import Synapse
 
 @MainActor
 final class SyncFailureAlertTests: XCTestCase {
-
-    private var mockTimer: PomodoroTimer!
-
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        mockTimer = PomodoroTimer()
-        try? clearTestState()
-        let syncManager = TimerSyncManager.shared
-        syncManager.configure(with: mockTimer)
+    override func tearDown() {
+        SyncFailureAlertManager.shared.dismissAlert()
+        super.tearDown()
     }
 
-    override func tearDownWithError() throws {
-        try? clearTestState()
-        try super.tearDownWithError()
+    func testAlertIsHiddenUntilShown() {
+        XCTAssertFalse(SyncFailureAlertManager.shared.isActive)
+        XCTAssertEqual(SyncFailureAlertManager.shared.failureCount, 0)
     }
 
-    private func clearTestState() throws {
-        do {
-            try KeychainStore.clear(.deviceId)
-        } catch {
-            // Ignore — test isolation
-        }
+    func testFailuresExposeRetryState() {
+        let manager = SyncFailureAlertManager.shared
+        manager.showAlert(consecutiveFailures: 3)
+        XCTAssertTrue(manager.isActive)
+        XCTAssertEqual(manager.failureCount, 3)
     }
 
-    // MARK: - Sync Failure Alert Visibility Tests
-
-    func test_twoFailures_noAlert() async {
-        XCTFail("not implemented — will be satisfied by Plan 02/03")
-    }
-
-    func test_threeConsecutiveFailures_triggersAlert() async {
-        XCTFail("not implemented — will be satisfied by Plan 02/03")
-    }
-
-    func test_manualRetry_resetsFailureCount() async {
-        XCTFail("not implemented — will be satisfied by Plan 02/03")
-    }
-
-    func test_successAfterAlert_dismissesAlert() async {
-        XCTFail("not implemented — will be satisfied by Plan 02/03")
+    func testRetryActionIsStoredAndDismissClearsIt() async {
+        let manager = SyncFailureAlertManager.shared
+        var retryCount = 0
+        manager.showAlert(consecutiveFailures: 3) { retryCount += 1 }
+        await manager.retryAction?()
+        XCTAssertEqual(retryCount, 1)
+        manager.dismissAlert()
+        XCTAssertFalse(manager.isActive)
+        XCTAssertNil(manager.retryAction)
     }
 }

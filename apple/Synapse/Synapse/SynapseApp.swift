@@ -106,7 +106,7 @@ struct SynapseApp: App {
                 in: ModelContext(SynapseModelContainer.shared)
             )
             isAppReady = true
-            WeeklyReviewReminderService.shared.schedule()
+            Self.scheduleWeeklyReviewReminderIfEnabled()
             return
         }
 
@@ -123,6 +123,17 @@ struct SynapseApp: App {
 
         isAppReady = true
         UserDefaults.standard.set(true, forKey: SynapseModelContainer.appSetupCompletedKey)
+        Self.scheduleWeeklyReviewReminderIfEnabled()
+    }
+
+    /// Schedules the weekly review reminder only when the user has not opted
+    /// out via the Notifications section in Settings. Both preferences
+    /// default to `true` when unset.
+    private static func scheduleWeeklyReviewReminderIfEnabled() {
+        let defaults = UserDefaults.standard
+        let notificationsEnabled = defaults.object(forKey: "notificationsEnabled") == nil || defaults.bool(forKey: "notificationsEnabled")
+        let weeklyReviewReminderEnabled = defaults.object(forKey: "weeklyReviewReminderEnabled") == nil || defaults.bool(forKey: "weeklyReviewReminderEnabled")
+        guard notificationsEnabled && weeklyReviewReminderEnabled else { return }
         WeeklyReviewReminderService.shared.schedule()
     }
 }

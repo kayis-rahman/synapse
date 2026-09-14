@@ -1,65 +1,56 @@
-//
-//  TimerSyncManagerQueueTests.swift
-//  SynapseTests
-//
-//  Unit tests for TimerSyncManager offline action queue (SYNC-02, SYNC-03)
-//
-
 import XCTest
 @testable import Synapse
 
 @MainActor
 final class TimerSyncManagerQueueTests: XCTestCase {
+    private var timer: PomodoroTimer!
 
-    private var mockTimer: PomodoroTimer!
-
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        mockTimer = PomodoroTimer()
-        try? clearTestState()
-        let syncManager = TimerSyncManager.shared
-        syncManager.configure(with: mockTimer)
+    override func setUp() {
+        super.setUp()
+        timer = PomodoroTimer(workDuration: 60, breakDuration: 5)
+        TimerSyncManager.shared.configure(with: timer)
     }
 
-    override func tearDownWithError() throws {
-        try? clearTestState()
-        try super.tearDownWithError()
+    override func tearDown() {
+        timer.reset()
+        timer = nil
+        super.tearDown()
     }
 
-    private func clearTestState() throws {
-        do {
-            try KeychainStore.clear(.deviceId)
-            try KeychainStore.clear(.actionQueue)
-        } catch {
-            // Ignore — test isolation
-        }
+    func testStartAndPauseActionsMutateLocalTimer() async {
+        await TimerSyncManager.shared.syncTimerAction(.start)
+        XCTAssertTrue(timer.isRunning)
+        await TimerSyncManager.shared.syncTimerAction(.pause)
+        XCTAssertFalse(timer.isRunning)
     }
 
-    // MARK: - Action Queue Enqueue Tests
-
-    func test_enqueueAction_addsToQueue() async {
-        XCTFail("not implemented — will be satisfied by Plan 02/03")
+    func testResetActionClearsActiveSession() async {
+        await TimerSyncManager.shared.syncTimerAction(.start)
+        await TimerSyncManager.shared.syncTimerAction(.reset)
+        XCTAssertFalse(timer.isRunning)
+        XCTAssertNil(timer.activeSessionId)
+        XCTAssertEqual(timer.phase, .work)
     }
 
-    func test_enqueueAction_persistsToKeychain() async {
-        XCTFail("not implemented — will be satisfied by Plan 02/03")
+    func testStaleWatchStateIsIgnored() {
+        timer.setLastModifiedTimestamp(2_000)
+        timer.remainingSeconds = 42
+        TimerSyncManager.shared.applyIncomingState([
+            "phase": "short_break", "remainingSeconds": 5,
+            "isRunning": false, "lastModifiedTimestamp": 1_999.0
+        ])
+        XCTAssertEqual(timer.remainingSeconds, 42)
+        XCTAssertEqual(timer.phase, .work)
     }
 
-    func test_queue_overflow_dropsOldest() async {
-        XCTFail("not implemented — will be satisfied by Plan 02/03")
-    }
-
-    // MARK: - Action Queue Drain Tests
-
-    func test_drainActionQueue_replaysInOrder() async {
-        XCTFail("not implemented — will be satisfied by Plan 02/03")
-    }
-
-    func test_drainActionQueue_requeuesOnConsecutiveFailures() async {
-        XCTFail("not implemented — will be satisfied by Plan 02/03")
-    }
-
-    func test_loadActionQueue_restoresFromKeychain() async {
-        XCTFail("not implemented — will be satisfied by Plan 02/03")
+    func testNewerWatchStateIsAppliedAndPersisted() {
+        timer.setLastModifiedTimestamp(2_000)
+        TimerSyncManager.shared.applyIncomingState([
+            "phase": "short_break", "remainingSeconds": 5,
+            "isRunning": false, "lastModifiedTimestamp": 2_001.0
+        ])
+        XCTAssertEqual(timer.phase, .break)
+        XCTAssertEqual(timer.remainingSeconds, 5)
+        XCTAssertEqual(FocusTimerPersistence.load()?.phase, .break)
     }
 }

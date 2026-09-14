@@ -9,10 +9,14 @@ final class FocusSessionPersistenceIntegrationTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         UserDefaults.standard.removeObject(forKey: recordsKey)
+        FocusTimerPersistence.clear()
+        FocusSessionLifecycleStore.clear()
     }
 
     override func tearDownWithError() throws {
         UserDefaults.standard.removeObject(forKey: recordsKey)
+        FocusTimerPersistence.clear()
+        FocusSessionLifecycleStore.clear()
         try super.tearDownWithError()
     }
 
@@ -73,8 +77,7 @@ final class FocusSessionPersistenceIntegrationTests: XCTestCase {
     func testActiveTimerSnapshotSurvivesRecreatedTimer() {
         let timer = PomodoroTimer(workDuration: 60, breakDuration: 5)
         let taskID = UUID()
-        timer.currentTaskId = taskID
-        timer.currentTaskTitleSnapshot = "Persist focus state"
+        XCTAssertTrue(timer.selectTask(id: taskID, title: "Persist focus state"))
         timer.start()
         let sessionID = timer.activeSessionId
         timer.persistState()
