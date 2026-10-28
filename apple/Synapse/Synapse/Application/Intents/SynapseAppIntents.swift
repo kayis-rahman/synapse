@@ -54,6 +54,47 @@ enum SynapseIntentSupport {
             .components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty }.joined(separator: " ")
     }
 
+    private static func tokenDistance(_ lhs: String, _ rhs: String) -> Int {
+        if lhs == rhs { return 0 }
+        let lhsCount = lhs.count, rhsCount = rhs.count
+        if abs(lhsCount - rhsCount) > 2 { return Int.max }
+        var previous = Array(0...rhsCount)
+        var current = Array(repeating: 0, count: rhsCount + 1)
+        for (i, l) in lhs.enumerated() {
+            current[0] = i + 1
+            for (j, r) in rhs.enumerated() {
+                let substitutionCost = l == r ? 0 : 1
+                current[j + 1] = min(previous[j + 1] + 1, current[j] + 1, previous[j] + substitutionCost)
+            }
+            swap(&previous, &current)
+        }
+        return previous[rhsCount]
+    }
+
+    private static func tokensAreClose(_ lhs: String, _ rhs: String) -> Bool {
+        if lhs == rhs { return true }
+        guard lhs.count >= 4 && rhs.count >= 4 else { return false }
+        return tokenDistance(lhs, rhs) <= 1
+    }
+
+    /// Number of query tokens that have a close (exact or single-edit) match in
+    /// the task title. Close token matches let a misheard word such as "silk"
+    /// still count as overlap against "milk".
+    private static func meaningfulTokenOverlap(queryWords: Set<String>, titleWords: Set<String>) -> Int {
+        var usedTitleWords = Set<String>()
+        var count = 0
+        for queryWord in queryWords {
+            for titleWord in titleWords where !usedTitleWords.contains(titleWord) {
+                if tokensAreClose(queryWord, titleWord) {
+                    usedTitleWords.insert(titleWord)
+                    count += 1
+                    break
+                }
+            }
+        }
+        return count
+    }
+
     static func bestTaskMatch(for query: String, in tasks: [TaskItem]) -> TaskItem? {
         let normalizedQuery = normalized(query)
         guard !normalizedQuery.isEmpty else { return nil }
@@ -61,10 +102,21 @@ enum SynapseIntentSupport {
         return tasks.filter { $0.status != .completed && $0.status != .cancelled }.compactMap { task -> (TaskItem, Int)? in
             let title = normalized(task.title)
             let titleWords = Set(title.split(separator: " ").map(String.init))
+            guard !titleWords.isEmpty else { return nil }
             let overlap = queryWords.intersection(titleWords).count
             let contains = title.contains(normalizedQuery) || normalizedQuery.contains(title)
-            guard contains || overlap > 0 else { return nil }
-            return (task, (contains ? 100 : 0) + overlap * 10 - abs(titleWords.count - queryWords.count))
+            let fuzzyOverlap = meaningfulTokenOverlap(queryWords: queryWords, titleWords: titleWords)
+            // Refuse matches that rest on a single shared word (or a substring
+            // occurrence) without enough token-level alignment to be meaningful.
+            let titleIsSubset = titleWords.allSatisfy { titleWord in
+                queryWords.contains { queryWord in tokensAreClose(titleWord, queryWord) }
+            }
+            let requiredOverlap = queryWords.count <= 1 ? 1 : 2
+            let containsMeaningful = contains && fuzzyOverlap > 0
+            guard containsMeaningful || titleIsSubset || fuzzyOverlap >= requiredOverlap else { return nil }
+            // Preserve the original exact-overlap signal for ranking.
+            guard (contains || overlap > 0 || fuzzyOverlap > 0) else { return nil }
+            return (task, (contains ? 100 : 0) + max(overlap, fuzzyOverlap) * 10 - abs(titleWords.count - queryWords.count))
         }.sorted { $0.1 > $1.1 }.first?.0
     }
 }

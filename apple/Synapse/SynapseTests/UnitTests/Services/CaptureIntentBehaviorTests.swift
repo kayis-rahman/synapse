@@ -96,6 +96,19 @@ final class CaptureIntentBehaviorTests: XCTestCase {
         XCTAssertNil(SynapseIntentSupport.bestTaskMatch(for: "something completely unrelated", in: [task, other]))
     }
 
+    func testCompleteTaskRejectsWordOnlyMatches() throws {
+        let marker = UUID().uuidString
+        let task = TaskItem(title: "buy milk groceries \(marker)", status: .nextAction)
+        let unrelated = TaskItem(title: "Calendar context task \(UUID().uuidString)", status: .nextAction)
+        // A query sharing only the generic word "task" must not match.
+        XCTAssertNil(SynapseIntentSupport.bestTaskMatch(for: "no such task \(UUID().uuidString)", in: [task, unrelated]))
+        // Intended fuzzy matching for a close name is still preserved.
+        XCTAssertEqual(
+            SynapseIntentSupport.bestTaskMatch(for: "buy silk groceries \(marker)", in: [task, unrelated])?.id,
+            task.id
+        )
+    }
+
     func testStartingReviewResumesInsteadOfDuplicatingInProgressReview() async throws {
         var first = StartWeeklyReviewIntent()
         _ = try await first.perform()
