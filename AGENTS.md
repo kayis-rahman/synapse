@@ -43,3 +43,26 @@ include all three test layers:
 Use deterministic fixtures and unique UUID markers for persisted test data.
 Keep manual-only conditions such as low storage and account sign-out explicitly
 documented rather than making nondeterministic tests.
+
+## Module and naming conventions
+
+- Modules: `Domain/Models` for SwiftData models and domain enums;
+  `Application/Services` for use-case services and orchestration;
+  `Application/Intents` for App Intent entry points;
+  `Infrastructure/Persistence` for schema and container setup;
+  `Presentation/Views` for UI.
+- SwiftData: store enum state as `*RawValue: String` with a typed computed
+  accessor; use `@Model final class` with defaulted properties; keep schema and
+  migration ownership in `SynapseSchema.swift`; keep CloudKit/private vs. local
+  test store setup in `SynapseModelContainer`.
+- Naming: drop stale feature/domain prefixes once a concept owns module context
+  (for example `GTDStatus -> Status`, `GTDWorkspaceView -> WorkspaceView`);
+  group by architectural layer rather than historical feature.
+- Errors: public boundary failures become typed `LocalizedError` enums with
+  clear messages; cache-only corruption may be recovered automatically, but do
+  not silently swallow CloudKit or SwiftData persistence failures.
+- Capture: one shared pipeline through `CaptureService`; final save through
+  `CapturePersistenceService`; leave persistence explicit in callers and tests;
+  use UUID markers in persisted test data.
+- Physical-device recipes: keep the non-negotiable rule above; exact commands
+  and flags live in the `synapse-ios-device-test-flow` skill and script help.
