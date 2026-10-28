@@ -108,14 +108,8 @@ enum SynapseIntentSupport {
             let fuzzyOverlap = meaningfulTokenOverlap(queryWords: queryWords, titleWords: titleWords)
             // Refuse matches that rest on a single shared word (or a substring
             // occurrence) without enough token-level alignment to be meaningful.
-            let titleIsSubset = titleWords.allSatisfy { titleWord in
-                queryWords.contains { queryWord in tokensAreClose(titleWord, queryWord) }
-            }
             let requiredOverlap = queryWords.count <= 1 ? 1 : 2
-            let containsMeaningful = contains && fuzzyOverlap > 0
-            guard containsMeaningful || titleIsSubset || fuzzyOverlap >= requiredOverlap else { return nil }
-            // Preserve the original exact-overlap signal for ranking.
-            guard (contains || overlap > 0 || fuzzyOverlap > 0) else { return nil }
+            guard fuzzyOverlap >= requiredOverlap else { return nil }
             return (task, (contains ? 100 : 0) + max(overlap, fuzzyOverlap) * 10 - abs(titleWords.count - queryWords.count))
         }.sorted { $0.1 > $1.1 }.first?.0
     }
