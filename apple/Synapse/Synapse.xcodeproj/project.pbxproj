@@ -95,9 +95,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				SynapseTests.swift,
-				TestCoverage/TestCoverageAnalyzer.swift,
 				TestData/TestDataFixtures.swift,
-				TestExecution/TestExecutionOrchestrator.swift,
 				UnitTests/Models/QueuedTimerActionUnitTests.swift,
 				UnitTests/Models/TaskModelUnitTests.swift,
 				UnitTests/PomodoroTimerDurationTests.swift,

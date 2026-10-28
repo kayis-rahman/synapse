@@ -5,7 +5,9 @@ CloudKit/SwiftData schema state required by that app version.
 
 ## [Unreleased]
 
-- Release infrastructure and feature-flag rollout support.
+- Release preparation for Synapse 1.0: aligned version/build metadata, cleaned
+  stale coverage references, and documented the pre-release checklist.
+- iOS unit test baseline: 196 tests passed, 7 skipped, 0 failures.
 - Schema state: `1` (baseline versioned schema).
 
 ## [1.0.0] - 2026-08-30
