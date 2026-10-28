@@ -169,8 +169,8 @@ struct SupportAboutSettingsView: View {
     var body: some View {
         List {
             Section("Support") {
-                Link("Help & Support", destination: URL(string: "https://synapse.app/help")!)
-                Link("Privacy Policy", destination: URL(string: "https://synapse.app/privacy")!)
+                Link("Help & Support", destination: URL(string: "https://github.com/kayis-rahman/synapse/blob/develop/docs/support.md")!)
+                Link("Privacy Policy", destination: URL(string: "https://github.com/kayis-rahman/synapse/blob/develop/docs/privacy.md")!)
             }
             Section("About") { LabeledContent("Version", value: Bundle.main.displayVersion) }
 #if DEBUG
