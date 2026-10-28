@@ -71,6 +71,11 @@ enum SynapseIntentSupport {
         return previous[rhsCount]
     }
 
+    private static func isHexToken(_ value: String) -> Bool {
+        guard value.count >= 4 else { return false }
+        return value.allSatisfy { "0123456789abcdef".contains($0) }
+    }
+
     private static func tokensAreClose(_ lhs: String, _ rhs: String) -> Bool {
         if lhs == rhs { return true }
         guard lhs.count >= 4 && rhs.count >= 4 else { return false }
@@ -108,10 +113,11 @@ enum SynapseIntentSupport {
     static func bestTaskMatch(for query: String, in tasks: [TaskItem]) -> TaskItem? {
         let normalizedQuery = normalized(query)
         guard !normalizedQuery.isEmpty else { return nil }
-        let queryWords = Set(normalizedQuery.split(separator: " ").map(String.init))
+        let queryWords = Set(normalizedQuery.split(separator: " ").map(String.init).filter { !isHexToken($0) })
+        guard !queryWords.isEmpty else { return nil }
         return tasks.filter { $0.status != .completed && $0.status != .cancelled }.compactMap { task -> (TaskItem, Int)? in
             let title = normalized(task.title)
-            let titleWords = Set(title.split(separator: " ").map(String.init))
+            let titleWords = Set(title.split(separator: " ").map(String.init).filter { !isHexToken($0) })
             guard !titleWords.isEmpty else { return nil }
             let overlap = queryWords.intersection(titleWords).count
             let contains = title.contains(normalizedQuery) || normalizedQuery.contains(title)
