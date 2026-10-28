@@ -101,7 +101,6 @@
 				UnitTests/PomodoroTimerDurationTests.swift,
 				UnitTests/PomodoroTimerSessionTests.swift,
 				UnitTests/PomodoroTimerUnitTests.swift,
-				UnitTests/Services/TaskServiceUnitTests.swift,
 				UnitTests/SessionLoggerTests.swift,
 			);
 			target = 6D5999A32E780AE600D65722 /* SynapseTests */;

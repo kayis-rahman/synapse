@@ -8,18 +8,6 @@ import AppKit
 import UIKit
 #endif
 
-struct Configuration {
-    let baseURL: URL
-
-    static func fromInfoPlist() -> Configuration? {
-        guard let value = Bundle.main.infoDictionary?["API_BASE_URL"] as? String,
-              let url = URL(string: value) else {
-            return nil
-        }
-        return Configuration(baseURL: url)
-    }
-}
-
 @MainActor
 @Observable
 final class AuthManager {
@@ -111,9 +99,6 @@ final class AuthManager {
         }
     }
 
-    // Compatibility surface for the timer code while its backend is removed.
-    func getValidAccessToken() -> String? { nil }
-    func refreshAccessToken() async -> Bool { false }
 }
 
 private final class AppleAuthorizationDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {

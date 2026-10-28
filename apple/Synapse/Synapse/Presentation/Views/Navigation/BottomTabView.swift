@@ -2,7 +2,6 @@ import SwiftUI
 
 struct BottomTabView: View {
     @Binding var selectedTab: Int
-    @Environment(TaskService.self) var taskService
     @Environment(PomodoroTimer.self) var timer
 
     @Namespace private var selectionNamespace
@@ -58,8 +57,7 @@ struct BottomTabView: View {
     private func badgeForTab(_ index: Int) -> String? {
         switch index {
         case 1: // Tasks
-            let activeCount = taskService.activeTasks.count
-            return activeCount > 0 ? "\(activeCount)" : nil
+            return nil
         case 2: // Status
             return timer.isRunning ? "●" : nil
         default:
@@ -72,7 +70,6 @@ struct BottomTabView: View {
     VStack {
         BottomTabView(selectedTab: .constant(0))
     }
-    .environment(TaskService())
     .environment(PomodoroTimer())
     .background(Color(red: 247/255, green: 253/255, blue: 251/255))
 }

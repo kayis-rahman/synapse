@@ -24,11 +24,6 @@ struct SynapseApp: App {
     @State var timer = PomodoroTimer()
     @State var logger = SessionLogger()
     @State var authManager = AuthManager.shared
-    @State var taskService = TaskService()
-    @State var analyticsManager = AnalyticsManager(
-        apiClient: AnalyticsApiClient(baseURL: Configuration.fromInfoPlist()?.baseURL ?? URL(string: ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "http://192.168.0.202:8080")!),
-        authManager: AuthManager.shared
-    )
     @State var featureFlags = FeatureFlags.shared
 
     @State private var isAppReady = false
@@ -43,8 +38,6 @@ struct SynapseApp: App {
                     .environment(timer)
                     .environment(logger)
                     .environment(authManager)
-                    .environment(taskService)
-                    .environment(analyticsManager)
                     .environment(featureFlags)
                 } else {
                     LoadingView()
@@ -62,8 +55,6 @@ struct SynapseApp: App {
                     .environment(timer)
                     .environment(logger)
                     .environment(authManager)
-                    .environment(taskService)
-                    .environment(analyticsManager)
                     .environment(featureFlags)
                 } else {
                     LoadingView()
