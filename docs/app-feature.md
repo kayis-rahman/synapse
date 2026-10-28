@@ -161,16 +161,7 @@ Projects, including an Uncategorized view. Task details support editing
 status, notes, due date, project, Areas, and context tags without changing the
 task identity.
 
-Deleted tasks move to a local Recycle Bin for 30 days and can be restored or
-permanently removed. Recycle Bin actions are separate from project archiving
-and Area deletion.
-
-## Analytics and Settings
-
-The app includes task and focus analytics surfaces for completion trends,
-session totals, productivity by task, task breakdowns, streaks, and recent
-focus history. Analytics are read-only views over local records and available
-backend data where configured.
+## Settings
 
 Settings provides Focus duration controls, Sound & Haptics, Appearance
 (system/light/dark), Integrations, Account & Sync, Support & About, and Data &

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct SidebarTabView: View {
     @Binding var selectedTab: Int
-    @Environment(TaskService.self) var taskService
     @Environment(PomodoroTimer.self) var timer
 
     private let tabs: [(icon: String, label: String, badge: String?)] = [
@@ -94,8 +93,7 @@ struct SidebarTabView: View {
     private func badgeForTab(_ index: Int) -> String? {
         switch index {
         case 1: // Tasks
-            let activeCount = taskService.activeTasks.count
-            return activeCount > 0 ? "\(activeCount)" : nil
+            return nil
         case 2: // Status
             return timer.isRunning ? "●" : nil
         default:
@@ -108,7 +106,7 @@ struct SidebarTabView: View {
         case 0: // Home
             return timer.currentTaskId != nil
         case 1: // Tasks
-            return taskService.activeTasks.contains { $0.status == .inProgress }
+            return false
         default:
             return false
         }

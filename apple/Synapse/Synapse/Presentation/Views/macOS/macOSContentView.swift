@@ -14,7 +14,6 @@ struct macOSContentView: View {
     @State private var audioPlayer: AVAudioPlayer?
     @State private var lastPhase: Phase = .work
     @State private var didRequestNotificationPermission: Bool = UserDefaults.standard.bool(forKey: "didRequestNotificationPermission")
-    @State private var showingAnalytics: Bool = false
     @State private var showingAbout: Bool = false
 
     var body: some View {
@@ -44,10 +43,6 @@ struct macOSContentView: View {
                 playChime()
                 lastPhase = newPhase
             }
-        }
-        .sheet(isPresented: $showingAnalytics) {
-            AnalyticsView()
-                .environment(logger)
         }
         .sheet(isPresented: $showingAbout) {
             AboutView()
@@ -178,12 +173,6 @@ struct macOSContentView: View {
 
             Toggle("Sound", isOn: $soundEnabled)
             Toggle("Haptics", isOn: $hapticsEnabled)
-
-            Divider()
-
-            Button("Analytics & Insights…") {
-                showingAnalytics = true
-            }
 
             Divider()
 

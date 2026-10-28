@@ -113,7 +113,7 @@ xcodebuild test \
 ```
 
 The UI test launch configuration adds `-ui-testing`. This bypasses normal
-backend/auth startup and uses a local SwiftData test store with CloudKit
+auth startup and uses a local SwiftData test store with CloudKit
 disabled. Each `XCTestCase` generates its own store id and passes it via
 `SYNAPSE_UI_TEST_STORE_ID` on every launch it performs, so the store is
 isolated between test methods but stable across a mid-test relaunch (needed by

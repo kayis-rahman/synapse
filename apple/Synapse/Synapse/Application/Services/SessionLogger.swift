@@ -25,7 +25,7 @@ final class SessionLogger {
     func add(record: SessionRecord) {
         guard !records.contains(where: { $0.id == record.id }) else { return }
 
-        // Convert domain model to API DTO for API layer
+        // Convert the domain model to its persisted session record.
         let dto = SessionRecordDto(
             id: record.id,
             startedAt: record.startedAt,
@@ -59,36 +59,4 @@ final class SessionLogger {
         }
     }
 
-    // MARK: - Sync logic
-
-    private func uploadRecord(_ dto: SessionRecordDto) async {
-        guard let tokenString = try? KeychainStore.loadString(.accessToken), !tokenString.isEmpty else {
-            return
-        }
-        guard ApiClient.Configuration.fromInfoPlist() != nil else { return }
-        let api = ApiClient.shared
-        do {
-            try await api.postSession(dto, accessToken: tokenString)
-        } catch {
-            // Optionally: Queue for retry or handle upload failure here
-        }
-    }
-
-    func importSessionsFromBackend() async {
-        guard let tokenString = try? KeychainStore.loadString(.accessToken), !tokenString.isEmpty else {
-            return
-        }
-        guard ApiClient.Configuration.fromInfoPlist() != nil else { return }
-        let api = ApiClient.shared
-        do {
-             let remoteSessions = try await api.fetchSessions(accessToken: tokenString)
-             // No conversion needed - API returns DTOs directly
-             await MainActor.run {
-                 records = remoteSessions
-                 save()
-             }
-        } catch {
-            // Handle error (network, decode, etc)
-        }
-    }
 }
