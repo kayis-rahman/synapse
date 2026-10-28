@@ -81,18 +81,28 @@ enum SynapseIntentSupport {
     /// the task title. Close token matches let a misheard word such as "silk"
     /// still count as overlap against "milk".
     private static func meaningfulTokenOverlap(queryWords: Set<String>, titleWords: Set<String>) -> Int {
-        var usedTitleWords = Set<String>()
-        var count = 0
-        for queryWord in queryWords {
-            for titleWord in titleWords where !usedTitleWords.contains(titleWord) {
-                if tokensAreClose(queryWord, titleWord) {
-                    usedTitleWords.insert(titleWord)
-                    count += 1
-                    break
+        let queries = Array(queryWords)
+        let titles = Array(titleWords)
+        var matchForTitle = Array(repeating: -1, count: titles.count)
+
+        func tryMatch(_ queryIndex: Int, visited: inout [Bool]) -> Bool {
+            for (titleIndex, titleWord) in titles.enumerated() {
+                guard !visited[titleIndex], tokensAreClose(queries[queryIndex], titleWord) else { continue }
+                visited[titleIndex] = true
+                if matchForTitle[titleIndex] == -1 || tryMatch(matchForTitle[titleIndex], visited: &visited) {
+                    matchForTitle[titleIndex] = queryIndex
+                    return true
                 }
             }
+            return false
         }
-        return count
+
+        var total = 0
+        for queryIndex in queries.indices {
+            var visited = Array(repeating: false, count: titles.count)
+            if tryMatch(queryIndex, visited: &visited) { total += 1 }
+        }
+        return total
     }
 
     static func bestTaskMatch(for query: String, in tasks: [TaskItem]) -> TaskItem? {
