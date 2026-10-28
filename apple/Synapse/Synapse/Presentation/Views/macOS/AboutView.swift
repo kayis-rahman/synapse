@@ -27,7 +27,7 @@ struct AboutView: View {
             }
 
             // Description
-            Text("A cross-platform Pomodoro timer to help you stay focused and productive.")
+            Text("A privacy-first task and focus manager for iOS, macOS, and watchOS.")
                 .font(.system(size: 14))
                 .foregroundColor(Color.themeTextSecondary)
                 .multilineTextAlignment(.center)
