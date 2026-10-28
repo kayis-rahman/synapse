@@ -54,17 +54,79 @@ enum SynapseIntentSupport {
             .components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty }.joined(separator: " ")
     }
 
+    private static func tokenDistance(_ lhs: String, _ rhs: String) -> Int {
+        if lhs == rhs { return 0 }
+        let lhsCount = lhs.count, rhsCount = rhs.count
+        if abs(lhsCount - rhsCount) > 2 { return Int.max }
+        var previous = Array(0...rhsCount)
+        var current = Array(repeating: 0, count: rhsCount + 1)
+        for (i, l) in lhs.enumerated() {
+            current[0] = i + 1
+            for (j, r) in rhs.enumerated() {
+                let substitutionCost = l == r ? 0 : 1
+                current[j + 1] = min(previous[j + 1] + 1, current[j] + 1, previous[j] + substitutionCost)
+            }
+            swap(&previous, &current)
+        }
+        return previous[rhsCount]
+    }
+
+    private static func isHexToken(_ value: String) -> Bool {
+        guard value.count >= 4 else { return false }
+        return value.allSatisfy { "0123456789abcdef".contains($0) }
+    }
+
+    private static func tokensAreClose(_ lhs: String, _ rhs: String) -> Bool {
+        if lhs == rhs { return true }
+        guard lhs.count >= 4 && rhs.count >= 4 else { return false }
+        return tokenDistance(lhs, rhs) <= 1
+    }
+
+    /// Number of query tokens that have a close (exact or single-edit) match in
+    /// the task title. Close token matches let a misheard word such as "silk"
+    /// still count as overlap against "milk".
+    private static func meaningfulTokenOverlap(queryWords: Set<String>, titleWords: Set<String>) -> Int {
+        let queries = Array(queryWords)
+        let titles = Array(titleWords)
+        var matchForTitle = Array(repeating: -1, count: titles.count)
+
+        func tryMatch(_ queryIndex: Int, visited: inout [Bool]) -> Bool {
+            for (titleIndex, titleWord) in titles.enumerated() {
+                guard !visited[titleIndex], tokensAreClose(queries[queryIndex], titleWord) else { continue }
+                visited[titleIndex] = true
+                if matchForTitle[titleIndex] == -1 || tryMatch(matchForTitle[titleIndex], visited: &visited) {
+                    matchForTitle[titleIndex] = queryIndex
+                    return true
+                }
+            }
+            return false
+        }
+
+        var total = 0
+        for queryIndex in queries.indices {
+            var visited = Array(repeating: false, count: titles.count)
+            if tryMatch(queryIndex, visited: &visited) { total += 1 }
+        }
+        return total
+    }
+
     static func bestTaskMatch(for query: String, in tasks: [TaskItem]) -> TaskItem? {
         let normalizedQuery = normalized(query)
         guard !normalizedQuery.isEmpty else { return nil }
-        let queryWords = Set(normalizedQuery.split(separator: " ").map(String.init))
+        let queryWords = Set(normalizedQuery.split(separator: " ").map(String.init).filter { !isHexToken($0) })
+        guard !queryWords.isEmpty else { return nil }
         return tasks.filter { $0.status != .completed && $0.status != .cancelled }.compactMap { task -> (TaskItem, Int)? in
             let title = normalized(task.title)
-            let titleWords = Set(title.split(separator: " ").map(String.init))
+            let titleWords = Set(title.split(separator: " ").map(String.init).filter { !isHexToken($0) })
+            guard !titleWords.isEmpty else { return nil }
             let overlap = queryWords.intersection(titleWords).count
             let contains = title.contains(normalizedQuery) || normalizedQuery.contains(title)
-            guard contains || overlap > 0 else { return nil }
-            return (task, (contains ? 100 : 0) + overlap * 10 - abs(titleWords.count - queryWords.count))
+            let fuzzyOverlap = meaningfulTokenOverlap(queryWords: queryWords, titleWords: titleWords)
+            // Refuse matches that rest on a single shared word (or a substring
+            // occurrence) without enough token-level alignment to be meaningful.
+            let requiredOverlap = queryWords.count <= 1 ? 1 : max(2, queryWords.count / 2 + 1)
+            guard fuzzyOverlap >= requiredOverlap else { return nil }
+            return (task, (contains ? 100 : 0) + max(overlap, fuzzyOverlap) * 10 - abs(titleWords.count - queryWords.count))
         }.sorted { $0.1 > $1.1 }.first?.0
     }
 }
