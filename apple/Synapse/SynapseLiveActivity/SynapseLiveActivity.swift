@@ -18,7 +18,7 @@ struct SynapseLiveActivity: Widget {
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Text("Synapse")
+                    Text("Taskling")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.mint)
                 }

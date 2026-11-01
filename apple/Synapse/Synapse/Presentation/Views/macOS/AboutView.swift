@@ -54,7 +54,7 @@ struct AboutView: View {
             Spacer()
 
             // Copyright
-            Text("© 2025 Synapse. All rights reserved.")
+            Text("© 2025 Taskling. All rights reserved.")
                 .font(.system(size: 12))
                 .foregroundColor(Color.themeTextSecondary.opacity(0.7))
         }
