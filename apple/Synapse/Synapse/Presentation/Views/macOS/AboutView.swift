@@ -17,7 +17,7 @@ struct AboutView: View {
 
             // App Name and Version
             VStack(spacing: 8) {
-                Text("Synapse")
+                Text("Taskling")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(Color.themeTextPrimary)
 

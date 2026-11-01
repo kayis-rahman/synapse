@@ -39,7 +39,7 @@ struct SidebarTabView: View {
                         .fill(Color(red: 255, green: 255, blue: 255, opacity: 0.8))
                 )
 
-            Text("Synapse")
+            Text("Taskling")
                 .font(.caption)
                 .fontWeight(.semibold)
                 .foregroundColor(Color(red: 168/255, green: 230/255, blue: 207/255).opacity(0.6))

@@ -1,6 +1,6 @@
-# Synapse
+# Taskling
 
-Synapse is a privacy-first task and focus manager for iOS, macOS, and watchOS.
+Taskling is a privacy-first task and focus manager for iOS, macOS, and watchOS.
 Everyday task data stays on the user's Apple devices and syncs through the
 private CloudKit database when available.
 
@@ -15,25 +15,25 @@ private CloudKit database when available.
 
 ## Build and test
 
-Open `apple/Synapse/Synapse.xcodeproj` in Xcode. The shared schemes are:
+Open `apple/Taskling/Taskling.xcodeproj` in Xcode. The shared schemes are:
 
-- `Synapse iOS` - iOS app
-- `Synapse iOS Unit Tests` - unit/service/SwiftData tests
-- `Synapse macOS` - macOS app
-- `SynapseWatch Watch App` - watchOS app
+- `Taskling iOS` - iOS app
+- `Taskling iOS Unit Tests` - unit/service/SwiftData tests
+- `Taskling macOS` - macOS app
+- `TasklingWatch Watch App` - watchOS app
 
 Run iOS unit tests from the command line:
 
 ```sh
-cd apple/Synapse
-xcodebuild -scheme "Synapse iOS Unit Tests" \
+cd apple/Taskling
+xcodebuild -scheme "Taskling iOS Unit Tests" \
   -destination "platform=iOS Simulator,name=iPhone 18 Pro" test
 ```
 
 ## Continuous integration
 
-Xcode Cloud runs the `Synapse iOS Unit Tests` suite on every push and archives
-`Synapse iOS` for TestFlight when a `v*.*.*` tag is pushed. Physical-device UI
+Xcode Cloud runs the `Taskling iOS Unit Tests` suite on every push and archives
+`Taskling iOS` for TestFlight when a `v*.*.*` tag is pushed. Physical-device UI
 tests remain a manual pre-release gate; see `docs/xcode-cloud-setup.md` and
 `docs/ios-ui-tests-on-iphone-15-pro.md`.
 

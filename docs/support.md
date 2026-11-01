@@ -1,6 +1,6 @@
-# Synapse Support
+# Taskling Support
 
-Synapse v1 is a privacy-first, local-first GTD task manager for iOS.
+Taskling v1 is a privacy-first, local-first GTD task manager for iOS.
 
 ## Getting started
 

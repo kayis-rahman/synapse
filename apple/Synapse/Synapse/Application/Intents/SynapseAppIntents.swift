@@ -12,7 +12,7 @@ enum SynapseIntentError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .appNeedsSetup: "Open Synapse first to set up Siri capture."
-        case .cloudKitUnavailable: "Synapse needs iCloud to finish setting up. Open Synapse and complete setup, then try again."
+        case .cloudKitUnavailable: "Synapse needs iCloud to finish setting up. Open Taskling and complete setup, then try again."
         case .emptyCapture: "I didn't hear what to capture. Tell me what you'd like to add to Synapse."
         case .taskNotFound(let title): "I couldn't find an open task matching \"\(title)\"."
         }

@@ -31,7 +31,7 @@ open class NotificationManager {
     open func sendSessionDoneNotification(phase: String) {
         #if os(iOS) || os(macOS)
         let content = UNMutableNotificationContent()
-        content.title = "Synapse"
+        content.title = "Taskling"
         if phase == "work" {
             content.body = "Work session done! Time for a break."
         } else {
@@ -55,7 +55,7 @@ open class NotificationManager {
     open func scheduleSessionDoneNotification(phase: String, taskTitle: String?, at date: Date) {
         #if os(iOS) || os(macOS)
         let content = UNMutableNotificationContent()
-        content.title = "Synapse"
+        content.title = "Taskling"
         let subject = taskTitle ?? "Focus Session"
         content.body = phase == "work"
             ? "\(subject) is complete. Time for a break."

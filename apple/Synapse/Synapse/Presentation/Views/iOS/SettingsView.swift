@@ -49,7 +49,7 @@ private struct SettingsAccountRow: View {
                 .font(.title2).foregroundStyle(authManager.isSignedIn ? Color.themeAccent : .secondary)
                 .frame(width: 38, height: 38).background(Color.themePrimary.opacity(0.14), in: Circle())
             VStack(alignment: .leading, spacing: 3) {
-                Text(authManager.isSignedIn ? (authManager.displayName ?? "Synapse user") : "Sign in with Apple").font(.headline)
+                Text(authManager.isSignedIn ? (authManager.displayName ?? "Taskling user") : "Sign in with Apple").font(.headline)
                 Text(authManager.isSignedIn ? (authManager.email ?? "Apple account connected") : "Sync your data across devices")
                     .font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
             }
@@ -117,7 +117,7 @@ struct NotificationsSettingsView: View {
                         }
                     }
                 )).accessibilityIdentifier("settings-notifications-enabled")
-            } footer: { Text("Turn off to stop all Synapse reminders and alerts.") }
+            } footer: { Text("Turn off to stop all Taskling reminders and alerts.") }
             Section {
                 Toggle("Weekly Review Reminder", isOn: Binding(
                     get: { weeklyReviewReminderEnabled },
@@ -151,14 +151,14 @@ struct AccountSyncSettingsView: View {
     var body: some View {
         List {
             Section("Account") {
-                if authManager.isSignedIn { Label { VStack(alignment: .leading) { Text(authManager.displayName ?? "Synapse user").font(.headline); Text(authManager.email ?? "Apple account connected").font(.subheadline).foregroundStyle(.secondary) } } icon: { Image(systemName: "person.crop.circle.fill").foregroundStyle(Color.themeAccent) } }
-                else { Text("Sign in with Apple to associate this installation with your Synapse account.").foregroundStyle(.secondary); Button("Sign in with Apple") { signIn() }.buttonStyle(.borderedProminent).tint(Color.themeButtonBackground).accessibilityIdentifier("settings-sign-in") }
+                if authManager.isSignedIn { Label { VStack(alignment: .leading) { Text(authManager.displayName ?? "Taskling user").font(.headline); Text(authManager.email ?? "Apple account connected").font(.subheadline).foregroundStyle(.secondary) } } icon: { Image(systemName: "person.crop.circle.fill").foregroundStyle(Color.themeAccent) } }
+                else { Text("Sign in with Apple to associate this installation with your Taskling account.").foregroundStyle(.secondary); Button("Sign in with Apple") { signIn() }.buttonStyle(.borderedProminent).tint(Color.themeButtonBackground).accessibilityIdentifier("settings-sign-in") }
             }
             if authManager.isSignedIn {
                 Section { Button("Sign out", role: .destructive) { confirmSignOut = true }.accessibilityIdentifier("settings-sign-out") }
             }
         }.navigationTitle("Account").navigationBarTitleDisplayMode(.inline)
-            .confirmationDialog("Sign out of Synapse?", isPresented: $confirmSignOut) { Button("Sign out", role: .destructive) { Task { await authManager.signOut() } }; Button("Cancel", role: .cancel) {} } message: { Text("Your local data stays on this device.") }
+            .confirmationDialog("Sign out of Taskling?", isPresented: $confirmSignOut) { Button("Sign out", role: .destructive) { Task { await authManager.signOut() } }; Button("Cancel", role: .cancel) {} } message: { Text("Your local data stays on this device.") }
             .alert("Sign-in failed", isPresented: Binding(get: { signInError != nil }, set: { if !$0 { signInError = nil } })) { Button("OK", role: .cancel) { signInError = nil } } message: { Text(signInError ?? "Please try again.") }
     }
     private func signIn() { Task { do { try await authManager.signInWithApple() } catch { signInError = error.localizedDescription } } }

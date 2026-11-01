@@ -46,7 +46,7 @@ enum GmailServiceError: LocalizedError, Equatable {
         case .temporaryUnavailable: "Gmail is temporarily unavailable."
         case .malformedResponse: "Gmail returned an unreadable message."
         case .networkUnavailable: "Gmail could not be reached."
-        case .storageFailure: "Synapse could not save the Gmail import."
+        case .storageFailure: "Taskling could not save the Gmail import."
         }
     }
 }
