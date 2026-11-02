@@ -33,7 +33,7 @@ Not yet verified or complete:
 ## Purpose
 
 Implement Gmail as an opt-in, local-first integration that imports email into
-Synapse's Inbox without silently losing data or moving items out of Inbox
+Wool's Inbox without silently losing data or moving items out of Inbox
 without user confirmation.
 
 The implementation must support the edge cases documented in
@@ -71,7 +71,7 @@ duplicate messages, interrupted sync, and temporary Gmail/API failures.
 ### Deferred
 
 - Sending, replying to, archiving, deleting, or marking Gmail messages read.
-- Editing Gmail labels from Synapse.
+- Editing Gmail labels from Wool.
 - Downloading or previewing attachments.
 - Gmail push notifications.
 - Automatic project or Area assignment.
@@ -243,7 +243,7 @@ been persisted successfully.
 
 ### Schema migration
 
-- Gmail models are currently added to the existing `SynapseSchemaV1` baseline.
+- Gmail models are currently added to the existing `WoolSchemaV1` baseline.
 - A separate migration stage has not yet been added.
 - Existing-store migration and CloudKit compatibility remain pending validation.
 - Ensure no OAuth token or refresh token is present in any SwiftData model.

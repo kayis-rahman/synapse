@@ -1,8 +1,8 @@
 #!/bin/zsh
 set -euo pipefail
 
-PROJECT="apple/Synapse/Synapse.xcodeproj"
-SCHEME="Synapse iOS"
+PROJECT="apple/Wool/Wool.xcodeproj"
+SCHEME="Wool iOS"
 APP_BUNDLE_ID="com.sparkage.synapse.ios"
 BUILD_DERIVED_DATA="/private/tmp/synapse-iphone15pro-derived"
 TEST_DERIVED_DATA="/private/tmp/synapse-iphone15pro-ui-tests"
@@ -12,12 +12,12 @@ usage() {
   print "Usage: ./$SCRIPT_NAME [--test [TEST_IDENTIFIER...]]"
   print "       ./$SCRIPT_NAME --test-each TEST_IDENTIFIER..."
   print ""
-  print "Without arguments, builds, installs, and launches Synapse."
+  print "Without arguments, builds, installs, and launches Wool."
   print ""
   print "--test [TEST_IDENTIFIER...]"
   print "  Runs physical-device UI tests in one xcodebuild invocation. Accepts one"
   print "  or more -only-testing identifiers as separate arguments. Defaults to:"
-  print "    SynapseUITests/WorkspaceUITests"
+  print "    WoolUITests/WorkspaceUITests"
   print ""
   print "--test-each TEST_IDENTIFIER..."
   print "  Builds for testing once, then runs each given identifier as its own"
@@ -29,7 +29,7 @@ usage() {
 }
 
 MODE="run"
-TEST_IDENTIFIERS=("SynapseUITests/WorkspaceUITests")
+TEST_IDENTIFIERS=("WoolUITests/WorkspaceUITests")
 case "${1:-}" in
   "") ;;
   --test)
@@ -174,7 +174,7 @@ if [[ "$MODE" == "test-each" ]]; then
   exit 0
 fi
 
-APP_PATH="$BUILD_DERIVED_DATA/Build/Products/Debug-iphoneos/Synapse iOS.app"
+APP_PATH="$BUILD_DERIVED_DATA/Build/Products/Debug-iphoneos/Wool iOS.app"
 
 xcodebuild -quiet build \
   -project "$PROJECT" \

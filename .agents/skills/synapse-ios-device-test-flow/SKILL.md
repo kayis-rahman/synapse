@@ -19,7 +19,7 @@ decisions.
 
 ## Core rules
 
-1. Never use simulator destinations for Synapse iOS app validation.
+1. Never use simulator destinations for Wool iOS app validation.
 2. Verify `xcrun devicectl list devices` reports the paired iPhone 15 Pro.
 3. Use `scripts/run-on-iphone15pro.sh` for standard build/install/launch.
 4. Keep physical-device UI test commands from

@@ -9,31 +9,31 @@ private CloudKit database when available.
 - App version: `1.0.0`
 - Build: `1`
 - CloudKit container: `iCloud.com.sparkage.synapse`
-- SwiftData schema: `1` (`SynapseSchemaV1`)
+- SwiftData schema: `1` (`WoolSchemaV1`)
 - Feature flags default to disabled: Malayalam voice, Gmail integration, GitHub
   Projects integration
 
 ## Build and test
 
-Open `apple/Synapse/Synapse.xcodeproj` in Xcode. The shared schemes are:
+Open `apple/Wool/Wool.xcodeproj` in Xcode. The shared schemes are:
 
-- `Synapse iOS` - iOS app
-- `Synapse iOS Unit Tests` - unit/service/SwiftData tests
-- `Synapse macOS` - macOS app
-- `SynapseWatch Watch App` - watchOS app
+- `Wool iOS` - iOS app
+- `Wool iOS Unit Tests` - unit/service/SwiftData tests
+- `Wool macOS` - macOS app
+- `WoolWatch Watch App` - watchOS app
 
 Run iOS unit tests from the command line:
 
 ```sh
-cd apple/Synapse
-xcodebuild -scheme "Synapse iOS Unit Tests" \
+cd apple/Wool
+xcodebuild -scheme "Wool iOS Unit Tests" \
   -destination "platform=iOS Simulator,name=iPhone 18 Pro" test
 ```
 
 ## Continuous integration
 
-Xcode Cloud runs the `Synapse iOS Unit Tests` suite on every push and archives
-`Synapse iOS` for TestFlight when a `v*.*.*` tag is pushed. Physical-device UI
+Xcode Cloud runs the `Wool iOS Unit Tests` suite on every push and archives
+`Wool iOS` for TestFlight when a `v*.*.*` tag is pushed. Physical-device UI
 tests remain a manual pre-release gate; see `docs/xcode-cloud-setup.md` and
 `docs/ios-ui-tests-on-iphone-15-pro.md`.
 

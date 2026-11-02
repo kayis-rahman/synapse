@@ -1,11 +1,11 @@
 # Feature Flags CloudKit Configuration
 
-Synapse reads release flags from the public CloudKit database in the
+Wool reads release flags from the public CloudKit database in the
 `iCloud.com.sparkage.synapse` container.
 
 ## Development record
 
-In CloudKit Dashboard, select the Synapse container and the **Development**
+In CloudKit Dashboard, select the Wool container and the **Development**
 environment. Create this record in the public database:
 
 ```text
@@ -41,10 +41,10 @@ device. The opt-in integration test is:
 ```sh
 SYNAPSE_CLOUDKIT_FEATURE_FLAGS_INTEGRATION=1 \
 xcodebuild test \
-  -project apple/Synapse/Synapse.xcodeproj \
-  -scheme "Synapse iOS Unit Tests" \
+  -project apple/Wool/Wool.xcodeproj \
+  -scheme "Wool iOS Unit Tests" \
   -destination "id=$DEVICE_ID" \
-  -only-testing:SynapseTests/FeatureFlagsCloudKitIntegrationTests
+  -only-testing:WoolTests/FeatureFlagsCloudKitIntegrationTests
 ```
 
 The test must run against a dedicated test Apple Account and the physical

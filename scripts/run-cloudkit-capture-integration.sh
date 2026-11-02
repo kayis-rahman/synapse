@@ -11,8 +11,8 @@ fi
 WRITER_ID="$1"
 READER_ID="$2"
 RUN_ID="${SYNAPSE_CLOUDKIT_INTEGRATION_RUN_ID:-$(uuidgen | tr '[:lower:]' '[:upper:]')}"
-PROJECT="apple/Synapse/Synapse.xcodeproj"
-SCHEME="Synapse iOS"
+PROJECT="apple/Wool/Wool.xcodeproj"
+SCHEME="Wool iOS"
 DERIVED_DATA="/tmp/synapse-cloudkit-integration-${RUN_ID}"
 CONFIRMATION="DEDICATED_TEST_APPLE_ACCOUNT"
 
@@ -32,7 +32,7 @@ run_role() {
       -scheme "$SCHEME" \
       -destination "id=$device_id" \
       -derivedDataPath "$DERIVED_DATA" \
-      -only-testing:"SynapseTests/CloudKitCaptureIntegrationTests/$test_name" \
+      -only-testing:"WoolTests/CloudKitCaptureIntegrationTests/$test_name" \
       -allowProvisioningUpdates
 }
 

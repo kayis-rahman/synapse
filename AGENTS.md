@@ -1,4 +1,4 @@
-# Synapse Development Instructions
+# Wool Development Instructions
 
 ## iOS validation
 
@@ -51,8 +51,8 @@ documented rather than making nondeterministic tests.
   `Presentation/Views` for UI.
 - SwiftData: store enum state as `*RawValue: String` with a typed computed
   accessor; use `@Model final class` with defaulted properties; keep schema and
-  migration ownership in `SynapseSchema.swift`; keep CloudKit/private vs. local
-  test store setup in `SynapseModelContainer`.
+  migration ownership in `WoolSchema.swift`; keep CloudKit/private vs. local
+  test store setup in `WoolModelContainer`.
 - Naming: drop stale feature/domain prefixes once a concept owns module context
   (for example `GTDStatus -> Status`, `GTDWorkspaceView -> WorkspaceView`);
   group by architectural layer rather than historical feature.

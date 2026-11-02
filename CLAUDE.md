@@ -1,4 +1,4 @@
-# Synapse UI Guidance
+# Wool UI Guidance
 
 ## Strict physical-device-only iOS rule
 

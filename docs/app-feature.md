@@ -1,6 +1,6 @@
-# Synapse App Features
+# Wool App Features
 
-Synapse is a privacy-first, on-device task manager
+Wool is a privacy-first, on-device task manager
 for iOS, macOS, and watchOS. The app keeps everyday task data local to the
 user's Apple devices and uses CloudKit private database sync when available.
 
@@ -66,14 +66,14 @@ The shared capture service is `CaptureService`. In-app capture and the
 
 ## Triage and On-Device Intelligence
 
-When the user starts triage, Synapse attempts to use Foundation Models on
+When the user starts triage, Wool attempts to use Foundation Models on
 supported devices to suggest:
 
 - task status: Inbox, Next Action, Waiting For, or Someday/Maybe.
 - An Area tag.
 - A due date when the capture explicitly mentions one.
 
-If Foundation Models is unavailable, Synapse falls back to local heuristics
+If Foundation Models is unavailable, Wool falls back to local heuristics
 for action verbs, waiting language, area names, and simple dates. Triage does
 not require a server or remote AI service. The in-app capture flow persists the
 raw item in Inbox first, then presents an editable confirmation screen with
@@ -172,7 +172,7 @@ with version metadata, and take effect on the next launch.
 
 ## Siri, Shortcuts, and Spotlight
 
-Synapse exposes App Intents through `AppShortcutsProvider`:
+Wool exposes App Intents through `AppShortcutsProvider`:
 
 - **Capture an item** — save text directly to Inbox.
 - **Add a next action** — save a task directly to Next Actions.

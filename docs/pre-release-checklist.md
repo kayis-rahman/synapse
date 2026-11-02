@@ -1,6 +1,6 @@
-# Synapse Pre-Release Checklist
+# Wool Pre-Release Checklist
 
-Use this checklist before tagging a Synapse `1.0.x` release. The full release
+Use this checklist before tagging a Wool `1.0.x` release. The full release
 process lives in `docs/RELEASING.md`.
 
 ## Metadata
@@ -13,7 +13,7 @@ process lives in `docs/RELEASING.md`.
 
 ## Build and tests
 
-- [ ] `Synapse iOS Unit Tests` scheme builds successfully.
+- [ ] `Wool iOS Unit Tests` scheme builds successfully.
 - [ ] iOS unit/service/SwiftData test suite is green.
 - [ ] `ci_scripts/ci_post_clone.sh` passes in Xcode Cloud.
 - [ ] Physical-device UI test suite passes on the configured iPhone 15 Pro.

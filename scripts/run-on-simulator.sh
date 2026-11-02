@@ -1,8 +1,8 @@
 #!/bin/zsh
 set -euo pipefail
 
-PROJECT="apple/Synapse/Synapse.xcodeproj"
-SCHEME="Synapse iOS"
+PROJECT="apple/Wool/Wool.xcodeproj"
+SCHEME="Wool iOS"
 DEVICE_NAME="iPhone 17 Pro"
 DERIVED_DATA="/private/tmp/synapse-simulator-ui-tests"
 
@@ -10,7 +10,7 @@ usage() {
     print "Usage: ./scripts/run-on-simulator.sh [TEST_IDENTIFIER...]"
     print ""
     print "Builds the iOS UI-test bundle once, then runs each identifier without"
-    print "rebuilding. Defaults to SynapseUITests/WorkspaceUITests."
+    print "rebuilding. Defaults to WoolUITests/WorkspaceUITests."
 }
 
 if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
@@ -18,7 +18,7 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     exit 0
 fi
 
-TEST_IDENTIFIERS=("${@:-SynapseUITests/WorkspaceUITests}")
+TEST_IDENTIFIERS=("${@:-WoolUITests/WorkspaceUITests}")
 DEVICE_ID="$(xcrun simctl list devices available | awk -v name="$DEVICE_NAME" '$0 ~ name { match($0, /[A-F0-9-]{36}/); if (RSTART) { print substr($0, RSTART, RLENGTH); exit } }')"
 
 if [[ -z "$DEVICE_ID" ]]; then
