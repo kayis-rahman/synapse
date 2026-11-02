@@ -14,7 +14,7 @@ struct LoadingView: View {
                     .foregroundColor(Color.themePrimary)
 
                 // Loading text
-                Text("Taskling")
+                Text("Wool")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(Color.themeTextPrimary)
 

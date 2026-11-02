@@ -1,6 +1,6 @@
-# Taskling
+# Wool
 
-Taskling is a privacy-first task and focus manager for iOS, macOS, and watchOS.
+Wool is a privacy-first task and focus manager for iOS, macOS, and watchOS.
 Everyday task data stays on the user's Apple devices and syncs through the
 private CloudKit database when available.
 

@@ -17,7 +17,7 @@ struct AboutView: View {
 
             // App Name and Version
             VStack(spacing: 8) {
-                Text("Taskling")
+                Text("Wool")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(Color.themeTextPrimary)
 
@@ -54,7 +54,7 @@ struct AboutView: View {
             Spacer()
 
             // Copyright
-            Text("© 2025 Taskling. All rights reserved.")
+            Text("© 2025 Wool. All rights reserved.")
                 .font(.system(size: 12))
                 .foregroundColor(Color.themeTextSecondary.opacity(0.7))
         }

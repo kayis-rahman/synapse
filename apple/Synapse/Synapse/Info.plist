@@ -13,11 +13,11 @@
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSCalendarsUsageDescription</key>
-	<string>Taskling uses your calendar to help you prepare for the day.</string>
+	<string>Wool uses your calendar to help you prepare for the day.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Taskling uses the microphone to turn spoken thoughts into editable captures.</string>
+	<string>Wool uses the microphone to turn spoken thoughts into editable captures.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Taskling uses speech recognition to transcribe spoken captures before you review them.</string>
+	<string>Wool uses speech recognition to transcribe spoken captures before you review them.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

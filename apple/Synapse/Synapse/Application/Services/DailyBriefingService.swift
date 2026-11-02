@@ -54,7 +54,7 @@ struct DailyBriefingResult: Sendable, Equatable {
     }
 
     var plainText: String {
-        if sections.isFirstRun { return "Welcome to Taskling. Capture your first thought to start your day." }
+        if sections.isFirstRun { return "Welcome to Wool. Capture your first thought to start your day." }
 
         var lines: [String] = []
         if sections.dueToday.isEmpty {

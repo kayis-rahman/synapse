@@ -176,7 +176,7 @@ struct macOSContentView: View {
 
             Divider()
 
-            Button("About Taskling") {
+            Button("About Wool") {
                 showingAbout = true
             }
 

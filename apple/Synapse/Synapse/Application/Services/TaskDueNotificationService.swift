@@ -34,7 +34,7 @@ final class TaskDueNotificationService {
 
     func schedule(taskID: UUID, title: String, dueDate: Date, center: any LocalNotificationCenter = UNUserNotificationCenter.current()) {
         let content = UNMutableNotificationContent()
-        content.title = "Taskling"
+        content.title = "Wool"
         content.body = title.isEmpty ? "A task is due now." : "\"\(title)\" is due now."
         content.sound = .default
         content.userInfo = ["type": "task_due", "taskID": taskID.uuidString]

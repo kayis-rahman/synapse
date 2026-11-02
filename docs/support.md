@@ -1,6 +1,6 @@
-# Taskling Support
+# Wool Support
 
-Taskling v1 is a privacy-first, local-first GTD task manager for iOS.
+Wool v1 is a privacy-first, local-first GTD task manager for iOS.
 
 ## Getting started
 

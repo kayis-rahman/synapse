@@ -11,9 +11,9 @@ enum SynapseIntentError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .appNeedsSetup: "Open Taskling first to set up Siri capture."
-        case .cloudKitUnavailable: "Taskling needs iCloud to finish setting up. Open Taskling and complete setup, then try again."
-        case .emptyCapture: "I didn't hear what to capture. Tell me what you'd like to add to Taskling."
+        case .appNeedsSetup: "Open Wool first to set up Siri capture."
+        case .cloudKitUnavailable: "Wool needs iCloud to finish setting up. Open Wool and complete setup, then try again."
+        case .emptyCapture: "I didn't hear what to capture. Tell me what you'd like to add to Wool."
         case .taskNotFound(let title): "I couldn't find an open task matching \"\(title)\"."
         }
     }
@@ -133,7 +133,7 @@ enum SynapseIntentSupport {
 
 struct AddCaptureIntent: AppIntent {
     static var title: LocalizedStringResource { "Capture an item" }
-    static var description = IntentDescription("Save a thought to the Taskling Inbox.")
+    static var description = IntentDescription("Save a thought to the Wool Inbox.")
     static var openAppWhenRun: Bool { false }
 
     @Parameter(title: "Capture")
@@ -177,7 +177,7 @@ struct AddNextActionIntent: AppIntent {
 
 struct StartWeeklyReviewIntent: AppIntent {
     static var title: LocalizedStringResource { "Start weekly review" }
-    static var description = IntentDescription("Start a structured Taskling weekly review.")
+    static var description = IntentDescription("Start a structured Wool weekly review.")
     static var openAppWhenRun: Bool { true }
 
     func perform() async throws -> some IntentResult {
@@ -196,7 +196,7 @@ struct StartWeeklyReviewIntent: AppIntent {
 
 struct StartFocusIntent: AppIntent {
     static var title: LocalizedStringResource { "Start focus" }
-    static var description = IntentDescription("Open Taskling Focus and start a work session.")
+    static var description = IntentDescription("Open Wool Focus and start a work session.")
     static var openAppWhenRun: Bool { true }
 
     func perform() async throws -> some IntentResult {
@@ -208,7 +208,7 @@ struct StartFocusIntent: AppIntent {
 }
 
 struct DailyBriefingIntent: AppIntent {
-    static var title: LocalizedStringResource { "What's my Taskling briefing?" }
+    static var title: LocalizedStringResource { "What's my Wool briefing?" }
     static var description = IntentDescription("Read today's focus, overdue work, and Waiting For follow-ups.")
     static var openAppWhenRun: Bool { false }
 
@@ -225,7 +225,7 @@ struct DailyBriefingIntent: AppIntent {
 
 struct CompleteTaskIntent: AppIntent {
     static var title: LocalizedStringResource { "Complete a task" }
-    static var description = IntentDescription("Mark an existing Taskling task as complete.")
+    static var description = IntentDescription("Mark an existing Wool task as complete.")
     static var openAppWhenRun: Bool { false }
 
     @Parameter(title: "Task") var title: String
@@ -247,7 +247,7 @@ struct CompleteTaskIntent: AppIntent {
 
 struct ShowNextActionsIntent: AppIntent {
     static var title: LocalizedStringResource { "Show next actions" }
-    static var description = IntentDescription("Read today's open Next Actions from Taskling.")
+    static var description = IntentDescription("Read today's open Next Actions from Wool.")
     static var openAppWhenRun: Bool { false }
 
     func perform() async throws -> some IntentResult {

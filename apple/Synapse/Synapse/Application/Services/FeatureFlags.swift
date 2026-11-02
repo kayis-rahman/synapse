@@ -13,9 +13,9 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Codable {
     var owner: String {
         switch self {
         case .malayalamVoice:
-            "Taskling Product"
+            "Wool Product"
         case .gmailIntegration, .githubProjectsIntegration:
-            "Taskling Integrations"
+            "Wool Integrations"
         }
     }
 
