@@ -6,21 +6,21 @@ already committed to support it.
 
 ## What's in the repo
 
-`apple/Synapse/ci_scripts/ci_post_clone.sh` — runs after Xcode Cloud clones
+`apple/Wool/ci_scripts/ci_post_clone.sh` — runs after Xcode Cloud clones
 the repo, before build. Currently runs `swiftlint --strict`. Add
 `ci_pre_xcodebuild.sh` / `ci_post_xcodebuild.sh` in the same directory if you
 need steps before/after the build (e.g. notarization, notifications).
 
 ## One-time setup (do this in Xcode)
 
-1. Open `apple/Synapse/Synapse.xcodeproj` in Xcode.
+1. Open `apple/Wool/Wool.xcodeproj` in Xcode.
 2. Product → Xcode Cloud → Create Workflow. Sign in with the Apple ID that
    has App Store Connect access, select the team, and let Xcode create the
    `SYNAPSE_...` Xcode Cloud App Store Connect API integration.
 3. Create these workflows:
 
    **"iOS Unit Tests"**
-   - Scheme: `Synapse iOS Unit Tests`
+   - Scheme: `Wool iOS Unit Tests`
    - Start condition: branch changes on `main` and `develop`
    - Action: Test (iOS Simulator only — physical-device UI tests are
      excluded, see note below)
@@ -29,13 +29,13 @@ need steps before/after the build (e.g. notarization, notifications).
      GitHub branch protection.
 
    **"TestFlight Release"**
-   - Scheme: `Synapse iOS`
+   - Scheme: `Wool iOS`
    - Start condition: new tag matching `v*.*.*`
    - Action: Archive → Release (TestFlight, internal testers)
    - Post-action: TestFlight external testing group, if/when you want
      phased external rollout per `docs/RELEASING.md`.
 
-   Optionally add a **"macOS Build"** workflow (scheme `Synapse macOS`,
+   Optionally add a **"macOS Build"** workflow (scheme `Wool macOS`,
    Archive action) if you want Xcode Cloud to sanity-build macOS too — it
    won't upload anywhere unless you configure a Mac distribution method.
 
@@ -52,9 +52,9 @@ Per `CLAUDE.md`, all UI-test runs must target the paired physical iPhone
 `docs/RELEASING.md`). Xcode Cloud only provisions simulators/cloud Macs, it
 cannot attach to a specific paired physical device. So:
 
-- Xcode Cloud runs `Synapse iOS Unit Tests` (unit/service/SwiftData tests)
+- Xcode Cloud runs `Wool iOS Unit Tests` (unit/service/SwiftData tests)
   on every push — these don't need the physical device.
-- `SynapseUITests` against the physical iPhone stay a **manual pre-release
+- `WoolUITests` against the physical iPhone stay a **manual pre-release
   gate**: run `scripts/run-on-iphone15pro.sh` yourself locally before
   tagging a release. This can't be automated away without either relaxing
   the physical-device-only rule or adding a self-hosted Mac runner

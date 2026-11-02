@@ -1,19 +1,19 @@
 ---
 name: synapse-gtd-domain-models
 description: >
-  Load before adding or changing Synapse persisted models, SwiftData schema,
+  Load before adding or changing Wool persisted models, SwiftData schema,
   relationships, model invariants, or schema migration.
 user-invocable: true
 ---
 
 # synapse-gtd-domain-models
 
-Trigger: load before adding or changing Synapse persisted models, SwiftData schema,
+Trigger: load before adding or changing Wool persisted models, SwiftData schema,
 relationships, model invariants, or schema migration.
 
 In scope: Domain/Models layouts, @Model defaults, raw-value enum state, typed
 computeds, validation helpers, VersionedSchema/migration changes, and
-SynapseModelContainer test cases.
+WoolModelContainer test cases.
 
 Out of scope: backend client DTOs, SwiftUI view structure, and unrelated app
 integrations.
@@ -21,7 +21,7 @@ integrations.
 ## Core rules
 
 1. Put persisted concepts under `Domain/Models` and keep schema ownership in
-   `SynapseSchema.swift`.
+   `WoolSchema.swift`.
 2. Store enum state through a `*RawValue: String` property plus computed typed
    accessor.
 3. Prefer strong, defaulted `@Model final class` initializers and explicit

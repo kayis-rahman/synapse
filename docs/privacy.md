@@ -1,20 +1,20 @@
-# Synapse Privacy Policy
+# Wool Privacy Policy
 
 Effective date: 2026-10-28
 
-Synapse is a privacy-first task manager. This policy describes how the iOS app handles information for Synapse v1.
+Wool is a privacy-first task manager. This policy describes how the iOS app handles information for Wool v1.
 
 ## Local-first task data
 
-Synapse stores tasks, projects, areas, review history, focus sessions, and settings on your device using the local database. Your task data belongs to you.
+Wool stores tasks, projects, areas, review history, focus sessions, and settings on your device using the local database. Your task data belongs to you.
 
 ## Sync
 
-Synapse uses Apple CloudKit private database sync when you are signed in to iCloud. Synapse app data belongs to your private CloudKit database. The developer does not operate a custom backend for task data and cannot read your private database.
+Wool uses Apple CloudKit private database sync when you are signed in to iCloud. Wool app data belongs to your private CloudKit database. The developer does not operate a custom backend for task data and cannot read your private database.
 
 ## Calendar
 
-If you enable calendar access, Synapse reads calendar events to prepare the daily briefing. Calendar data is used locally for read-only display and planning. It is not sent to the developer.
+If you enable calendar access, Wool reads calendar events to prepare the daily briefing. Calendar data is used locally for read-only display and planning. It is not sent to the developer.
 
 ## Voice capture
 
@@ -22,7 +22,7 @@ English voice capture uses Apple's on-device speech recognition. Audio is handle
 
 ## Sign in with Apple
 
-Sign in with Apple is optional. If you use it, Apple provides the app with an account token needed for CloudKit access. Synapse does not use Sign in with Apple for tracking.
+Sign in with Apple is optional. If you use it, Apple provides the app with an account token needed for CloudKit access. Wool does not use Sign in with Apple for tracking.
 
 ## Optional integrations not in v1
 
@@ -30,7 +30,7 @@ Gmail import, GitHub Projects mapping, Apple Reminders migration, and Malayalam 
 
 ## Data collection
 
-Synapse v1 does not collect personal data on a developer-operated server. Analytics, if present in older code, is not the operational data path for v1. The app contains no advertising SDK and no cross-app tracking.
+Wool v1 does not collect personal data on a developer-operated server. Analytics, if present in older code, is not the operational data path for v1. The app contains no advertising SDK and no cross-app tracking.
 
 ## Your choices
 
@@ -38,4 +38,4 @@ You can leave your data on device by staying offline or not signing in to iCloud
 
 ## Contact
 
-Questions about this policy can be filed at the Synapse issue tracker: https://github.com/kayis-rahman/synapse/issues
+Questions about this policy can be filed at the Wool issue tracker: https://github.com/kayis-rahman/synapse/issues

@@ -12,7 +12,7 @@ Trigger: load before changes to Quick Capture, Inbox triage, capture intents,
 Siri capture, or persistence of captured data.
 
 In scope: `CaptureService`, `CapturePersistenceService`, `InboxTriageService`,
-`SynapseAppIntents`, shared tests, and three-layer test coverage.
+`WoolAppIntents`, shared tests, and three-layer test coverage.
 
 Out of scope: unrelated task service/backend APIs, view styling, and deployment.
 

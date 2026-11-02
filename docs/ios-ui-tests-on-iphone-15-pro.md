@@ -1,6 +1,6 @@
-# Run Synapse UI Tests on a Physical iPhone 15 Pro
+# Run Wool UI Tests on a Physical iPhone 15 Pro
 
-This guide runs the Synapse iOS UI tests on the connected iPhone 15 Pro. The
+This guide runs the Wool iOS UI tests on the connected iPhone 15 Pro. The
 test runner uses the device currently configured in
 `scripts/run-on-iphone15pro.sh`.
 
@@ -15,7 +15,7 @@ required once signing is configured.
 - Developer Mode enabled on the iPhone: **Settings → Privacy & Security →
   Developer Mode**.
 - The iPhone trusted by this Mac.
-- A valid Apple development team selected for the `Synapse iOS` target.
+- A valid Apple development team selected for the `Wool iOS` target.
 - The iPhone’s iOS version supported by the installed Xcode version.
 
 Check that Xcode can see the device:
@@ -50,8 +50,8 @@ Confirm that `xcodebuild` sees the same identifier before starting a test:
 
 ```sh
 xcodebuild \
-  -project apple/Synapse/Synapse.xcodeproj \
-  -scheme "Synapse iOS" \
+  -project apple/Wool/Wool.xcodeproj \
+  -scheme "Wool iOS" \
   -showdestinations
 ```
 
@@ -78,13 +78,13 @@ The script checks the iPhone lock state before building. If it reports that
 the device is locked or CoreDevice cannot be reached, fix that connection first
 and rerun the script.
 
-The script builds the `Synapse iOS` scheme, installs the resulting app, and
+The script builds the `Wool iOS` scheme, installs the resulting app, and
 launches bundle identifier `com.sparkage.synapse.ios` on the iPhone.
 
 The build output is placed in:
 
 ```text
-/private/tmp/synapse-iphone15pro-derived/Build/Products/Debug-iphoneos/Synapse iOS.app
+/private/tmp/synapse-iphone15pro-derived/Build/Products/Debug-iphoneos/Wool iOS.app
 ```
 
 If signing or provisioning is requested, accept the Xcode prompts and rerun
@@ -103,11 +103,11 @@ The equivalent direct command is:
 
 ```sh
 xcodebuild test \
-  -project apple/Synapse/Synapse.xcodeproj \
-  -scheme "Synapse iOS" \
+  -project apple/Wool/Wool.xcodeproj \
+  -scheme "Wool iOS" \
   -destination "platform=iOS,id=$DEVICE_ID" \
   -derivedDataPath /private/tmp/synapse-iphone15pro-ui-tests \
-  -only-testing:SynapseUITests/WorkspaceUITests \
+  -only-testing:WoolUITests/WorkspaceUITests \
   -enableCodeCoverage NO \
   -allowProvisioningUpdates
 ```
@@ -130,8 +130,8 @@ once with `build-for-testing`, then runs each given identifier with
 
 ```sh
 ./scripts/run-on-iphone15pro.sh --test-each \
-  SynapseUITests/WorkspaceUITests/testHomeTaskOpensDetailsAndSaves \
-  SynapseUITests/WorkspaceUITests/testDeletingAreaMovesItsTaskToUncategorized
+  WoolUITests/WorkspaceUITests/testHomeTaskOpensDetailsAndSaves \
+  WoolUITests/WorkspaceUITests/testDeletingAreaMovesItsTaskToUncategorized
 ```
 
 `--test` itself also accepts multiple identifiers to run together in one
@@ -141,8 +141,8 @@ at once):
 
 ```sh
 ./scripts/run-on-iphone15pro.sh --test \
-  SynapseUITests/WorkspaceUITests/testHomeTaskOpensDetailsAndSaves \
-  SynapseUITests/WorkspaceUITests/testDeletingAreaMovesItsTaskToUncategorized
+  WoolUITests/WorkspaceUITests/testHomeTaskOpensDetailsAndSaves \
+  WoolUITests/WorkspaceUITests/testDeletingAreaMovesItsTaskToUncategorized
 ```
 
 The iOS app scheme contains UI tests only. Run Weekly Review service and
@@ -151,12 +151,12 @@ the physical phone:
 
 ```sh
 xcodebuild test \
-  -project apple/Synapse/Synapse.xcodeproj \
-  -scheme "Synapse iOS Unit Tests" \
+  -project apple/Wool/Wool.xcodeproj \
+  -scheme "Wool iOS Unit Tests" \
   -destination "platform=iOS,id=$DEVICE_ID" \
   -derivedDataPath /private/tmp/synapse-weekly-review-tests \
-  -only-testing:SynapseTests/WeeklyReviewAcceptanceTests \
-  -only-testing:SynapseTests/WeeklyReviewPersistenceTests \
+  -only-testing:WoolTests/WeeklyReviewAcceptanceTests \
+  -only-testing:WoolTests/WeeklyReviewPersistenceTests \
   -enableCodeCoverage NO \
   -allowProvisioningUpdates
 ```
@@ -167,18 +167,18 @@ For example, to verify capture → Home → task details → save:
 
 ```sh
 ./scripts/run-on-iphone15pro.sh --test \
-  SynapseUITests/WorkspaceUITests/testHomeTaskOpensDetailsAndSaves
+  WoolUITests/WorkspaceUITests/testHomeTaskOpensDetailsAndSaves
 ```
 
 Or invoke `xcodebuild` directly:
 
 ```sh
 xcodebuild test \
-  -project apple/Synapse/Synapse.xcodeproj \
-  -scheme "Synapse iOS" \
+  -project apple/Wool/Wool.xcodeproj \
+  -scheme "Wool iOS" \
   -destination "platform=iOS,id=$DEVICE_ID" \
   -derivedDataPath /private/tmp/synapse-iphone15pro-ui-tests-focused \
-  -only-testing:SynapseUITests/WorkspaceUITests/testHomeTaskOpensDetailsAndSaves \
+  -only-testing:WoolUITests/WorkspaceUITests/testHomeTaskOpensDetailsAndSaves \
   -enableCodeCoverage NO \
   -allowProvisioningUpdates
 ```
@@ -187,7 +187,7 @@ To run the Daily Briefing physical UI test:
 
 ```sh
 ./scripts/run-on-iphone15pro.sh --test \
-  SynapseUITests/WorkspaceUITests/testDailyBriefingShowsPositiveEmptyStateOnDevice
+  WoolUITests/WorkspaceUITests/testDailyBriefingShowsPositiveEmptyStateOnDevice
 ```
 
 The physical test validates capture → Home → task details → save. Swift-level
@@ -196,7 +196,7 @@ behavior tests cover editing the title and preserving the task identity.
 Other useful test names are visible in:
 
 ```text
-apple/Synapse/SynapseUITests/iOS/WorkspaceUITests.swift
+apple/Wool/WoolUITests/iOS/WorkspaceUITests.swift
 ```
 
 Use the same command and replace the value passed to `-only-testing` with the
@@ -281,8 +281,8 @@ First compare both live views:
 xcrun devicectl list devices
 
 xcodebuild \
-  -project apple/Synapse/Synapse.xcodeproj \
-  -scheme "Synapse iOS" \
+  -project apple/Wool/Wool.xcodeproj \
+  -scheme "Wool iOS" \
   -showdestinations
 ```
 
@@ -366,7 +366,7 @@ Developer Mode remains enabled.
 
 If `xcrun devicectl list devices` reports an XPC connection error, a
 `CoreDeviceService` timeout, or says that the provisioning parameter list could
-not be loaded, XCTest has not started yet. Do not diagnose this as a Synapse
+not be loaded, XCTest has not started yet. Do not diagnose this as a Wool
 test failure.
 
 Recover in this order:
@@ -421,7 +421,7 @@ execution fails.
 
 ### Signing or provisioning errors
 
-Open `apple/Synapse/Synapse.xcodeproj` in Xcode, select the `Synapse iOS`
+Open `apple/Wool/Wool.xcodeproj` in Xcode, select the `Wool iOS`
 target, choose the correct **Team**, and confirm the bundle identifier is
 registered. Then rerun:
 

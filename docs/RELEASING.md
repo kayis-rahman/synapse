@@ -1,8 +1,8 @@
-# Synapse Release Process
+# Wool Release Process
 
 ## Versioning policy
 
-Synapse application versions use Semantic Versioning:
+Wool application versions use Semantic Versioning:
 
 ```text
 MAJOR.MINOR.PATCH

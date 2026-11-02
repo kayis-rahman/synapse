@@ -1,6 +1,6 @@
-# Synapse Support
+# Wool Support
 
-Synapse v1 is a privacy-first, local-first GTD task manager for iOS.
+Wool v1 is a privacy-first, local-first GTD task manager for iOS.
 
 ## Getting started
 
