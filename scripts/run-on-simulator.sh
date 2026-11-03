@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT="apple/Wool/Wool.xcodeproj"
 SCHEME="Wool iOS"
-DEVICE_NAME="iPhone 17 Pro"
+DEVICE_NAME="iPhone 18 Pro"
 DERIVED_DATA="/private/tmp/wool-simulator-ui-tests"
 
 usage() {

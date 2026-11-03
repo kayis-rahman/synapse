@@ -57,8 +57,8 @@ case "${1:-}" in
     ;;
 esac
 
-# Resolve the currently available physical iPhone 15 Pro. Never retain a stale
-# identifier and never fall back to a simulator.
+# Resolve the currently available physical iPhone 15 Pro for the optional
+# device workflow. Never retain a stale identifier.
 DEVICE_LIST_OUTPUT="$(xcrun devicectl list devices 2>&1)" || {
   print -u2 "devicectl could not enumerate devices."
   print -u2 -- "$DEVICE_LIST_OUTPUT"

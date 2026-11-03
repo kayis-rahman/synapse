@@ -43,12 +43,12 @@ WOOL_CLOUDKIT_FEATURE_FLAGS_INTEGRATION=1 \
 xcodebuild test \
   -project apple/Wool/Wool.xcodeproj \
   -scheme "Wool iOS Unit Tests" \
-  -destination "id=$DEVICE_ID" \
+  -destination "platform=iOS Simulator,name=iPhone 18 Pro" \
   -only-testing:WoolTests/FeatureFlagsCloudKitIntegrationTests
 ```
 
-The test must run against a dedicated test Apple Account and the physical
-iPhone 15 Pro. Do not use a personal production database for this check.
+The test must run against a dedicated test Apple Account. Do not use a
+personal production database for this check.
 
 ## Production promotion
 

@@ -19,8 +19,9 @@ decisions.
 
 ## Core rules
 
-1. Never use simulator destinations for Wool iOS app validation.
-2. Verify `xcrun devicectl list devices` reports the paired iPhone 15 Pro.
-3. Use `scripts/run-on-iphone15pro.sh` for standard build/install/launch.
+1. Use an iOS Simulator for Wool iOS app validation.
+2. Verify `xcrun simctl list devices available` reports the configured
+   simulator before a run.
+3. Use `scripts/run-on-simulator.sh` for standard UI-test runs.
 4. Keep physical-device UI test commands from
-   `docs/ios-ui-tests-on-iphone-15-pro.md`.
+   `docs/ios-ui-tests-on-iphone-15-pro.md` for the optional device workflow.

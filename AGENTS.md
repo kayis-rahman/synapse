@@ -2,12 +2,11 @@
 
 ## iOS validation
 
-Use an iOS Simulator for fast build and UI-test iteration when practical.
-Use the configured physical iPhone 15 Pro for device-specific validation,
-signing checks, CloudKit, Siri/Shortcuts, notification delivery, and final
-release confidence. The physical-device workflow remains available through
-`scripts/run-on-iphone15pro.sh` and the commands documented in
-`docs/ios-ui-tests-on-iphone-15-pro.md`.
+Use an iOS Simulator for iOS builds, unit tests, and UI tests. The
+physical-device workflow remains available as an optional extra for
+device-specific validation, signing checks, CloudKit, Siri/Shortcuts, and
+notification delivery through `scripts/run-on-iphone15pro.sh` and the commands
+documented in `docs/ios-ui-tests-on-iphone-15-pro.md`.
 
 ## UI changes
 
@@ -34,9 +33,8 @@ include all three test layers:
    cases.
 2. SwiftData/integration tests for local persistence, duplicates, offline
    behavior, and CloudKit synchronization where applicable.
-3. UI tests for the user-visible capture flow on a representative iOS
-   destination. Use the physical iPhone 15 Pro when validating device-specific
-   behavior or release readiness.
+3. UI tests for the user-visible capture flow on an iOS Simulator. Use the
+   physical iPhone 15 Pro only for optional device-specific behavior.
 
 Use deterministic fixtures and unique UUID markers for persisted test data.
 Keep manual-only conditions such as low storage and account sign-out explicitly
@@ -62,5 +60,5 @@ documented rather than making nondeterministic tests.
 - Capture: one shared pipeline through `CaptureService`; final save through
   `CapturePersistenceService`; leave persistence explicit in callers and tests;
   use UUID markers in persisted test data.
-- Physical-device recipes: keep the non-negotiable rule above; exact commands
-  and flags live in the `wool-ios-device-test-flow` skill and script help.
+- Simulator test recipes: exact commands and flags live in the
+  `wool-ios-device-test-flow` skill and script help.

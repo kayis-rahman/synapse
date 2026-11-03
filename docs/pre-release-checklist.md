@@ -16,7 +16,7 @@ process lives in `docs/RELEASING.md`.
 - [ ] `Wool iOS Unit Tests` scheme builds successfully.
 - [ ] iOS unit/service/SwiftData test suite is green.
 - [ ] `ci_scripts/ci_post_clone.sh` passes in Xcode Cloud.
-- [ ] Physical-device UI test suite passes on the configured iPhone 15 Pro.
+- [ ] UI test suite passes on an iOS Simulator.
 
 ## SwiftData and CloudKit
 

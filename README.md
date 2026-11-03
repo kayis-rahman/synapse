@@ -46,9 +46,11 @@ xcodebuild -scheme "Wool iOS Unit Tests" \
 ## Continuous integration
 
 Xcode Cloud runs the `Wool iOS Unit Tests` suite on every push and archives
-`Wool iOS` for TestFlight when a `v*.*.*` tag is pushed. Physical-device UI
-tests remain a manual pre-release gate; see `docs/xcode-cloud-setup.md` and
-`docs/ios-ui-tests-on-iphone-15-pro.md`.
+`Wool iOS` for TestFlight when a `v*.*.*` tag is pushed. UI tests run on an iOS
+Simulator with `scripts/run-on-simulator.sh`; the optional physical-device
+workflow stays available for device-specific checks in
+`docs/ios-ui-tests-on-iphone-15-pro.md`. See `docs/xcode-cloud-setup.md` for the
+Xcode Cloud workflows.
 
 ## Documentation
 
