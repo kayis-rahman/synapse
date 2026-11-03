@@ -13,6 +13,19 @@ private CloudKit database when available.
 - Feature flags default to disabled: Malayalam voice, Gmail integration, GitHub
   Projects integration
 
+## Permanent identifiers
+
+The following identifiers intentionally retain their `Synapse`/`synapse` naming
+because they are permanent once published or registered externally; do not
+rename them:
+
+- iOS app bundle identifier: `com.sparkage.synapse.ios`
+- macOS/watchOS/live-activity/test bundle identifiers under `com.sparkage.synapse...`
+- CloudKit container: `iCloud.com.sparkage.synapse`
+- App/keychain access group: `425MSY8FLG.com.sparkage.synapse`
+- Gmail OAuth callback scheme: `com.sparkage.synapse.gmail`
+- Source repository and issue tracker: `github.com/kayis-rahman/synapse`
+
 ## Build and test
 
 Open `apple/Wool/Wool.xcodeproj` in Xcode. The shared schemes are:

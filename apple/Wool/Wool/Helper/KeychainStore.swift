@@ -3,22 +3,22 @@ import Security
 
 struct KeychainStore {
     enum Item: String {
-        case idToken = "com.synapse.auth.idToken"
-        case appleUserID = "com.synapse.auth.appleUserID"
-        case accessToken = "com.synapse.auth.accessToken"
-        case refreshToken = "com.synapse.auth.refreshToken"
-        case userDisplayName = "com.synapse.auth.displayName"
-        case userEmail = "com.synapse.auth.email"
-        case apnsToken = "com.synapse.apns.token"
-        case deviceId = "com.synapse.app.deviceId"
-        case actionQueue = "com.synapse.app.actionQueue"
-        case gmailAccessToken = "com.synapse.gmail.accessToken"
-        case gmailRefreshToken = "com.synapse.gmail.refreshToken"
-        case gmailTokenExpiry = "com.synapse.gmail.tokenExpiry"
-        case gmailGrantedScopes = "com.synapse.gmail.grantedScopes"
+        case idToken = "com.wool.auth.idToken"
+        case appleUserID = "com.wool.auth.appleUserID"
+        case accessToken = "com.wool.auth.accessToken"
+        case refreshToken = "com.wool.auth.refreshToken"
+        case userDisplayName = "com.wool.auth.displayName"
+        case userEmail = "com.wool.auth.email"
+        case apnsToken = "com.wool.apns.token"
+        case deviceId = "com.wool.app.deviceId"
+        case actionQueue = "com.wool.app.actionQueue"
+        case gmailAccessToken = "com.wool.gmail.accessToken"
+        case gmailRefreshToken = "com.wool.gmail.refreshToken"
+        case gmailTokenExpiry = "com.wool.gmail.tokenExpiry"
+        case gmailGrantedScopes = "com.wool.gmail.grantedScopes"
     }
 
-    private static let service = "com.synapse.keychain"
+    private static let service = "com.wool.keychain"
 
     static func save(_ value: Data, for item: Item) throws {
         let query: [String: Any] = [
