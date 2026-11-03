@@ -498,7 +498,7 @@ Verify:
 ### Physical-device UI tests
 
 Implemented test file: `GmailIntegrationUITests.swift`. It uses
-`SYNAPSE_GMAIL_UI_TESTING=1` to enable the feature and seed deterministic Gmail
+`WOOL_GMAIL_UI_TESTING=1` to enable the feature and seed deterministic Gmail
 data without live OAuth.
 
 All automated iOS validation must target the configured physical iPhone 15 Pro;

@@ -202,7 +202,7 @@ struct StartFocusIntent: AppIntent {
     func perform() async throws -> some IntentResult {
         guard WoolModelContainer.appSetupCompleted else { throw WoolIntentError.appNeedsSetup }
         UserDefaults.standard.set("focus", forKey: WoolModelContainer.pendingDestinationKey)
-        UserDefaults.standard.set(true, forKey: "synapse.pendingStartFocus")
+        UserDefaults.standard.set(true, forKey: "wool.pendingStartFocus")
         return .result()
     }
 }
@@ -217,7 +217,7 @@ struct DailyBriefingIntent: AppIntent {
         let tasks = try context.fetch(FetchDescriptor<TaskItem>())
         let result = await DailyBriefingService.shared.makeBriefing(
             tasks: tasks,
-            isFirstRun: tasks.isEmpty && !UserDefaults.standard.bool(forKey: "synapse.hasGeneratedBriefing")
+            isFirstRun: tasks.isEmpty && !UserDefaults.standard.bool(forKey: "wool.hasGeneratedBriefing")
         )
         return .result(dialog: IntentDialog(stringLiteral: result.narrative ?? result.plainText))
     }

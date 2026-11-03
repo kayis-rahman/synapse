@@ -85,8 +85,8 @@ struct iOSContentView: View {
         .onAppear {
             TimerSyncManager.shared.configure(with: timer)
             lastPhase = timer.phase
-            if UserDefaults.standard.bool(forKey: "synapse.pendingStartFocus") {
-                UserDefaults.standard.removeObject(forKey: "synapse.pendingStartFocus")
+            if UserDefaults.standard.bool(forKey: "wool.pendingStartFocus") {
+                UserDefaults.standard.removeObject(forKey: "wool.pendingStartFocus")
                 startWithPermission()
             }
             // currentTaskId persists in UserDefaults across launches; if the

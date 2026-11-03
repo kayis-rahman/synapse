@@ -1,12 +1,12 @@
 ---
-name: synapse-shared-capture-pipeline
+name: wool-shared-capture-pipeline
 description: >
   Load before changes to Quick Capture, Inbox triage, capture intents, Siri
   capture, or persistence of captured data.
 user-invocable: true
 ---
 
-# synapse-shared-capture-pipeline
+# wool-shared-capture-pipeline
 
 Trigger: load before changes to Quick Capture, Inbox triage, capture intents,
 Siri capture, or persistence of captured data.

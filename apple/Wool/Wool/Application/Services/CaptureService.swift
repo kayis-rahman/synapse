@@ -55,14 +55,14 @@ final class CaptureService {
     private var isTesting: Bool {
         let processInfo = ProcessInfo.processInfo
         return processInfo.arguments.contains("-ui-testing") ||
-            processInfo.environment["SYNAPSE_UI_TESTING"] == "1" ||
+            processInfo.environment["WOOL_UI_TESTING"] == "1" ||
             processInfo.environment["XCTestConfigurationFilePath"] != nil
     }
 
     /// The two-device CloudKit test uses a deterministic payload. This is
     /// intentionally opt-in and never enabled by normal app or UI-test runs.
     private var forcesHeuristicClassification: Bool {
-        ProcessInfo.processInfo.environment["SYNAPSE_CAPTURE_FORCE_HEURISTICS"] == "1"
+        ProcessInfo.processInfo.environment["WOOL_CAPTURE_FORCE_HEURISTICS"] == "1"
     }
 
     private func makeItem(from text: String, status: Status, area: String?, dueDate: Date?) -> TaskItem {

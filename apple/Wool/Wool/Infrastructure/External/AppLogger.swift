@@ -27,7 +27,7 @@ final class AppLogger {
     }
 
     /// Subsystem identifier for Wool
-    private static let subsystem = "com.sparkage.synapse"
+    private static let subsystem = "com.sparkage.wool"
 
     /// Get logger instance for specific category
     private static func logger(for category: Category) -> Logger {

@@ -64,22 +64,22 @@ final class CloudKitCaptureIntegrationTests: XCTestCase {
 
     private func integrationConfiguration(requiring requiredRole: Role) throws -> Configuration {
         let environment = ProcessInfo.processInfo.environment
-        guard environment["SYNAPSE_CLOUDKIT_INTEGRATION"] == "1" else {
+        guard environment["WOOL_CLOUDKIT_INTEGRATION"] == "1" else {
             throw XCTSkip("CloudKit integration is opt-in. Use scripts/run-cloudkit-capture-integration.sh with two dedicated-account devices.")
         }
-        guard environment["SYNAPSE_CLOUDKIT_INTEGRATION_CONFIRM"] == WoolModelContainer.cloudKitIntegrationConfirmation else {
-            XCTFail("CloudKit integration requires SYNAPSE_CLOUDKIT_INTEGRATION_CONFIRM=\(WoolModelContainer.cloudKitIntegrationConfirmation).")
+        guard environment["WOOL_CLOUDKIT_INTEGRATION_CONFIRM"] == WoolModelContainer.cloudKitIntegrationConfirmation else {
+            XCTFail("CloudKit integration requires WOOL_CLOUDKIT_INTEGRATION_CONFIRM=\(WoolModelContainer.cloudKitIntegrationConfirmation).")
             throw XCTSkip("Missing dedicated-account confirmation.")
         }
-        guard environment["SYNAPSE_CAPTURE_FORCE_HEURISTICS"] == "1" else {
+        guard environment["WOOL_CAPTURE_FORCE_HEURISTICS"] == "1" else {
             XCTFail("CloudKit integration requires deterministic heuristic classification.")
             throw XCTSkip("Missing deterministic classification configuration.")
         }
-        guard let role = environment["SYNAPSE_CLOUDKIT_INTEGRATION_ROLE"].flatMap(Role.init(rawValue:)), role == requiredRole else {
+        guard let role = environment["WOOL_CLOUDKIT_INTEGRATION_ROLE"].flatMap(Role.init(rawValue:)), role == requiredRole else {
             throw XCTSkip("This invocation is configured for the other integration-test role.")
         }
-        guard let value = environment["SYNAPSE_CLOUDKIT_INTEGRATION_RUN_ID"], let runID = UUID(uuidString: value) else {
-            XCTFail("Provide SYNAPSE_CLOUDKIT_INTEGRATION_RUN_ID as a UUID.")
+        guard let value = environment["WOOL_CLOUDKIT_INTEGRATION_RUN_ID"], let runID = UUID(uuidString: value) else {
+            XCTFail("Provide WOOL_CLOUDKIT_INTEGRATION_RUN_ID as a UUID.")
             throw XCTSkip("Missing run identifier.")
         }
         return Configuration(role: role, runID: runID)

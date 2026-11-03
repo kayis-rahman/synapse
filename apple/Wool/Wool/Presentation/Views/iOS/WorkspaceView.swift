@@ -200,10 +200,10 @@ private struct HomeView: View {
                             if briefingCacheKey != key {
                                 briefingResult = await DailyBriefingService.shared.makeBriefing(
                                     tasks: tasks,
-                                    isFirstRun: tasks.isEmpty && !UserDefaults.standard.bool(forKey: "synapse.hasGeneratedBriefing")
+                                    isFirstRun: tasks.isEmpty && !UserDefaults.standard.bool(forKey: "wool.hasGeneratedBriefing")
                                 )
                                 briefingCacheKey = key
-                                UserDefaults.standard.set(true, forKey: "synapse.hasGeneratedBriefing")
+                                UserDefaults.standard.set(true, forKey: "wool.hasGeneratedBriefing")
                             }
                             if let briefingResult {
                                 briefingPresentation = DailyBriefingPresentation(result: briefingResult)
@@ -2399,7 +2399,7 @@ private struct CaptureSheet: View {
         _selectedStatus = State(initialValue: defaultStatus)
         let processInfo = ProcessInfo.processInfo
         let testTitle = processInfo.arguments.contains("-ui-testing")
-            ? (processInfo.environment["SYNAPSE_UI_TEST_CAPTURE_TITLE"] ?? "")
+            ? (processInfo.environment["WOOL_UI_TEST_CAPTURE_TITLE"] ?? "")
             : ""
         _title = State(initialValue: testTitle)
     }

@@ -4,14 +4,14 @@ import UserNotifications
 /// Schedules and cancels local notifications for a `TaskItem`'s due date.
 ///
 /// One pending notification per task is tracked with a stable, per-task
-/// identifier (`synapse.task-due.<taskID>`), so many tasks can each have
+/// identifier (`wool.task-due.<taskID>`), so many tasks can each have
 /// their own reminder independently of the single-slot focus-session
 /// notification in `NotificationManager`.
 final class TaskDueNotificationService {
     static let shared = TaskDueNotificationService()
 
     private static func identifier(for taskID: UUID) -> String {
-        "synapse.task-due.\(taskID.uuidString)"
+        "wool.task-due.\(taskID.uuidString)"
     }
 
     /// Schedules (or replaces) a due-date reminder for `task`, or cancels any

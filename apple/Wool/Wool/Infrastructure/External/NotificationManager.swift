@@ -10,7 +10,7 @@ import WatchKit
 #endif
 
 open class NotificationManager {
-    public static let focusCompletionIdentifier = "synapse.focus-session-completion"
+    public static let focusCompletionIdentifier = "wool.focus-session-completion"
     // Allow tests to replace the shared instance
     public static var shared: NotificationManager = NotificationManager()
     public init() {}

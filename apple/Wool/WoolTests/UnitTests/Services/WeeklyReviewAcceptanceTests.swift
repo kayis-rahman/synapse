@@ -225,6 +225,6 @@ final class WeeklyReviewAcceptanceTests: XCTestCase {
     }
 
     func testTC18ReminderUsesWeeklyReviewDeepLink() {
-        XCTAssertEqual(WeeklyReviewReminderService.deepLink.absoluteString, "synapse://weekly-review")
+        XCTAssertEqual(WeeklyReviewReminderService.deepLink.absoluteString, "wool://weekly-review")
     }
 }

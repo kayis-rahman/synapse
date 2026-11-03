@@ -8,8 +8,8 @@ import UserNotifications
 final class InboxAgingReminderService {
     static let shared = InboxAgingReminderService()
 
-    static let notificationIdentifier = "synapse.inbox-aging.reminder"
-    static let deepLink = URL(string: "synapse://inbox")!
+    static let notificationIdentifier = "wool.inbox-aging.reminder"
+    static let deepLink = URL(string: "wool://inbox")!
 
     /// How long an item may sit untriaged in the Inbox before we nudge.
     static let stalenessThreshold: TimeInterval = 24 * 60 * 60

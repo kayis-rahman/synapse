@@ -58,12 +58,12 @@ private struct FeatureFlagCacheEnvelope: Codable {
 final class FeatureFlags {
     static let shared = FeatureFlags()
     static let cacheKey = "features.remoteConfig.v1"
-    static let diagnosticsEnvironmentKey = "SYNAPSE_FEATURE_FLAGS_DEBUG"
+    static let diagnosticsEnvironmentKey = "WOOL_FEATURE_FLAGS_DEBUG"
 
     private let remoteStore: any FeatureFlagsRemoteStore
     private let userDefaults: UserDefaults
     private let now: () -> Date
-    private let logger = Logger(subsystem: "com.sparkage.synapse", category: "FeatureFlags")
+    private let logger = Logger(subsystem: "com.sparkage.wool", category: "FeatureFlags")
 
     private(set) var snapshot: FeatureFlagSnapshot
     private(set) var source: FeatureFlagSource
@@ -75,7 +75,7 @@ final class FeatureFlags {
     var malayalamVoiceEnabled: Bool { snapshot.value(for: .malayalamVoice) }
     var gmailIntegrationEnabled: Bool {
         snapshot.value(for: .gmailIntegration) ||
-            ProcessInfo.processInfo.environment["SYNAPSE_GMAIL_UI_TESTING"] == "1"
+            ProcessInfo.processInfo.environment["WOOL_GMAIL_UI_TESTING"] == "1"
     }
     var githubProjectsIntegrationEnabled: Bool { snapshot.value(for: .githubProjectsIntegration) }
 

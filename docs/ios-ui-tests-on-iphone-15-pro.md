@@ -84,7 +84,7 @@ launches bundle identifier `com.sparkage.synapse.ios` on the iPhone.
 The build output is placed in:
 
 ```text
-/private/tmp/synapse-iphone15pro-derived/Build/Products/Debug-iphoneos/Wool iOS.app
+/private/tmp/wool-iphone15pro-derived/Build/Products/Debug-iphoneos/Wool iOS.app
 ```
 
 If signing or provisioning is requested, accept the Xcode prompts and rerun
@@ -106,7 +106,7 @@ xcodebuild test \
   -project apple/Wool/Wool.xcodeproj \
   -scheme "Wool iOS" \
   -destination "platform=iOS,id=$DEVICE_ID" \
-  -derivedDataPath /private/tmp/synapse-iphone15pro-ui-tests \
+  -derivedDataPath /private/tmp/wool-iphone15pro-ui-tests \
   -only-testing:WoolUITests/WorkspaceUITests \
   -enableCodeCoverage NO \
   -allowProvisioningUpdates
@@ -115,7 +115,7 @@ xcodebuild test \
 The UI test launch configuration adds `-ui-testing`. This bypasses normal
 auth startup and uses a local SwiftData test store with CloudKit
 disabled. Each `XCTestCase` generates its own store id and passes it via
-`SYNAPSE_UI_TEST_STORE_ID` on every launch it performs, so the store is
+`WOOL_UI_TEST_STORE_ID` on every launch it performs, so the store is
 isolated between test methods but stable across a mid-test relaunch (needed by
 tests that verify persistence survives `app.terminate()`/`app.launch()`); a
 process launched without that env var (e.g. manually) falls back to a fresh
@@ -154,7 +154,7 @@ xcodebuild test \
   -project apple/Wool/Wool.xcodeproj \
   -scheme "Wool iOS Unit Tests" \
   -destination "platform=iOS,id=$DEVICE_ID" \
-  -derivedDataPath /private/tmp/synapse-weekly-review-tests \
+  -derivedDataPath /private/tmp/wool-weekly-review-tests \
   -only-testing:WoolTests/WeeklyReviewAcceptanceTests \
   -only-testing:WoolTests/WeeklyReviewPersistenceTests \
   -enableCodeCoverage NO \
@@ -177,7 +177,7 @@ xcodebuild test \
   -project apple/Wool/Wool.xcodeproj \
   -scheme "Wool iOS" \
   -destination "platform=iOS,id=$DEVICE_ID" \
-  -derivedDataPath /private/tmp/synapse-iphone15pro-ui-tests-focused \
+  -derivedDataPath /private/tmp/wool-iphone15pro-ui-tests-focused \
   -only-testing:WoolUITests/WorkspaceUITests/testHomeTaskOpensDetailsAndSaves \
   -enableCodeCoverage NO \
   -allowProvisioningUpdates
@@ -207,7 +207,7 @@ test method you want to run.
 The connected phone reports iOS 27 build `24A5418b`, and the CLI is configured
 for Xcode 27 Beta 6 (`27A5252f`). The capture navigation/detail tests still use
 the explicit
-`SYNAPSE_UI_TEST_CAPTURE_TITLE` fixture set by the test itself. This keeps the
+`WOOL_UI_TEST_CAPTURE_TITLE` fixture set by the test itself. This keeps the
 physical UI test deterministic; capture classification, persistence, and
 editor mutation are verified independently by `CaptureServiceTests` and
 `CaptureIntentBehaviorTests`.
@@ -220,14 +220,14 @@ For the live Siri/Shortcuts and two-device CloudKit checks, follow
 Test results are stored below the derived-data directory, for example:
 
 ```text
-/private/tmp/synapse-iphone15pro-ui-tests/Logs/Test/*.xcresult
+/private/tmp/wool-iphone15pro-ui-tests/Logs/Test/*.xcresult
 ```
 
 Print a concise summary:
 
 ```sh
 xcrun xcresulttool get test-results summary \
-  --path /private/tmp/synapse-iphone15pro-ui-tests/Logs/Test/<result>.xcresult \
+  --path /private/tmp/wool-iphone15pro-ui-tests/Logs/Test/<result>.xcresult \
   --compact
 ```
 
@@ -235,7 +235,7 @@ Print test-level failures:
 
 ```sh
 xcrun xcresulttool get test-results tests \
-  --path /private/tmp/synapse-iphone15pro-ui-tests/Logs/Test/<result>.xcresult \
+  --path /private/tmp/wool-iphone15pro-ui-tests/Logs/Test/<result>.xcresult \
   --compact
 ```
 
@@ -244,8 +244,8 @@ opening Xcode:
 
 ```sh
 xcrun xcresulttool export attachments \
-  --path /private/tmp/synapse-iphone15pro-ui-tests/Logs/Test/<result>.xcresult \
-  --output-path /private/tmp/synapse-iphone15pro-attachments
+  --path /private/tmp/wool-iphone15pro-ui-tests/Logs/Test/<result>.xcresult \
+  --output-path /private/tmp/wool-iphone15pro-attachments
 ```
 
 The test report records the destination. Verify that its device has

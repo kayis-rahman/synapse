@@ -3,8 +3,8 @@ import UserNotifications
 
 final class WeeklyReviewReminderService {
     static let shared = WeeklyReviewReminderService()
-    static let notificationIdentifier = "synapse.weekly-review.reminder"
-    static let deepLink = URL(string: "synapse://weekly-review")!
+    static let notificationIdentifier = "wool.weekly-review.reminder"
+    static let deepLink = URL(string: "wool://weekly-review")!
 
     func schedule(weekday: Int = 2, hour: Int = 9, center: UNUserNotificationCenter = .current()) {
         var date = DateComponents()
