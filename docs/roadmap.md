@@ -6,9 +6,9 @@ real open decision, not a disguised default.
 
 ## Vision reference
 
-Wool is the calm, Apple-native GTD app that plans your week and ties it to a
-Focus timer - on device, with no account, and your data in your iCloud. See
-`docs/vision.md` for the full decision rule for feature requests.
+Wool's one-line promise, principles, non-goals, and the decision rule for
+feature requests are owned by `docs/vision.md`. This roadmap assumes that
+vision and does not widen it.
 
 ## Current baseline
 
