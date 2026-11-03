@@ -2,7 +2,7 @@
 
 Wool uses the iCloud private database for per-user synchronization; release feature flags are stored in the public database. Before submitting v1:
 
-1. Confirm the CloudKit container `iCloud.com.sparkage.synapse` is configured for Production.
+1. Confirm the CloudKit container `iCloud.com.sparkage.wool` is configured for Production.
 2. Promote the Development schema to Production if any schema changes were made during development.
 3. Verify the `FeatureFlagsConfig` record exists in Production with all v1 flags disabled by default:
    - `features.malayalamVoice` = false

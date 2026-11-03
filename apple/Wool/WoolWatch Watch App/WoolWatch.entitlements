@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
-		<string>iCloud.com.sparkage.synapse</string>
+		<string>iCloud.com.sparkage.wool</string>
 	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>

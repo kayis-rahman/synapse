@@ -79,7 +79,7 @@ the device is locked or CoreDevice cannot be reached, fix that connection first
 and rerun the script.
 
 The script builds the `Wool iOS` scheme, installs the resulting app, and
-launches bundle identifier `com.sparkage.synapse.ios` on the iPhone.
+launches bundle identifier `com.sparkage.wool.ios` on the iPhone.
 
 The build output is placed in:
 
@@ -345,7 +345,7 @@ run; long UI tests can fail if the device auto-locks. The corresponding
 `devicectl` error is:
 
 ```text
-Unable to launch com.sparkage.synapse.ios because the device was not, or could not, be unlocked.
+Unable to launch com.sparkage.wool.ios because the device was not, or could not, be unlocked.
 ```
 
 Installation may succeed while launch and XCTest execution are still denied;

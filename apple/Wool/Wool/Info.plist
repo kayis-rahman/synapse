@@ -23,7 +23,7 @@
 		<string>remote-notification</string>
 	</array>
 	<key>GMAIL_OAUTH_REDIRECT_URI</key>
-	<string>com.sparkage.synapse.gmail:/oauth2redirect</string>
+	<string>com.sparkage.wool.gmail:/oauth2redirect</string>
 	<key>GMAIL_OAUTH_CLIENT_ID</key>
 	<string></string>
 	<key>CFBundleURLTypes</key>
@@ -33,7 +33,7 @@
 			<string>Viewer</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.sparkage.synapse.gmail</string>
+				<string>com.sparkage.wool.gmail</string>
 			</array>
 		</dict>
 	</array>

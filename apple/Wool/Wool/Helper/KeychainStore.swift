@@ -36,7 +36,7 @@ struct KeychainStore {
 
         // Add shared access group for cross-platform token sharing
         #if os(iOS) || os(macOS)
-        attributes[kSecAttrAccessGroup as String] = "425MSY8FLG.com.sparkage.synapse"
+        attributes[kSecAttrAccessGroup as String] = "425MSY8FLG.com.sparkage.wool"
         #endif
 
         let status = SecItemAdd(attributes as CFDictionary, nil)
@@ -56,7 +56,7 @@ struct KeychainStore {
 
         // Add shared access group for cross-platform token sharing
         #if os(iOS) || os(macOS)
-        query[kSecAttrAccessGroup as String] = "425MSY8FLG.com.sparkage.synapse"
+        query[kSecAttrAccessGroup as String] = "425MSY8FLG.com.sparkage.wool"
         #endif
 
         var out: AnyObject?
@@ -79,7 +79,7 @@ struct KeychainStore {
 
         // Add shared access group for cross-platform token sharing
         #if os(iOS) || os(macOS)
-        query[kSecAttrAccessGroup as String] = "425MSY8FLG.com.sparkage.synapse"
+        query[kSecAttrAccessGroup as String] = "425MSY8FLG.com.sparkage.wool"
         #endif
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {

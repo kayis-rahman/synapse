@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT="apple/Wool/Wool.xcodeproj"
 SCHEME="Wool iOS"
-APP_BUNDLE_ID="com.sparkage.synapse.ios"
+APP_BUNDLE_ID="com.sparkage.wool.ios"
 BUILD_DERIVED_DATA="/private/tmp/wool-iphone15pro-derived"
 TEST_DERIVED_DATA="/private/tmp/wool-iphone15pro-ui-tests"
 SCRIPT_NAME="${0:t}"

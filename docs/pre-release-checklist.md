@@ -21,7 +21,7 @@ process lives in `docs/RELEASING.md`.
 ## SwiftData and CloudKit
 
 - [ ] Existing schema version remains in use when the model does not change.
-- [ ] CloudKit container `iCloud.com.sparkage.synapse` is verified.
+- [ ] CloudKit container `iCloud.com.sparkage.wool` is verified.
 - [ ] New installs and existing stores launch and persist offline.
 - [ ] CloudKit sync is verified after reconnect and across devices.
 

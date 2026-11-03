@@ -8,23 +8,31 @@ private CloudKit database when available.
 
 - App version: `1.0.0`
 - Build: `1`
-- CloudKit container: `iCloud.com.sparkage.synapse`
+- CloudKit container: `iCloud.com.sparkage.wool`
 - SwiftData schema: `1` (`WoolSchemaV1`)
 - Feature flags default to disabled: Malayalam voice, Gmail integration, GitHub
   Projects integration
 
 ## Permanent identifiers
 
-The following identifiers intentionally retain their `Synapse`/`synapse` naming
-because they are permanent once published or registered externally; do not
-rename them:
+These identifiers are registered in the Apple Developer portal and cannot be
+renamed once published; do not change them without a migration:
 
-- iOS app bundle identifier: `com.sparkage.synapse.ios`
-- macOS/watchOS/live-activity/test bundle identifiers under `com.sparkage.synapse...`
-- CloudKit container: `iCloud.com.sparkage.synapse`
-- App/keychain access group: `425MSY8FLG.com.sparkage.synapse`
-- Gmail OAuth callback scheme: `com.sparkage.synapse.gmail`
-- Source repository and issue tracker: `github.com/kayis-rahman/synapse`
+- iOS app bundle identifier: `com.sparkage.wool.ios`
+- macOS/watchOS/live-activity bundle identifiers under `com.sparkage.wool...`
+- Test bundle identifiers: `com.sparkage.woolTests`, `com.sparkage.woolUITests`,
+  and the watch test bundles under `com.sparkage.wool.watchkitapp...`
+- CloudKit container: `iCloud.com.sparkage.wool`
+- App/keychain access group: `425MSY8FLG.com.sparkage.wool`
+- Gmail OAuth callback scheme: `com.sparkage.wool.gmail`
+
+The OS logger subsystem (`com.sparkage.wool`), the Keychain service name
+(`com.wool.keychain`), and the local `wool.*` UserDefaults and `WOOL_*`
+environment keys follow the same naming.
+
+The source repository and issue tracker still live at
+`github.com/kayis-rahman/synapse`; renaming the repository is outside this
+migration.
 
 ## Build and test
 

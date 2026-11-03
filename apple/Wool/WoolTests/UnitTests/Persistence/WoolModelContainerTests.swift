@@ -7,7 +7,7 @@ final class WoolModelContainerTests: XCTestCase {
         let configuration = WoolModelContainer.configuration(isTesting: false)
 
         XCTAssertFalse(configuration.isStoredInMemoryOnly)
-        XCTAssertEqual(configuration.cloudKitContainerIdentifier, "iCloud.com.sparkage.synapse")
+        XCTAssertEqual(configuration.cloudKitContainerIdentifier, "iCloud.com.sparkage.wool")
     }
 
     func testTestingConfigurationUsesAnIsolatedLocalStoreWithoutCloudKit() {
