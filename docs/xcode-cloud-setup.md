@@ -22,8 +22,8 @@ need steps before/after the build (e.g. notarization, notifications).
    **"iOS Unit Tests"**
    - Scheme: `Wool iOS Unit Tests`
    - Start condition: branch changes on `main` and `develop`
-   - Action: Test (iOS Simulator only — physical-device UI tests are
-     excluded, see note below)
+   - Action: Test (iOS Simulator only — UI tests run locally on a
+     simulator, see note below)
    - Post-action: none required; Xcode Cloud reports pass/fail on the PR
      automatically if you enable "Xcode Cloud" as a required check in
      GitHub branch protection.
