@@ -125,9 +125,9 @@ boundary.
 
 | Pivot | Trigger signal |
 | --- | --- |
-| Paid one-time Apple purchase | TestFlight willingness-to-pay data plus sustainable support cost |
-| Free core plus optional Pro subscription | Demand for Gmail, GitHub, and non-English voice plus clear recurring cost for sync and integrations; avoid paywalling basics |
-| Android client | Validated waitlist or feature-request threshold plus captain commitment; blockers are CloudKit sync and AI parity; heuristic triage only on Android at first |
+| Paid one-time Apple purchase | TestFlight willingness-to-pay data |
+| Free core plus optional Pro subscription | Demand for Gmail, GitHub, and non-English voice; avoid paywalling basics |
+| Android client | Validated waitlist or feature-request threshold; blockers are CloudKit sync and AI parity; heuristic triage only on Android at first |
 | Privacy-first daily planner with auto-scheduling | Evidence users want auto-scheduling and calendaring; otherwise reject |
 | API and public export | Power-user demand after core stability |
 
@@ -166,12 +166,10 @@ No pivot ships without its trigger evidence and an explicit decision.
 ### Product identity and ASO
 
 - Store title: "Wool - GTD Task Manager".
-- Subtitle: "Weekly Review & Focus Timer".
-- Keyword field (100 characters max, comma, no spaces):
-  "gtd,pomodoro,triage,waitingfor,inbox,review,focus,deepwork,icloud,private,productivity,planner,watch"
-- The name Wool alone collides with games in search. Use the qualified title
-  and long-tail queries such as "gtd todo app for iphone" and "weekly review
-  template app".
+- The name Wool alone collides with games in search, so use the qualified
+  title and long-tail queries such as "gtd todo app for iphone" and "weekly
+  review template app".
+- Subtitle and keyword field are undecided; see Undecided below.
 
 ### Pricing
 
@@ -209,3 +207,4 @@ No pivot ships without its trigger evidence and an explicit decision.
   validated.
 - Exact scope of macOS and Watch companion features.
 - Exact boundary of any future paid tier.
+- App Store subtitle and keyword field.
