@@ -1,12 +1,12 @@
 ---
-name: synapse-ios-device-test-flow
+name: wool-ios-device-test-flow
 description: >
   Load immediately before any iOS build, install, launch, simulator/device
   decision, or physical-device UI test run.
 user-invocable: true
 ---
 
-# synapse-ios-device-test-flow
+# wool-ios-device-test-flow
 
 Trigger: load immediately before any iOS build, install, launch,
 simulator/device decision, or physical-device UI test run.

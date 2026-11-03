@@ -83,7 +83,7 @@ struct WoolApp: App {
             timer.restorePersistedState()
         }
         if processInfo.arguments.contains("-ui-testing") ||
-            processInfo.environment["SYNAPSE_UI_TESTING"] == "1" {
+            processInfo.environment["WOOL_UI_TESTING"] == "1" {
             try? WorkspaceUITestData.seedProjectsAndAreasIfRequested(
                 in: ModelContext(WoolModelContainer.shared)
             )

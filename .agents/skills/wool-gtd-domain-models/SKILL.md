@@ -1,12 +1,12 @@
 ---
-name: synapse-gtd-domain-models
+name: wool-gtd-domain-models
 description: >
   Load before adding or changing Wool persisted models, SwiftData schema,
   relationships, model invariants, or schema migration.
 user-invocable: true
 ---
 
-# synapse-gtd-domain-models
+# wool-gtd-domain-models
 
 Trigger: load before adding or changing Wool persisted models, SwiftData schema,
 relationships, model invariants, or schema migration.

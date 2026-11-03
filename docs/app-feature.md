@@ -133,7 +133,7 @@ duplicate reviews in one week counted once.
 
 The Review screen also shows completion counts, Waiting For count, streak,
 project health, and an optional on-device reflection prompt. A weekly local
-notification opens the `synapse://weekly-review` destination. The Start weekly
+notification opens the `wool://weekly-review` destination. The Start weekly
 review App Intent creates or resumes the same persisted flow.
 
 ## Focus and Work Sessions

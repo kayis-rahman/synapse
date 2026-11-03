@@ -15,10 +15,10 @@ final class FeatureFlagsUITests: XCTestCase {
         app.launchArguments = ["-ui-testing"]
         app.launchEnvironment = debugDiagnostics
             ? [
-                "SYNAPSE_UI_TESTING": "1",
-                "SYNAPSE_FEATURE_FLAGS_DEBUG": "1"
+                "WOOL_UI_TESTING": "1",
+                "WOOL_FEATURE_FLAGS_DEBUG": "1"
             ]
-            : ["SYNAPSE_UI_TESTING": "1"]
+            : ["WOOL_UI_TESTING": "1"]
         app.launch()
         XCTAssertTrue(app.buttons["home-capture-ui-testing"].waitForExistence(timeout: 15))
     }

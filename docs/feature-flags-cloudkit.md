@@ -39,7 +39,7 @@ Before promotion, verify that the record can be read from a signed-in test
 device. The opt-in integration test is:
 
 ```sh
-SYNAPSE_CLOUDKIT_FEATURE_FLAGS_INTEGRATION=1 \
+WOOL_CLOUDKIT_FEATURE_FLAGS_INTEGRATION=1 \
 xcodebuild test \
   -project apple/Wool/Wool.xcodeproj \
   -scheme "Wool iOS Unit Tests" \

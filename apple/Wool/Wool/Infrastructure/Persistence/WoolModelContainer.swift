@@ -4,14 +4,14 @@ import SwiftData
 enum WoolModelContainer {
     static let cloudKitContainerIdentifier = "iCloud.com.sparkage.synapse"
     static let cloudKitIntegrationConfirmation = "DEDICATED_TEST_APPLE_ACCOUNT"
-    static let appSetupCompletedKey = "synapse.appSetupCompleted"
-    static let pendingDestinationKey = "synapse.pendingDestination"
+    static let appSetupCompletedKey = "wool.appSetupCompleted"
+    static let pendingDestinationKey = "wool.pendingDestination"
 
     static let schema = Schema(versionedSchema: WoolSchemaV1.self)
 
     /// A unique local store keeps each UI-test run isolated from CloudKit and
     /// from the user's production database. Tests that relaunch the app mid-test
-    /// to verify persistence pass a stable `SYNAPSE_UI_TEST_STORE_ID` so every
+    /// to verify persistence pass a stable `WOOL_UI_TEST_STORE_ID` so every
     /// relaunch in that test reopens the same file. Tests that don't set it still
     /// need a store stable for the lifetime of this process (e.g. repeated
     /// `makeIntentContainer()` calls simulating separate App Intent processes
@@ -20,7 +20,7 @@ enum WoolModelContainer {
     private static let fallbackUITestStoreIdentifier = UUID().uuidString
 
     static var uiTestStoreURL: URL {
-        let identifier = ProcessInfo.processInfo.environment["SYNAPSE_UI_TEST_STORE_ID"] ?? fallbackUITestStoreIdentifier
+        let identifier = ProcessInfo.processInfo.environment["WOOL_UI_TEST_STORE_ID"] ?? fallbackUITestStoreIdentifier
         return FileManager.default.temporaryDirectory
             .appending(path: "WoolUITests-\(identifier).sqlite")
     }
@@ -61,7 +61,7 @@ enum WoolModelContainer {
 
         let processInfo = ProcessInfo.processInfo
         return processInfo.arguments.contains("-ui-testing") ||
-            processInfo.environment["SYNAPSE_UI_TESTING"] == "1" ||
+            processInfo.environment["WOOL_UI_TESTING"] == "1" ||
             processInfo.environment["XCTestConfigurationFilePath"] != nil
     }
 
@@ -70,8 +70,8 @@ enum WoolModelContainer {
     /// after an explicit acknowledgement that it uses a dedicated test account.
     static var isCloudKitIntegrationProcess: Bool {
         let environment = ProcessInfo.processInfo.environment
-        return environment["SYNAPSE_CLOUDKIT_INTEGRATION"] == "1" &&
-            environment["SYNAPSE_CLOUDKIT_INTEGRATION_CONFIRM"] == cloudKitIntegrationConfirmation
+        return environment["WOOL_CLOUDKIT_INTEGRATION"] == "1" &&
+            environment["WOOL_CLOUDKIT_INTEGRATION_CONFIRM"] == cloudKitIntegrationConfirmation
     }
 
     /// App Intents can run before the app has ever opened. Keep that

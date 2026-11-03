@@ -12,8 +12,8 @@ final class WorkspaceUITests: XCTestCase {
         app = XCUIApplication()
         app.launchArguments = ["-ui-testing", "-focus-test-reset"]
         app.launchEnvironment = [
-            "SYNAPSE_UI_TESTING": "1",
-            "SYNAPSE_UI_TEST_STORE_ID": uiTestStoreID
+            "WOOL_UI_TESTING": "1",
+            "WOOL_UI_TEST_STORE_ID": uiTestStoreID
         ]
         app.terminate()
         app.launch()
@@ -253,9 +253,9 @@ final class WorkspaceUITests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-ui-testing", "-focus-test-reset"]
         app.launchEnvironment = [
-            "SYNAPSE_UI_TESTING": "1",
-            "SYNAPSE_UI_TEST_STORE_ID": uiTestStoreID,
-            "SYNAPSE_UI_TEST_CAPTURE_TITLE": title
+            "WOOL_UI_TESTING": "1",
+            "WOOL_UI_TEST_STORE_ID": uiTestStoreID,
+            "WOOL_UI_TEST_CAPTURE_TITLE": title
         ]
         app.launch()
         XCTAssertTrue(app.buttons["home-capture-ui-testing"].waitForExistence(timeout: 15))
@@ -374,9 +374,9 @@ final class WorkspaceUITests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-ui-testing", "-focus-test-reset"]
         app.launchEnvironment = [
-            "SYNAPSE_UI_TESTING": "1",
-            "SYNAPSE_UI_TEST_STORE_ID": uiTestStoreID,
-            "SYNAPSE_UI_TEST_CAPTURE_TITLE": prefilledCaptureTitle
+            "WOOL_UI_TESTING": "1",
+            "WOOL_UI_TEST_STORE_ID": uiTestStoreID,
+            "WOOL_UI_TEST_CAPTURE_TITLE": prefilledCaptureTitle
         ]
         app.launch()
         XCTAssertTrue(app.buttons["home-capture-ui-testing"].waitForExistence(timeout: 15))
@@ -386,9 +386,9 @@ final class WorkspaceUITests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-ui-testing", "-focus-test-reset"]
         app.launchEnvironment = [
-            "SYNAPSE_UI_TESTING": "1",
-            "SYNAPSE_UI_TEST_STORE_ID": uiTestStoreID,
-            "SYNAPSE_UI_TEST_VOICE_TRANSCRIPT": transcript
+            "WOOL_UI_TESTING": "1",
+            "WOOL_UI_TEST_STORE_ID": uiTestStoreID,
+            "WOOL_UI_TEST_VOICE_TRANSCRIPT": transcript
         ]
         app.launch()
         XCTAssertTrue(app.buttons["home-capture-ui-testing"].waitForExistence(timeout: 15))
@@ -398,9 +398,9 @@ final class WorkspaceUITests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-ui-testing", "-focus-test-reset"]
         app.launchEnvironment = [
-            "SYNAPSE_UI_TESTING": "1",
-            "SYNAPSE_UI_TEST_STORE_ID": uiTestStoreID,
-            "SYNAPSE_UI_TEST_SEED_PROJECTS_AREAS": "1"
+            "WOOL_UI_TESTING": "1",
+            "WOOL_UI_TEST_STORE_ID": uiTestStoreID,
+            "WOOL_UI_TEST_SEED_PROJECTS_AREAS": "1"
         ]
         app.launch()
         XCTAssertTrue(app.buttons["home-capture-ui-testing"].waitForExistence(timeout: 15))
@@ -410,9 +410,9 @@ final class WorkspaceUITests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-ui-testing", "-focus-test-reset"]
         app.launchEnvironment = [
-            "SYNAPSE_UI_TESTING": "1",
-            "SYNAPSE_UI_TEST_STORE_ID": uiTestStoreID,
-            "SYNAPSE_UI_TEST_SEED_WEEKLY_REVIEW_STALE": "1"
+            "WOOL_UI_TESTING": "1",
+            "WOOL_UI_TEST_STORE_ID": uiTestStoreID,
+            "WOOL_UI_TEST_SEED_WEEKLY_REVIEW_STALE": "1"
         ]
         app.launch()
         XCTAssertTrue(app.buttons["home-capture-ui-testing"].waitForExistence(timeout: 15))
@@ -422,13 +422,13 @@ final class WorkspaceUITests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-ui-testing", "-focus-test-reset"]
         var environment = [
-            "SYNAPSE_UI_TESTING": "1",
-            "SYNAPSE_UI_TEST_STORE_ID": uiTestStoreID,
-            "SYNAPSE_UI_TEST_SEED_DAILY_BRIEFING": "1",
-            "SYNAPSE_UI_TEST_DISABLE_AI": "1"
+            "WOOL_UI_TESTING": "1",
+            "WOOL_UI_TEST_STORE_ID": uiTestStoreID,
+            "WOOL_UI_TEST_SEED_DAILY_BRIEFING": "1",
+            "WOOL_UI_TEST_DISABLE_AI": "1"
         ]
         if waitingOnly {
-            environment["SYNAPSE_UI_TEST_DAILY_BRIEFING_WAITING_ONLY"] = "1"
+            environment["WOOL_UI_TEST_DAILY_BRIEFING_WAITING_ONLY"] = "1"
         }
         app.launchEnvironment = environment
         app.launch()
@@ -439,11 +439,11 @@ final class WorkspaceUITests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-ui-testing", "-focus-test-reset"]
         app.launchEnvironment = [
-            "SYNAPSE_UI_TESTING": "1",
-            "SYNAPSE_UI_TEST_STORE_ID": uiTestStoreID,
-            "SYNAPSE_UI_TEST_SEED_DAILY_BRIEFING": "1",
-            "SYNAPSE_UI_TEST_SEED_DAILY_BRIEFING_CALENDAR": "1",
-            "SYNAPSE_UI_TEST_DISABLE_AI": "1"
+            "WOOL_UI_TESTING": "1",
+            "WOOL_UI_TEST_STORE_ID": uiTestStoreID,
+            "WOOL_UI_TEST_SEED_DAILY_BRIEFING": "1",
+            "WOOL_UI_TEST_SEED_DAILY_BRIEFING_CALENDAR": "1",
+            "WOOL_UI_TEST_DISABLE_AI": "1"
         ]
         app.launch()
         XCTAssertTrue(app.buttons["home-capture-ui-testing"].waitForExistence(timeout: 15))
@@ -599,8 +599,8 @@ final class WorkspaceUITests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-ui-testing", "-focus-test-reset"]
         app.launchEnvironment = [
-            "SYNAPSE_UI_TESTING": "1",
-            "SYNAPSE_UI_TEST_STORE_ID": uiTestStoreID
+            "WOOL_UI_TESTING": "1",
+            "WOOL_UI_TEST_STORE_ID": uiTestStoreID
         ]
         app.launch()
         XCTAssertTrue(app.buttons["home-capture-ui-testing"].waitForExistence(timeout: 15))

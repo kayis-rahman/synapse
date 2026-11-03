@@ -16,7 +16,7 @@ need steps before/after the build (e.g. notarization, notifications).
 1. Open `apple/Wool/Wool.xcodeproj` in Xcode.
 2. Product → Xcode Cloud → Create Workflow. Sign in with the Apple ID that
    has App Store Connect access, select the team, and let Xcode create the
-   `SYNAPSE_...` Xcode Cloud App Store Connect API integration.
+   `WOOL_...` Xcode Cloud App Store Connect API integration.
 3. Create these workflows:
 
    **"iOS Unit Tests"**

@@ -4,7 +4,7 @@ set -euo pipefail
 PROJECT="apple/Wool/Wool.xcodeproj"
 SCHEME="Wool iOS"
 DEVICE_NAME="iPhone 17 Pro"
-DERIVED_DATA="/private/tmp/synapse-simulator-ui-tests"
+DERIVED_DATA="/private/tmp/wool-simulator-ui-tests"
 
 usage() {
     print "Usage: ./scripts/run-on-simulator.sh [TEST_IDENTIFIER...]"

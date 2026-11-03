@@ -63,4 +63,4 @@ documented rather than making nondeterministic tests.
   `CapturePersistenceService`; leave persistence explicit in callers and tests;
   use UUID markers in persisted test data.
 - Physical-device recipes: keep the non-negotiable rule above; exact commands
-  and flags live in the `synapse-ios-device-test-flow` skill and script help.
+  and flags live in the `wool-ios-device-test-flow` skill and script help.

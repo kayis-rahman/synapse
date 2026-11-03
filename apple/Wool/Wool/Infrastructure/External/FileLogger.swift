@@ -6,7 +6,7 @@ import os.log
 /// Replaces log file on each app launch for clean debugging sessions
 
 final class FileLogger {
-    private static let logger = os.Logger(subsystem: "com.sparkage.synapse", category: "filelogger")
+    private static let logger = os.Logger(subsystem: "com.sparkage.wool", category: "filelogger")
     
     /// Log file URL for current platform
     private static var logFileURL: URL {
@@ -42,7 +42,7 @@ final class FileLogger {
             platform = "unknown"
             #endif
             
-            return logsPath.appendingPathComponent("synapse_\(platform.lowercased()).log")
+            return logsPath.appendingPathComponent("wool_\(platform.lowercased()).log")
         }
     }
     

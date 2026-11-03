@@ -259,10 +259,10 @@ final class DailyBriefingService {
 
     static var defaultCalendarProvider: any DailyBriefingCalendarProvider {
         #if canImport(EventKit)
-        if ProcessInfo.processInfo.environment["SYNAPSE_UI_TEST_SEED_DAILY_BRIEFING_CALENDAR"] == "1" {
+        if ProcessInfo.processInfo.environment["WOOL_UI_TEST_SEED_DAILY_BRIEFING_CALENDAR"] == "1" {
             return DailyBriefingUITestCalendarProvider()
         }
-        if ProcessInfo.processInfo.environment["SYNAPSE_UI_TESTING"] == "1" {
+        if ProcessInfo.processInfo.environment["WOOL_UI_TESTING"] == "1" {
             return EmptyDailyBriefingCalendarProvider()
         }
         return EventKitDailyBriefingCalendarProvider()

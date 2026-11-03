@@ -9,7 +9,7 @@ final class iOSTimerUITests: XCTestCase {
 
         app = XCUIApplication()
         app.launchArguments = ["-ui-testing", "-focus-test-reset"]
-        app.launchEnvironment = ["SYNAPSE_UI_TESTING": "1"]
+        app.launchEnvironment = ["WOOL_UI_TESTING": "1"]
 
         addUIInterruptionMonitor(withDescription: "System notification permission") { alert in
             let allow = alert.buttons["Allow"]

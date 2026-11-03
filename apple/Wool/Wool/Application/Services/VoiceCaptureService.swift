@@ -84,7 +84,7 @@ final class VoiceCaptureService {
         malayalamBackend: (any VoiceCaptureBackend)? = nil,
         noSpeechTimeoutNanoseconds: UInt64 = 5_000_000_000
     ) {
-        let testTranscript = ProcessInfo.processInfo.environment["SYNAPSE_UI_TEST_VOICE_TRANSCRIPT"]
+        let testTranscript = ProcessInfo.processInfo.environment["WOOL_UI_TEST_VOICE_TRANSCRIPT"]
         self.englishBackend = englishBackend ?? (testTranscript.map { UITestVoiceCaptureBackend(transcript: $0) } ?? NativeEnglishVoiceCaptureBackend())
         self.malayalamBackend = malayalamBackend ?? UnavailableMalayalamVoiceCaptureBackend()
         self.noSpeechTimeoutNanoseconds = noSpeechTimeoutNanoseconds

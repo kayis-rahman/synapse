@@ -7,7 +7,7 @@ enum WorkspaceUITestData {
     static func seedProjectsAndAreasIfRequested(in context: ModelContext) throws {
         let environment = ProcessInfo.processInfo.environment
         guard WoolModelContainer.isTestingProcess,
-              environment["SYNAPSE_UI_TEST_SEED_PROJECTS_AREAS"] == "1"
+              environment["WOOL_UI_TEST_SEED_PROJECTS_AREAS"] == "1"
         else { return }
 
         let projectTitle = "UI Test Project"
@@ -51,7 +51,7 @@ enum WorkspaceUITestData {
     static func seedWeeklyReviewStaleItemIfRequested(in context: ModelContext) throws {
         let environment = ProcessInfo.processInfo.environment
         guard WoolModelContainer.isTestingProcess,
-              environment["SYNAPSE_UI_TEST_SEED_WEEKLY_REVIEW_STALE"] == "1"
+              environment["WOOL_UI_TEST_SEED_WEEKLY_REVIEW_STALE"] == "1"
         else { return }
 
         let title = "UI Test Stale Review Item"
@@ -69,10 +69,10 @@ enum WorkspaceUITestData {
     static func seedDailyBriefingIfRequested(in context: ModelContext) throws {
         let environment = ProcessInfo.processInfo.environment
         guard WoolModelContainer.isTestingProcess,
-              environment["SYNAPSE_UI_TEST_SEED_DAILY_BRIEFING"] == "1"
+              environment["WOOL_UI_TEST_SEED_DAILY_BRIEFING"] == "1"
         else { return }
 
-        let waitingOnly = environment["SYNAPSE_UI_TEST_DAILY_BRIEFING_WAITING_ONLY"] == "1"
+        let waitingOnly = environment["WOOL_UI_TEST_DAILY_BRIEFING_WAITING_ONLY"] == "1"
         let titles = waitingOnly
             ? ["UI Test Briefing Waiting"]
             : ["UI Test Briefing Due Today", "UI Test Briefing Up Next", "UI Test Briefing Overdue Waiting"]
@@ -101,7 +101,7 @@ enum WorkspaceUITestData {
     static func seedGmailIfRequested(in context: ModelContext) throws {
         let environment = ProcessInfo.processInfo.environment
         guard WoolModelContainer.isTestingProcess,
-              environment["SYNAPSE_GMAIL_UI_TESTING"] == "1"
+              environment["WOOL_GMAIL_UI_TESTING"] == "1"
         else { return }
 
         let email = "ui-fixture@gmail.com"

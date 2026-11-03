@@ -9,7 +9,7 @@ import XCTest
 final class FeatureFlagsCloudKitIntegrationTests: XCTestCase {
     func testProductionFeatureFlagRecordIsReadable() async throws {
         try XCTSkipUnless(
-            ProcessInfo.processInfo.environment["SYNAPSE_CLOUDKIT_FEATURE_FLAGS_INTEGRATION"] == "1",
+            ProcessInfo.processInfo.environment["WOOL_CLOUDKIT_FEATURE_FLAGS_INTEGRATION"] == "1",
             "CloudKit feature-flag integration is opt-in."
         )
 

@@ -51,7 +51,7 @@ final class OnDeviceIntelligenceService {
 
     func briefingNarrative(for sections: DailyBriefingSections) async -> String? {
         guard !sections.isFirstRun, sections.hasWork else { return nil }
-        if ProcessInfo.processInfo.environment["SYNAPSE_UI_TEST_DISABLE_AI"] == "1" { return nil }
+        if ProcessInfo.processInfo.environment["WOOL_UI_TEST_DISABLE_AI"] == "1" { return nil }
         let input = """
         Due today: \(sections.dueToday.map(\.title).joined(separator: ", "))
         Overdue: \(sections.overdue.map(\.title).joined(separator: ", "))

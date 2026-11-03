@@ -30,7 +30,7 @@ final class NotificationSchedulingTests: XCTestCase {
         XCTAssertEqual(center.addedRequests.count, 1)
         XCTAssertEqual(center.addedRequests.first?.identifier, InboxAgingReminderService.notificationIdentifier)
         XCTAssertEqual(center.addedRequests.first?.content.title, "Inbox Needs Attention")
-        XCTAssertEqual(center.addedRequests.first?.content.userInfo["deepLink"] as? String, "synapse://inbox")
+        XCTAssertEqual(center.addedRequests.first?.content.userInfo["deepLink"] as? String, "wool://inbox")
     }
 
     func testInboxAgingCancelsWhenNothingIsStale() {

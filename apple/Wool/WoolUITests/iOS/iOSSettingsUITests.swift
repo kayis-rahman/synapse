@@ -7,7 +7,7 @@ final class iOSSettingsUITests: XCTestCase {
         continueAfterFailure = false
         app = XCUIApplication()
         app.launchArguments = ["-ui-testing"]
-        app.launchEnvironment = ["SYNAPSE_UI_TESTING": "1"]
+        app.launchEnvironment = ["WOOL_UI_TESTING": "1"]
         app.launch()
         XCTAssertTrue(app.buttons["home-capture-ui-testing"].waitForExistence(timeout: 15))
     }
