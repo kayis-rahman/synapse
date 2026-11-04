@@ -20,7 +20,7 @@ open class NotificationManager {
 
     open func requestPermission(completion: ((Bool) -> Void)? = nil) {
         #if os(iOS) || os(macOS)
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, _ in
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             completion?(granted)
         }
         #else

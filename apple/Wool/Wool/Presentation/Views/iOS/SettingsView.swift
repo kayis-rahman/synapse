@@ -110,8 +110,10 @@ struct NotificationsSettingsView: View {
                         notificationsEnabled = newValue
                         if newValue {
                             NotificationManager.shared.requestPermission()
+                            DailyBriefingReminderService.shared.schedule()
                             if weeklyReviewReminderEnabled { WeeklyReviewReminderService.shared.schedule() }
                         } else {
+                            DailyBriefingReminderService.shared.cancel()
                             WeeklyReviewReminderService.shared.cancel()
                             NotificationManager.shared.cancelSessionDoneNotification()
                         }

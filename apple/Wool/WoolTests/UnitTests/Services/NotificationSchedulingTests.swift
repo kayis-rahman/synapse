@@ -66,6 +66,39 @@ final class NotificationSchedulingTests: XCTestCase {
         XCTAssertTrue(center.addedRequests.isEmpty)
         XCTAssertEqual(center.removedIdentifiers.count, 1)
     }
+
+    func testWeeklyReviewReminderSchedulesOneRequest() {
+        WeeklyReviewReminderService.shared.schedule(center: center)
+
+        XCTAssertEqual(center.addedRequests.count, 1)
+        XCTAssertEqual(center.addedRequests.first?.identifier, WeeklyReviewReminderService.notificationIdentifier)
+        XCTAssertFalse(center.addedRequests.first?.trigger is UNTimeIntervalNotificationTrigger)
+    }
+
+    func testWeeklyReviewReminderReplacesInsteadOfDuplicates() {
+        WeeklyReviewReminderService.shared.schedule(center: center)
+        WeeklyReviewReminderService.shared.schedule(center: center)
+
+        XCTAssertEqual(center.addedRequests.count, 2)
+        XCTAssertEqual(center.removedIdentifiers.filter { $0 == WeeklyReviewReminderService.notificationIdentifier }.count, 2)
+    }
+
+    func testWeeklyReviewReminderCancels() {
+        WeeklyReviewReminderService.shared.cancel(center: center)
+
+        XCTAssertEqual(center.removedIdentifiers, [WeeklyReviewReminderService.notificationIdentifier])
+    }
+
+    func testDailyBriefingReminderSchedulesAndCancels() {
+        DailyBriefingReminderService.shared.schedule(center: center)
+
+        XCTAssertEqual(center.addedRequests.count, 1)
+        XCTAssertEqual(center.addedRequests.first?.identifier, DailyBriefingReminderService.notificationIdentifier)
+
+        DailyBriefingReminderService.shared.cancel(center: center)
+        XCTAssertEqual(center.removedIdentifiers.last, DailyBriefingReminderService.notificationIdentifier)
+    }
+
 }
 
 private final class RecordingNotificationCenter: LocalNotificationCenter {
