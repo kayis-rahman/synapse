@@ -46,9 +46,13 @@ struct WorkspaceView: View {
         }
         .tint(Color.themePrimary)
         .onOpenURL { url in
-            if url.host == "weekly-review" { selectedTab = 3 }
-            else if url.host == "daily-briefing" { selectedTab = 0 }
-            else if url.host == "inbox" { selectedTab = 1 }
+            if url.host == "weekly-review" {
+                selectedTab = 3
+            } else if url.host == "daily-briefing" {
+                selectedTab = 0
+            } else if url.host == "inbox" {
+                selectedTab = 1
+            }
         }
         .onAppear {
             let destination = UserDefaults.standard.string(forKey: WoolModelContainer.pendingDestinationKey)
