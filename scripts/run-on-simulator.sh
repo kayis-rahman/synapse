@@ -19,7 +19,7 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
 fi
 
 TEST_IDENTIFIERS=("${@:-WoolUITests/WorkspaceUITests}")
-DEVICE_ID="$(xcrun simctl list devices available | awk -v name="$DEVICE_NAME" '$0 ~ name { match($0, /[A-F0-9-]{36}/); if (RSTART) { print substr($0, RSTART, RLENGTH); exit } }')"
+DEVICE_ID="$(xcrun simctl list devices available | awk -v name="$DEVICE_NAME" 'index($0, name " (") { match($0, /[A-F0-9-]{36}/); if (RSTART) { print substr($0, RSTART, RLENGTH); exit } }')"
 
 if [[ -z "$DEVICE_ID" ]]; then
     print -u2 "No available $DEVICE_NAME simulator found."

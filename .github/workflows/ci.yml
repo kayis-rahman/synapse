@@ -5,6 +5,9 @@ on:
   push:
     branches: [develop]
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     name: Build and Unit Tests
@@ -22,7 +25,7 @@ jobs:
 
       - name: Boot iPhone 18 Pro simulator
         run: |
-          DEVICE_ID="$(xcrun simctl list devices available | awk -v name='iPhone 18 Pro' '$0 ~ name { match($0, /[A-F0-9-]{36}/); if (RSTART) { print substr($0, RSTART, RLENGTH); exit } }')"
+          DEVICE_ID="$(xcrun simctl list devices available | awk -v name='iPhone 18 Pro' 'index($0, name " (") { match($0, /[A-F0-9-]{36}/); if (RSTART) { print substr($0, RSTART, RLENGTH); exit } }')"
           if [ -z "$DEVICE_ID" ]; then
             echo "No available iPhone 18 Pro simulator found."
             exit 1
