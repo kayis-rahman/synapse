@@ -1,7 +1,7 @@
 # Feature Flags CloudKit Configuration
 
 Wool reads release flags from the public CloudKit database in the
-`iCloud.com.sparkage.synapse` container.
+`iCloud.com.sparkage.wool` container.
 
 ## Development record
 

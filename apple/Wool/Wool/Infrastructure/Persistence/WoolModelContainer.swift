@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 enum WoolModelContainer {
-    static let cloudKitContainerIdentifier = "iCloud.com.sparkage.synapse"
+    static let cloudKitContainerIdentifier = "iCloud.com.sparkage.wool"
     static let cloudKitIntegrationConfirmation = "DEDICATED_TEST_APPLE_ACCOUNT"
     static let appSetupCompletedKey = "wool.appSetupCompleted"
     static let pendingDestinationKey = "wool.pendingDestination"

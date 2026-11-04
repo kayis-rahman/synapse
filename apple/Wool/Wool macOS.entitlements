@@ -8,7 +8,7 @@
 	<true/>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
-		<string>iCloud.com.sparkage.synapse</string>
+		<string>iCloud.com.sparkage.wool</string>
 	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>
@@ -20,11 +20,11 @@
 	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.425MSY8FLG.com.sparkage.synapse</string>
+		<string>group.425MSY8FLG.com.sparkage.wool</string>
 	</array>
 	<key>com.apple.security.keychain.access-groups</key>
 	<array>
-		<string>425MSY8FLG.com.sparkage.synapse</string>
+		<string>425MSY8FLG.com.sparkage.wool</string>
 	</array>
 </dict>
 </plist>

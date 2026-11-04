@@ -90,7 +90,7 @@ that gate prevents accidental inclusion in normal unit or UI test commands.
    first device with the same fields.
 
 If an item does not appear, first verify both builds use
-`iCloud.com.sparkage.synapse` and that both devices are signed in to the same
+`iCloud.com.sparkage.wool` and that both devices are signed in to the same
 Apple Account. Then relaunch Wool on both devices and retry. CloudKit
 private-database delivery is asynchronous, so allow a short delay before
 calling the run failed.
