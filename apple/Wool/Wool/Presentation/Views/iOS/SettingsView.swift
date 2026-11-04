@@ -227,8 +227,12 @@ struct DataPrivacySettingsView: View {
         }
         .navigationTitle("Data & Privacy")
         .navigationBarTitleDisplayMode(.inline)
-        .fileExporter(isPresented: $exportJSONPresented, document: jsonDocument, contentType: .json, defaultFilename: "wool-backup.json") { _ in }
-        .fileExporter(isPresented: $exportCSVPresented, document: csvDocument, contentType: .plainText, defaultFilename: "wool-tasks.csv") { _ in }
+        .fileExporter(isPresented: $exportJSONPresented, document: jsonDocument, contentType: .json, defaultFilename: "wool-backup.json") { result in
+            if case .failure(let error) = result { present(error) }
+        }
+        .fileExporter(isPresented: $exportCSVPresented, document: csvDocument, contentType: .plainText, defaultFilename: "wool-tasks.csv") { result in
+            if case .failure(let error) = result { present(error) }
+        }
         .fileImporter(isPresented: $importPresented, allowedContentTypes: [.json]) { result in
             switch result {
             case .success(let url):
