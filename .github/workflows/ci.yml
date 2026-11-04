@@ -11,7 +11,7 @@ jobs:
     runs-on: [self-hosted, macOS, ARM64, wool-ci]
     timeout-minutes: 90
     env:
-      DERIVED_DATA_PATH: ${{ runner.workspace }}/derived-data
+      DERIVED_DATA_PATH: ${{ github.workspace }}/derived-data
     steps:
       - name: Checkout
         uses: actions/checkout@v4
