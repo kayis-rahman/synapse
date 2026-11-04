@@ -14,8 +14,9 @@ in). You can export a copy at any time from Settings > Data & Privacy.
 1. Open Wool and go to Settings > Data & Privacy.
 2. Tap "Restore from JSON".
 3. Select the Wool JSON backup file you saved earlier.
-4. Confirm. Restoring replaces all data currently on this device with the
-   contents of the backup file and then syncs through iCloud when signed in.
+4. Restoring begins immediately and replaces all data currently on this device
+   with the contents of the backup file, then syncs through iCloud when signed
+   in.
 
 ## Verifying a backup
 
