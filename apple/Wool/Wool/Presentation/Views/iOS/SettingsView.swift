@@ -127,7 +127,11 @@ struct NotificationsSettingsView: View {
                     get: { weeklyReviewReminderEnabled },
                     set: { newValue in
                         weeklyReviewReminderEnabled = newValue
-                        if newValue { WeeklyReviewReminderService.shared.schedule() } else { WeeklyReviewReminderService.shared.cancel() }
+                        if newValue {
+                            WeeklyReviewReminderService.shared.schedule()
+                        } else {
+                            WeeklyReviewReminderService.shared.cancel()
+                        }
                     }
                 ))
                 .disabled(!notificationsEnabled)
