@@ -159,13 +159,28 @@ enum DataExportService {
     static func jsonEncoder() -> JSONEncoder {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        encoder.dateEncodingStrategy = .iso8601
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        encoder.dateEncodingStrategy = .custom { date, encoder in
+            var container = encoder.singleValueContainer()
+            try container.encode(iso.string(from: date))
+        }
         return encoder
     }
 
     static func jsonDecoder() -> JSONDecoder {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let fallback = ISO8601DateFormatter()
+        fallback.formatOptions = [.withInternetDateTime]
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let value = try container.decode(String.self)
+            if let date = iso.date(from: value) { return date }
+            if let date = fallback.date(from: value) { return date }
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid ISO8601 date: \(value)")
+        }
         return decoder
     }
 
@@ -209,6 +224,23 @@ enum DataExportService {
             throw ExportRestoreError.unsupportedSchemaVersion(payload.schemaVersion)
         }
 
+        // Validate uniqueness before mutating store.
+        let areaIds = payload.areas.map(\.id)
+        if areaIds.count != Set(areaIds).count {
+            let duplicate = areaIds.first { id in areaIds.filter { $0 == id }.count > 1 }!
+            throw ExportRestoreError.duplicateIdentifier(entity: "area", id: duplicate)
+        }
+        let projectIds = payload.projects.map(\.id)
+        if projectIds.count != Set(projectIds).count {
+            let duplicate = projectIds.first { id in projectIds.filter { $0 == id }.count > 1 }!
+            throw ExportRestoreError.duplicateIdentifier(entity: "project", id: duplicate)
+        }
+        let reviewIds = payload.weeklyReviews.map(\.id)
+        if reviewIds.count != Set(reviewIds).count {
+            let duplicate = reviewIds.first { id in reviewIds.filter { $0 == id }.count > 1 }!
+            throw ExportRestoreError.duplicateIdentifier(entity: "weeklyReview", id: duplicate)
+        }
+
         // Wipe existing data.
         try context.delete(model: WeeklyReviewItem.self)
         try context.delete(model: WeeklyReview.self)
@@ -217,17 +249,23 @@ enum DataExportService {
         try context.delete(model: Area.self)
 
         // Insert areas.
-        let areasById: [UUID: Area] = Dictionary(uniqueKeysWithValues: payload.areas.map { dto in
+        var areasById: [UUID: Area] = [:]
+        for dto in payload.areas {
+            if areasById[dto.id] != nil {
+                throw ExportRestoreError.duplicateIdentifier(entity: "area", id: dto.id)
+            }
             let area = Area(name: dto.name, notes: dto.notes)
             area.id = dto.id
-            // adjust createdAt not in init; set property
             area.createdAt = dto.createdAt
             context.insert(area)
-            return (dto.id, area)
-        })
-        _ = areasById
+            areasById[dto.id] = area
+        }
 
-        let projectsById: [UUID: Project] = Dictionary(uniqueKeysWithValues: payload.projects.map { dto in
+        var projectsById: [UUID: Project] = [:]
+        for dto in payload.projects {
+            if projectsById[dto.id] != nil {
+                throw ExportRestoreError.duplicateIdentifier(entity: "project", id: dto.id)
+            }
             let project = Project(title: dto.title, desiredOutcome: dto.desiredOutcome, notes: dto.notes)
             project.id = dto.id
             project.createdAt = dto.createdAt
@@ -237,8 +275,8 @@ enum DataExportService {
             project.isArchived = dto.isArchived
             project.statusBeforeArchiveRawValue = dto.statusBeforeArchiveRawValue
             context.insert(project)
-            return (dto.id, project)
-        })
+            projectsById[dto.id] = project
+        }
 
         for task in payload.tasks {
             let item = TaskItem(title: task.title, notes: task.notes, status: Status(rawValue: task.statusRawValue) ?? .inbox, dueDate: task.dueDate, contextTags: task.contextTags)
@@ -253,7 +291,11 @@ enum DataExportService {
             context.insert(item)
         }
 
-        let reviewsById: [UUID: WeeklyReview] = [:].merging(payload.weeklyReviews.map { dto in
+        var reviewsById: [UUID: WeeklyReview] = [:]
+        for dto in payload.weeklyReviews {
+            if reviewsById[dto.id] != nil {
+                throw ExportRestoreError.duplicateIdentifier(entity: "weeklyReview", id: dto.id)
+            }
             let review = WeeklyReview(weekStart: dto.weekStart, weekEnd: dto.weekEnd)
             review.id = dto.id
             review.startedAt = dto.startedAt
@@ -268,8 +310,8 @@ enum DataExportService {
             review.staleTaskIDs = dto.staleTaskIDs
             review.staleItemsPreparedAt = dto.staleItemsPreparedAt
             context.insert(review)
-            return (dto.id, review)
-        }, uniquingKeysWith: { a, _ in a })
+            reviewsById[dto.id] = review
+        }
 
         for itemDto in payload.weeklyReviewItems {
             let item = WeeklyReviewItem(title: itemDto.title, instructions: itemDto.instructions, kind: WeeklyReviewStepKind(rawValue: itemDto.kindRawValue) ?? .collect, sortOrder: itemDto.sortOrder)
@@ -301,7 +343,11 @@ enum DataExportService {
 
 enum ExportRestoreError: LocalizedError {
     case unsupportedSchemaVersion(Int)
+    case duplicateIdentifier(entity: String, id: UUID)
     var errorDescription: String? {
-        switch self { case .unsupportedSchemaVersion(let v): return "Unsupported export schema version: \(v)." }
+        switch self {
+        case .unsupportedSchemaVersion(let v): return "Unsupported export schema version: \(v)."
+        case .duplicateIdentifier(let entity, let id): return "Duplicate \(entity) identifier in backup: \(id)."
+        }
     }
 }

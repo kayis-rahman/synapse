@@ -5,7 +5,14 @@ import SwiftData
 @MainActor
 final class DataExportRoundTripTests: XCTestCase {
     func testExportRestoreRoundTripPreservesData() throws {
-        let context = ModelContext(WoolModelContainer.shared)
+        let marker = UUID().uuidString
+        let configuration = ModelConfiguration(
+            "DataExportRoundTripTests-\(marker)",
+            schema: WoolModelContainer.schema,
+            cloudKitDatabase: .none
+        )
+        let container = try ModelContainer(for: WoolModelContainer.schema, configurations: configuration)
+        let context = ModelContext(container)
 
         // Seed data
         let area = Area(name: "Work")

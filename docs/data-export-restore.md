@@ -1,7 +1,7 @@
 # Data export and restore
 
 Wool stores your data locally (and in your private iCloud database when signed
-in). You can export a copy at any time from Settings > Export & Restore.
+in). You can export a copy at any time from Settings > Data & Privacy.
 
 ## Export
 
@@ -11,7 +11,7 @@ in). You can export a copy at any time from Settings > Export & Restore.
 
 ## Restore
 
-1. Open Wool and go to Settings > Export & Restore.
+1. Open Wool and go to Settings > Data & Privacy.
 2. Tap "Restore from JSON".
 3. Select the Wool JSON backup file you saved earlier.
 4. Confirm. Restoring replaces all data currently on this device with the
