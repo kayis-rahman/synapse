@@ -126,8 +126,11 @@ struct WoolApp: App {
         let defaults = UserDefaults.standard
         let notificationsEnabled = defaults.object(forKey: "notificationsEnabled") == nil || defaults.bool(forKey: "notificationsEnabled")
         let weeklyReviewReminderEnabled = defaults.object(forKey: "weeklyReviewReminderEnabled") == nil || defaults.bool(forKey: "weeklyReviewReminderEnabled")
-        guard notificationsEnabled && weeklyReviewReminderEnabled else { return }
-        WeeklyReviewReminderService.shared.schedule()
+        if notificationsEnabled && weeklyReviewReminderEnabled {
+            WeeklyReviewReminderService.shared.schedule()
+        } else {
+            WeeklyReviewReminderService.shared.cancel()
+        }
     }
 
     /// Schedules the daily briefing reminder while notifications are enabled.
@@ -136,7 +139,10 @@ struct WoolApp: App {
     private static func scheduleDailyBriefingReminderIfEnabled() {
         let defaults = UserDefaults.standard
         let notificationsEnabled = defaults.object(forKey: "notificationsEnabled") == nil || defaults.bool(forKey: "notificationsEnabled")
-        guard notificationsEnabled else { return }
-        DailyBriefingReminderService.shared.schedule()
+        if notificationsEnabled {
+            DailyBriefingReminderService.shared.schedule()
+        } else {
+            DailyBriefingReminderService.shared.cancel()
+        }
     }
 }

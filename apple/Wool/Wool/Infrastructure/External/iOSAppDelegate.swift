@@ -31,7 +31,11 @@ final class iOSAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationC
         if notificationsEnabled {
             DailyBriefingReminderService.shared.schedule()
             let weeklyReviewReminderEnabled = defaults.object(forKey: "weeklyReviewReminderEnabled") == nil || defaults.bool(forKey: "weeklyReviewReminderEnabled")
-            if weeklyReviewReminderEnabled { WeeklyReviewReminderService.shared.schedule() }
+            if weeklyReviewReminderEnabled {
+                WeeklyReviewReminderService.shared.schedule()
+            } else {
+                WeeklyReviewReminderService.shared.cancel()
+            }
         } else {
             DailyBriefingReminderService.shared.cancel()
             WeeklyReviewReminderService.shared.cancel()
