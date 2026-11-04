@@ -10,6 +10,7 @@ final class iOSAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationC
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
+        NotificationCenter.default.addObserver(self, selector: #selector(handleSignificantTimeChange), name: UIApplication.significantTimeChangeNotification, object: nil)
         requestNotificationPermissions()
         return true
     }
@@ -18,7 +19,33 @@ final class iOSAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationC
         AppLogger.info("Requesting notification permissions on iOS", category: .general)
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             AppLogger.info("iOS notification permission granted: \(granted)", category: .general)
+            if granted {
+                DispatchQueue.main.async { self.rescheduleNotifications() }
+            }
         }
+    }
+
+    private func rescheduleNotifications() {
+        let defaults = UserDefaults.standard
+        let notificationsEnabled = defaults.object(forKey: "notificationsEnabled") == nil || defaults.bool(forKey: "notificationsEnabled")
+        if notificationsEnabled {
+            DailyBriefingReminderService.shared.schedule()
+            let weeklyReviewReminderEnabled = defaults.object(forKey: "weeklyReviewReminderEnabled") == nil || defaults.bool(forKey: "weeklyReviewReminderEnabled")
+            if weeklyReviewReminderEnabled {
+                WeeklyReviewReminderService.shared.schedule()
+            } else {
+                WeeklyReviewReminderService.shared.cancel()
+            }
+        } else {
+            DailyBriefingReminderService.shared.cancel()
+            WeeklyReviewReminderService.shared.cancel()
+            NotificationManager.shared.cancelSessionDoneNotification()
+        }
+    }
+
+    @objc
+    func handleSignificantTimeChange() {
+        rescheduleNotifications()
     }
 
     func userNotificationCenter(
@@ -35,9 +62,7 @@ final class iOSAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationC
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         let userInfo = response.notification.request.content.userInfo
-        if let type = userInfo["type"] as? String,
-           type == "weekly_review",
-           let deepLink = userInfo["deepLink"] as? String,
+        if let deepLink = userInfo["deepLink"] as? String,
            let url = URL(string: deepLink) {
             UIApplication.shared.open(url)
         }

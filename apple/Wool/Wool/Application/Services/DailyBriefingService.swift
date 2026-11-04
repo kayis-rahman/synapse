@@ -1,3 +1,6 @@
+#if canImport(UserNotifications)
+import UserNotifications
+#endif
 import Foundation
 
 #if canImport(EventKit)
@@ -296,3 +299,38 @@ final class DailyBriefingService {
 }
 
 typealias DailyBriefingNarrativeProvider = @MainActor (DailyBriefingSections) async -> String?
+
+@MainActor
+final class DailyBriefingReminderService {
+    static let shared = DailyBriefingReminderService()
+    static let notificationIdentifier = "wool.daily-briefing.reminder"
+    static let deepLink = URL(string: "wool://daily-briefing")!
+
+    func schedule(
+        hour: Int = 8,
+        minute: Int = 0,
+        center: any LocalNotificationCenter = UNUserNotificationCenter.current()
+    ) {
+        var date = DateComponents()
+        date.hour = hour
+        date.minute = minute
+
+        let content = UNMutableNotificationContent()
+        content.title = "Daily Briefing"
+        content.body = "Review due work and plan your day."
+        content.sound = .default
+        content.userInfo = ["type": "daily_briefing", "deepLink": Self.deepLink.absoluteString]
+
+        let request = UNNotificationRequest(
+            identifier: Self.notificationIdentifier,
+            content: content,
+            trigger: UNCalendarNotificationTrigger(dateMatching: date, repeats: true)
+        )
+        center.removePendingNotificationRequests(withIdentifiers: [Self.notificationIdentifier])
+        center.add(request)
+    }
+
+    func cancel(center: any LocalNotificationCenter = UNUserNotificationCenter.current()) {
+        center.removePendingNotificationRequests(withIdentifiers: [Self.notificationIdentifier])
+    }
+}

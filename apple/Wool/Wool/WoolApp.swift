@@ -98,6 +98,7 @@ struct WoolApp: App {
             )
             isAppReady = true
             Self.scheduleWeeklyReviewReminderIfEnabled()
+            Self.scheduleDailyBriefingReminderIfEnabled()
             return
         }
 
@@ -115,6 +116,7 @@ struct WoolApp: App {
         isAppReady = true
         UserDefaults.standard.set(true, forKey: WoolModelContainer.appSetupCompletedKey)
         Self.scheduleWeeklyReviewReminderIfEnabled()
+        Self.scheduleDailyBriefingReminderIfEnabled()
     }
 
     /// Schedules the weekly review reminder only when the user has not opted
@@ -124,7 +126,23 @@ struct WoolApp: App {
         let defaults = UserDefaults.standard
         let notificationsEnabled = defaults.object(forKey: "notificationsEnabled") == nil || defaults.bool(forKey: "notificationsEnabled")
         let weeklyReviewReminderEnabled = defaults.object(forKey: "weeklyReviewReminderEnabled") == nil || defaults.bool(forKey: "weeklyReviewReminderEnabled")
-        guard notificationsEnabled && weeklyReviewReminderEnabled else { return }
-        WeeklyReviewReminderService.shared.schedule()
+        if notificationsEnabled && weeklyReviewReminderEnabled {
+            WeeklyReviewReminderService.shared.schedule()
+        } else {
+            WeeklyReviewReminderService.shared.cancel()
+        }
+    }
+
+    /// Schedules the daily briefing reminder while notifications are enabled.
+    /// Daily briefing does not have a dedicated toggle yet; the master
+    /// notifications preference governs it.
+    private static func scheduleDailyBriefingReminderIfEnabled() {
+        let defaults = UserDefaults.standard
+        let notificationsEnabled = defaults.object(forKey: "notificationsEnabled") == nil || defaults.bool(forKey: "notificationsEnabled")
+        if notificationsEnabled {
+            DailyBriefingReminderService.shared.schedule()
+        } else {
+            DailyBriefingReminderService.shared.cancel()
+        }
     }
 }

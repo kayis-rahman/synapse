@@ -6,10 +6,16 @@ final class WeeklyReviewReminderService {
     static let notificationIdentifier = "wool.weekly-review.reminder"
     static let deepLink = URL(string: "wool://weekly-review")!
 
-    func schedule(weekday: Int = 2, hour: Int = 9, center: UNUserNotificationCenter = .current()) {
+    func schedule(
+        weekday: Int = 2,
+        hour: Int = 9,
+        minute: Int = 0,
+        center: any LocalNotificationCenter = UNUserNotificationCenter.current()
+    ) {
         var date = DateComponents()
         date.weekday = weekday
         date.hour = hour
+        date.minute = minute
 
         let content = UNMutableNotificationContent()
         content.title = "Weekly Review"
@@ -22,10 +28,11 @@ final class WeeklyReviewReminderService {
             content: content,
             trigger: UNCalendarNotificationTrigger(dateMatching: date, repeats: true)
         )
+        center.removePendingNotificationRequests(withIdentifiers: [Self.notificationIdentifier])
         center.add(request)
     }
 
-    func cancel(center: UNUserNotificationCenter = .current()) {
+    func cancel(center: any LocalNotificationCenter = UNUserNotificationCenter.current()) {
         center.removePendingNotificationRequests(withIdentifiers: [Self.notificationIdentifier])
     }
 }
