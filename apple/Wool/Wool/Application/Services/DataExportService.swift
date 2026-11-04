@@ -227,7 +227,9 @@ enum DataExportService {
         // Validate uniqueness before mutating store.
         try ensureUniqueIDs(payload.areas.map(\.id), entity: "area")
         try ensureUniqueIDs(payload.projects.map(\.id), entity: "project")
+        try ensureUniqueIDs(payload.tasks.map(\.id), entity: "task")
         try ensureUniqueIDs(payload.weeklyReviews.map(\.id), entity: "weeklyReview")
+        try ensureUniqueIDs(payload.weeklyReviewItems.map(\.id), entity: "weeklyReviewItem")
 
         // Wipe existing data.
         try context.delete(model: WeeklyReviewItem.self)
