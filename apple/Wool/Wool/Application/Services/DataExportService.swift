@@ -225,21 +225,9 @@ enum DataExportService {
         }
 
         // Validate uniqueness before mutating store.
-        let areaIds = payload.areas.map(\.id)
-        if areaIds.count != Set(areaIds).count {
-            let duplicate = areaIds.first { id in areaIds.filter { $0 == id }.count > 1 }!
-            throw ExportRestoreError.duplicateIdentifier(entity: "area", id: duplicate)
-        }
-        let projectIds = payload.projects.map(\.id)
-        if projectIds.count != Set(projectIds).count {
-            let duplicate = projectIds.first { id in projectIds.filter { $0 == id }.count > 1 }!
-            throw ExportRestoreError.duplicateIdentifier(entity: "project", id: duplicate)
-        }
-        let reviewIds = payload.weeklyReviews.map(\.id)
-        if reviewIds.count != Set(reviewIds).count {
-            let duplicate = reviewIds.first { id in reviewIds.filter { $0 == id }.count > 1 }!
-            throw ExportRestoreError.duplicateIdentifier(entity: "weeklyReview", id: duplicate)
-        }
+        try ensureUniqueIDs(payload.areas.map(\.id), entity: "area")
+        try ensureUniqueIDs(payload.projects.map(\.id), entity: "project")
+        try ensureUniqueIDs(payload.weeklyReviews.map(\.id), entity: "weeklyReview")
 
         // Wipe existing data.
         try context.delete(model: WeeklyReviewItem.self)
@@ -327,6 +315,15 @@ enum DataExportService {
         try context.save()
     }
 
+
+    private static func ensureUniqueIDs(_ ids: [UUID], entity: String) throws {
+        if ids.count != Set(ids).count {
+            if let duplicate = ids.first(where: { id in ids.filter { $0 == id }.count > 1 }) {
+                throw ExportRestoreError.duplicateIdentifier(entity: entity, id: duplicate)
+            }
+        }
+    }
+
     private static func isoString(_ date: Date) -> String {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -346,7 +343,7 @@ enum ExportRestoreError: LocalizedError {
     case duplicateIdentifier(entity: String, id: UUID)
     var errorDescription: String? {
         switch self {
-        case .unsupportedSchemaVersion(let v): return "Unsupported export schema version: \(v)."
+        case .unsupportedSchemaVersion(let version): return "Unsupported export schema version: \(version)."
         case .duplicateIdentifier(let entity, let id): return "Duplicate \(entity) identifier in backup: \(id)."
         }
     }

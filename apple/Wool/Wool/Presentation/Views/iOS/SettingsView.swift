@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @Environment(PomodoroTimer.self) private var timer
-    @Environment(SessionLogger.self) private var logger
+    @Environment(SessionLogger.self) private var logger // swiftlint:disable:this sensitive_logging
     @Environment(AuthManager.self) private var authManager
     @Environment(FeatureFlags.self) private var featureFlags
     @AppStorage("appTheme") private var appTheme = AppTheme.system
@@ -127,11 +127,7 @@ struct NotificationsSettingsView: View {
                     get: { weeklyReviewReminderEnabled },
                     set: { newValue in
                         weeklyReviewReminderEnabled = newValue
-                        if newValue {
-                            WeeklyReviewReminderService.shared.schedule()
-                        } else {
-                            WeeklyReviewReminderService.shared.cancel()
-                        }
+                        if newValue { WeeklyReviewReminderService.shared.schedule() } else { WeeklyReviewReminderService.shared.cancel() }
                     }
                 ))
                 .disabled(!notificationsEnabled)
@@ -158,8 +154,7 @@ struct AccountSyncSettingsView: View {
     var body: some View {
         List {
             Section("Account") {
-                if authManager.isSignedIn { Label { VStack(alignment: .leading) { Text(authManager.displayName ?? "Wool user").font(.headline); Text(authManager.email ?? "Apple account connected").font(.subheadline).foregroundStyle(.secondary) } } icon: { Image(systemName: "person.crop.circle.fill").foregroundStyle(Color.themeAccent) } }
-                else { Text("Sign in with Apple to associate this installation with your Wool account.").foregroundStyle(.secondary); Button("Sign in with Apple") { signIn() }.buttonStyle(.borderedProminent).tint(Color.themeButtonBackground).accessibilityIdentifier("settings-sign-in") }
+                if authManager.isSignedIn { Label { VStack(alignment: .leading) { Text(authManager.displayName ?? "Wool user").font(.headline); Text(authManager.email ?? "Apple account connected").font(.subheadline).foregroundStyle(.secondary) } } icon: { Image(systemName: "person.crop.circle.fill").foregroundStyle(Color.themeAccent) } } else { Text("Sign in with Apple to associate this installation with your Wool account.").foregroundStyle(.secondary); Button("Sign in with Apple") { signIn() }.buttonStyle(.borderedProminent).tint(Color.themeButtonBackground).accessibilityIdentifier("settings-sign-in") }
             }
             if authManager.isSignedIn {
                 Section { Button("Sign out", role: .destructive) { confirmSignOut = true }.accessibilityIdentifier("settings-sign-out") }

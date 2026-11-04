@@ -65,6 +65,7 @@ Xcode Cloud workflows.
 - `docs/RELEASING.md` - versioning, schema, CloudKit, and rollout process
 - `docs/pre-release-checklist.md` - pre-release gate checklist
 - `docs/app-feature.md` - feature inventory
+- `docs/data-export-restore.md` - exporting and restoring data
 - `docs/feature-flags-cloudkit.md` - feature flag setup
 - `docs/vision.md` - product vision and feature request decision rule
 - `docs/roadmap.md` - phased roadmap, pivots, and launch plan
