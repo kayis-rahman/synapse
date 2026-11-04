@@ -145,14 +145,4 @@ struct WoolApp: App {
             DailyBriefingReminderService.shared.cancel()
         }
     }
-
-    /// Schedules the daily briefing reminder while notifications are enabled.
-    /// Daily briefing does not have a dedicated toggle yet; the master
-    /// notifications preference governs it.
-    private static func scheduleDailyBriefingReminderIfEnabled() {
-        let defaults = UserDefaults.standard
-        let notificationsEnabled = defaults.object(forKey: "notificationsEnabled") == nil || defaults.bool(forKey: "notificationsEnabled")
-        guard notificationsEnabled else { return }
-        DailyBriefingReminderService.shared.schedule()
-    }
 }
