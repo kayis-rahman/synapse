@@ -98,6 +98,7 @@ struct WoolApp: App {
             )
             isAppReady = true
             Self.scheduleWeeklyReviewReminderIfEnabled()
+            Self.scheduleDailyBriefingReminderIfEnabled()
             return
         }
 
