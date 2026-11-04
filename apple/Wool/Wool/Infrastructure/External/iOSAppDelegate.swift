@@ -58,9 +58,7 @@ final class iOSAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationC
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         let userInfo = response.notification.request.content.userInfo
-        if let type = userInfo["type"] as? String,
-           type == "weekly_review",
-           let deepLink = userInfo["deepLink"] as? String,
+        if let deepLink = userInfo["deepLink"] as? String,
            let url = URL(string: deepLink) {
             UIApplication.shared.open(url)
         }
