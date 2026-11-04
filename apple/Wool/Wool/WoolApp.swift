@@ -18,7 +18,7 @@ struct WoolApp: App {
     #if os(macOS)
     @NSApplicationDelegateAdaptor(MacAppDelegate.self) var appDelegate
     #else
-    @UIApplicationDelegateAdaptor(iOSAppDelegate.self) var appDelegate
+    @UIApplicationDelegateAdaptor(IOSAppDelegate.self) var appDelegate
     #endif
 
     @State var timer = PomodoroTimer()

@@ -38,7 +38,7 @@ open class NotificationManager {
             content.body = "Break session done! Time to focus."
         }
         if UserDefaults.standard.bool(forKey: "soundEnabled") {
-            if let _ = Bundle.main.url(forResource: "chime-sound", withExtension: "mp3") {
+            if Bundle.main.url(forResource: "chime-sound", withExtension: "mp3") != nil {
                 content.sound = UNNotificationSound(named: UNNotificationSoundName("chime-sound.mp3"))
             } else {
                 content.sound = .default
