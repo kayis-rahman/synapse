@@ -22,8 +22,8 @@ need steps before/after the build (e.g. notarization, notifications).
    **"iOS Unit Tests"**
    - Scheme: `Wool iOS Unit Tests`
    - Start condition: branch changes on `main` and `develop`
-   - Action: Test (iOS Simulator only — physical-device UI tests are
-     excluded, see note below)
+   - Action: Test (iOS Simulator only — UI tests run locally on a
+     simulator, see note below)
    - Post-action: none required; Xcode Cloud reports pass/fail on the PR
      automatically if you enable "Xcode Cloud" as a required check in
      GitHub branch protection.
@@ -44,25 +44,23 @@ need steps before/after the build (e.g. notarization, notifications).
    section during workflow creation. No manual `.p12`/profile management
    needed.
 
-## Why physical-device UI tests are NOT in Xcode Cloud
+## Why the physical-device workflow is NOT in Xcode Cloud
 
-Per `CLAUDE.md`, all UI-test runs must target the paired physical iPhone
-(currently `EF10AF50-5F03-56B0-A662-5DFE185E0B23` — verify this matches
-`xcrun devicectl list devices` before trusting it, see note in
-`docs/RELEASING.md`). Xcode Cloud only provisions simulators/cloud Macs, it
-cannot attach to a specific paired physical device. So:
+Per `CLAUDE.md`, iOS builds, unit tests, and UI tests run on an iOS Simulator,
+so the CI picture is simple:
 
 - Xcode Cloud runs `Wool iOS Unit Tests` (unit/service/SwiftData tests)
-  on every push — these don't need the physical device.
-- `WoolUITests` against the physical iPhone stay a **manual pre-release
-  gate**: run `scripts/run-on-iphone15pro.sh` yourself locally before
-  tagging a release. This can't be automated away without either relaxing
-  the physical-device-only rule or adding a self-hosted Mac runner
-  permanently tethered to that phone.
+  on every push.
+- Run the `WoolUITests` suite locally on a simulator with
+  `scripts/run-on-simulator.sh` before tagging a release.
+- Xcode Cloud only provisions simulators/cloud Macs, it cannot attach to a
+  specific paired physical device, so the optional device-specific workflow in
+  `docs/ios-ui-tests-on-iphone-15-pro.md` would need a self-hosted Mac runner
+  permanently tethered to that phone to be automated.
 
 ## Triggering a release
 
-1. Run the physical-device UI test suite locally, confirm green.
+1. Run the UI test suite locally on an iOS Simulator, confirm green.
 2. Bump marketing version / build number, update `CHANGELOG.md` per
    `docs/RELEASING.md`.
 3. Tag: `git tag vX.Y.Z && git push origin vX.Y.Z`.

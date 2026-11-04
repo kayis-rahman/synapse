@@ -1,7 +1,9 @@
 # Run Wool UI Tests on a Physical iPhone 15 Pro
 
-This guide runs the Wool iOS UI tests on the connected iPhone 15 Pro. The
-test runner uses the device currently configured in
+This optional guide runs the Wool iOS UI tests on the connected iPhone 15 Pro
+for device-specific validation. Standard iOS builds, unit tests, and UI tests
+run on an iOS Simulator instead (`docs/ios-ui-tests-on-simulator.md`). The test
+runner uses the device currently configured in
 `scripts/run-on-iphone15pro.sh`.
 
 The entire workflow can run from Terminal. Opening the Xcode app is not
@@ -93,7 +95,7 @@ the script with the phone unlocked.
 ## Run all UI tests on the iPhone
 
 The preferred command uses the repository script, which repeats both device
-preflight checks and refuses to use a simulator:
+preflight checks:
 
 ```sh
 ./scripts/run-on-iphone15pro.sh --test
@@ -146,8 +148,7 @@ at once):
 ```
 
 The iOS app scheme contains UI tests only. Run Weekly Review service and
-SwiftData integration tests with the separate unit-test scheme, still targeting
-the physical phone:
+SwiftData integration tests with the separate unit-test scheme:
 
 ```sh
 xcodebuild test \
@@ -270,8 +271,7 @@ The `CoreSimulatorService` text does not prove that a simulator destination was
 used. Check the original `-destination` argument and the `.xcresult` device
 metadata. In this failure mode, rerun the same command with permission to access
 Xcode/CoreDevice services outside the workspace sandbox, or run the repository
-script from an unrestricted Terminal session. Do not change the destination to
-a simulator.
+script from an unrestricted Terminal session.
 
 ### `devicectl` sees the phone but `xcodebuild` does not
 

@@ -1,6 +1,6 @@
 import XCTest
 
-/// Runs on the configured physical iPhone 15 Pro. Live OAuth is intentionally
+/// Runs on an iOS Simulator. Live OAuth is intentionally
 /// excluded; the app injects a deterministic Gmail account/message fixture.
 final class GmailIntegrationUITests: XCTestCase {
     private var app: XCUIApplication!

@@ -23,6 +23,6 @@ Out of scope: unrelated task service/backend APIs, view styling, and deployment.
    services.
 3. Keep ingestion fast by allowing raw Inbox preservation; classify through
    triage later.
-4. Add or update unit/service, SwiftData/integration, and physical-device UI
-   tests together.
+4. Add or update unit/service, SwiftData/integration, and simulator UI tests
+   together.
 5. Use unique UUID markers in persisted test data.

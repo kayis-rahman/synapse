@@ -273,7 +273,7 @@ Quick Capture is covered at multiple levels:
 - Duplicate-capture tests confirming separate records.
 - UI tests for empty-submit prevention, capture-to-Inbox navigation, editable
   confirmation, visible category choices, and cancel/back preservation.
-- Physical-device verification on an iPhone 15 Pro.
+- UI verification on an iOS Simulator.
 
 The broader test suite also covers:
 
@@ -289,7 +289,9 @@ The broader test suite also covers:
   handling, and feature-flag defaults/cache/remote refresh behavior.
 - App Intents for capture, review, briefing, task completion, and Next Actions.
 
-Physical UI test instructions are documented in
+UI test instructions are documented in
+[`ios-ui-tests-on-simulator.md`](ios-ui-tests-on-simulator.md); the optional
+physical-device workflow stays in
 [`ios-ui-tests-on-iphone-15-pro.md`](ios-ui-tests-on-iphone-15-pro.md).
 
 ### Latest Test Run Status

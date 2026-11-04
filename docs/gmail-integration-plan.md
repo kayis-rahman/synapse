@@ -17,12 +17,12 @@ Implemented in code:
   subject fallbacks.
 - Retry/backoff for selected temporary API failures.
 - Deterministic Gmail fixtures.
-- Unit, SwiftData integration, and physical-device UI test code.
+- Unit, SwiftData integration, and UI test code.
 
 Not yet verified or complete:
 
 - CoreDevice reports the configured iPhone as `connected`, not
-  `available (paired)`, so physical build and UI-test execution is blocked.
+  `available (paired)`, so the optional physical-device workflow is blocked.
 - Automated tests have not been run for this implementation slice.
 - The Gmail OAuth client ID is still empty in `Info.plist`.
 - Incremental Gmail History API sync is not implemented; subsequent syncs
@@ -66,7 +66,7 @@ duplicate messages, interrupted sync, and temporary Gmail/API failures.
   deleting local Inbox items.
 - Wire foreground lifecycle sync and coalesced per-account sync execution.
 - Add live OAuth configuration and manually verify the complete flow.
-- Execute all three test layers after the physical device becomes available.
+- Execute all three test layers on an iOS Simulator.
 
 ### Deferred
 
@@ -93,7 +93,7 @@ database sync when enabled, and a shared capture pipeline:
 - `FeatureFlags` already exposes `gmailIntegrationEnabled`.
 - `SettingsView` is the existing integration/settings entry point.
 - UI tests use an isolated local SwiftData store.
-- Physical-device testing must target the configured iPhone 15 Pro.
+- Physical-device testing is optional and targets the configured iPhone 15 Pro.
 
 Gmail-specific networking and source metadata should remain separate from the
 generic capture service. The Gmail flow should call the shared persistence
@@ -495,14 +495,14 @@ Verify:
 - CloudKit schema compatibility where applicable.
 - Deterministic fixtures with unique UUID markers.
 
-### Physical-device UI tests
+### UI tests
 
 Implemented test file: `GmailIntegrationUITests.swift`. It uses
 `WOOL_GMAIL_UI_TESTING=1` to enable the feature and seed deterministic Gmail
 data without live OAuth.
 
-All automated iOS validation must target the configured physical iPhone 15 Pro;
-no simulator result is acceptable.
+Automated iOS validation runs on an iOS Simulator
+(`docs/ios-ui-tests-on-simulator.md`).
 
 Use a deterministic UI-test mode that injects a fake Gmail account and messages
 so the tests do not depend on browser OAuth or live mail.
@@ -567,8 +567,7 @@ Completed baseline:
 
 - Gmail models, OAuth boundary, REST client, Inbox import, deduplication, and
   feature-flagged Settings UI are implemented.
-- Deterministic unit, SwiftData integration, and physical-device UI test code
-  exists.
+- Deterministic unit, SwiftData integration, and UI test code exists.
 - Credentials are kept out of SwiftData, CloudKit, logs, and notifications.
 - The feature is disabled by default and harmless when its flag is disabled.
 
@@ -585,6 +584,5 @@ Remaining before production release:
 - Emails without clear actions remain raw Inbox items.
 - Duplicate Gmail imports are prevented.
 - Existing Inbox data survives disconnects and sync failures.
-- Unit, SwiftData/integration, and physical-device UI tests pass on the required
-  iPhone.
+- Unit, SwiftData/integration, and UI tests pass on an iOS Simulator.
 - Documentation and privacy behavior match the implementation.

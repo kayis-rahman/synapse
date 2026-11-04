@@ -1,6 +1,6 @@
 import XCTest
 
-/// Runs on the configured physical iPhone 15 Pro with the debug diagnostics
+/// Runs on an iOS Simulator with the debug diagnostics
 /// launch environment enabled. It verifies the user-visible support surface.
 final class FeatureFlagsUITests: XCTestCase {
     private var app: XCUIApplication!

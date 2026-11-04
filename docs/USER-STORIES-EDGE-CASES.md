@@ -77,7 +77,7 @@
 
 - Unit/service: normalize names, reject blank values, reject case/whitespace/diacritic duplicates, and validate stale-tag and multi-Area filtering.
 - SwiftData/integration: persist assignments, unlink deleted Areas, preserve remaining assignments, keep unassigned items queryable, and verify deterministic offline/conflict fixtures.
-- Physical-device UI: create an Area, reject a duplicate, use All areas and Uncategorized filters, filter seeded tasks, delete a linked Area, and verify the resulting Uncategorized state on the configured iPhone 15 Pro.
+- Simulator UI: create an Area, reject a duplicate, use All areas and Uncategorized filters, filter seeded tasks, delete a linked Area, and verify the resulting Uncategorized state on an iOS Simulator.
 
 ## 8. Weekly Review
 
@@ -110,7 +110,7 @@
 
 - Unit/service: verify resume selection, same-week reuse, step transitions, skip/partial status, empty-stale auto-completion, stale snapshot refresh, unresolved stale partial completion, idempotent finish, duplicate-week streak handling, date boundaries, and deterministic AI fallback.
 - SwiftData/integration: verify progress survives save/reload, same-week review uniqueness, stale-task removal after external completion, local/offline operation, and unique UUID fixtures.
-- Physical-device UI: on the configured iPhone 15 Pro, verify starting the checklist, empty-stale completion, resuming after relaunch, skipping steps, unresolved stale partial completion, visible progress, and accessible controls.
+- Simulator UI: on an iOS Simulator, verify starting the checklist, empty-stale completion, resuming after relaunch, skipping steps, unresolved stale partial completion, visible progress, and accessible controls.
 
 ## 9. Daily Briefing
 
@@ -197,7 +197,7 @@ transcription, and send it through AI Auto-Triage.*
   and tasks persist together, repeated syncs are idempotent, checkpoints resume
   safely, disconnect preserves local items, and unique UUID fixtures isolate
   test data.
-- Physical-device UI: on the configured iPhone 15 Pro, verify the feature-flagged
+- Simulator UI: on an iOS Simulator, verify the feature-flagged
   Gmail settings section, connected/paused/disconnected states, manual sync,
   imported raw Inbox content, and disconnect confirmation using deterministic
   fixtures. Live OAuth, token expiry, and external revocation remain manual
@@ -246,7 +246,7 @@ transcription, and send it through AI Auto-Triage.*
 
 - Unit/service: verify permission/error fallbacks, all-day versus timed sections, multi-day and recurring occurrences, exact day-boundary inclusion, timezone/DST behavior, stable-ID deduplication, malformed-event filtering, ordering, event caps, and separation from task due dates.
 - SwiftData/integration: verify the briefing remains usable offline, calendar failures do not affect local task persistence, repeated briefing generation is idempotent, and one coherent event snapshot is used per result.
-- Physical-device UI: on the configured iPhone 15 Pro, verify the permitted flow with timed, all-day, multi-day, overlapping, and empty-task fixtures; verify denied/revoked access omits the section and that the briefing remains navigable.
+- Simulator UI: on an iOS Simulator, verify the permitted flow with timed, all-day, multi-day, overlapping, and empty-task fixtures; verify denied/revoked access omits the section and that the briefing remains navigable.
 
 ## 17. Apple Reminders Import
 
