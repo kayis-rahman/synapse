@@ -55,8 +55,10 @@ xcodebuild -scheme "Wool iOS Unit Tests" \
 
 GitHub Actions (`.github/workflows/ci.yml`) runs the `Wool iOS Unit Tests` suite
 on every pull request and push to `develop` on a self-hosted macOS runner.
-Xcode Cloud additionally archives `Wool iOS` for TestFlight when a `v*.*.*` tag
-is pushed. UI tests run on an iOS Simulator with
+Xcode Cloud is configured manually and is not wired to automatic pushes or PRs;
+see `docs/xcode-cloud-setup.md`. It archives `Wool iOS` for TestFlight internal
+testing through the manual "Wool iOS archive (manual)" workflow (or a `v*.*.*`
+tag once the captain authorizes tag-triggered builds). UI tests run on an iOS Simulator with
 `scripts/run-on-simulator.sh`; the optional physical-device workflow stays
 available for device-specific checks in
 `docs/ios-ui-tests-on-iphone-15-pro.md`. See `docs/xcode-cloud-setup.md` for the
