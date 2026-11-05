@@ -92,7 +92,13 @@ private struct HomeView: View {
     @State private var showingSettings = false
 
     private var todayTasks: [TaskItem] {
-        let actions = tasks.filter { $0.status == .nextAction && ($0.dueDate == nil || Calendar.current.isDateInToday($0.dueDate!)) }
+        let actions = tasks.filter { task in
+            guard task.status == .nextAction else { return false }
+            if let dueDate = task.dueDate {
+                return Calendar.current.isDateInToday(dueDate)
+            }
+            return true
+        }
         return WorkspaceMetrics.tasks(matching: selectedAreaFilter, areas: areas, from: actions)
     }
 

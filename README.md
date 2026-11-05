@@ -25,6 +25,7 @@ renamed once published; do not change them without a migration:
 - CloudKit container: `iCloud.com.sparkage.wool`
 - App/keychain access group: `425MSY8FLG.com.sparkage.wool`
 - Gmail OAuth callback scheme: `com.sparkage.wool.gmail`
+- Local notification deep-link URL scheme: `wool`
 
 The OS logger subsystem (`com.sparkage.wool`), the Keychain service name
 (`com.wool.keychain`), and the local `wool.*` UserDefaults and `WOOL_*`
