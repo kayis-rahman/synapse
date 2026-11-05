@@ -67,6 +67,18 @@ final class WorkspaceUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["All clear — nothing is due today."].exists)
     }
 
+    func testTodayBriefingKeepsCaptureAndNamesItsAreaFilter() throws {
+        let summary = app.descendants(matching: .any)["today-orientation-summary"].firstMatch
+        XCTAssertTrue(summary.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["home-capture-ui-testing"].exists)
+        XCTAssertTrue(app.buttons["today-see-all-next-actions"].exists)
+
+        let allAreasFilter = app.buttons["area-filter-all-areas"]
+        XCTAssertTrue(allAreasFilter.exists)
+        XCTAssertEqual(allAreasFilter.label, "Filter by All areas")
+        XCTAssertTrue(app.buttons["area-filter-uncategorized"].exists)
+    }
+
     func testDailyBriefingShowsDueOverdueAndCappedUpNextSections() throws {
         relaunchWithDailyBriefingFixtures()
         app.buttons["daily-briefing-button"].tap()
@@ -331,6 +343,10 @@ final class WorkspaceUITests: XCTestCase {
         XCTAssertTrue(inboxTab.waitForExistence(timeout: 15))
         inboxTab.tap()
 
+        let searchButton = app.buttons["inbox-search-button"]
+        XCTAssertTrue(searchButton.waitForExistence(timeout: 5))
+        searchButton.tap()
+
         let searchField = app.textFields["Search captures"]
         XCTAssertTrue(searchField.waitForExistence(timeout: 5))
         searchField.tap()
@@ -516,7 +532,7 @@ final class WorkspaceUITests: XCTestCase {
         XCTAssertTrue(allLists.waitForExistence(timeout: 5))
         allLists.tap()
 
-        XCTAssertTrue(app.navigationBars["Lists"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Next Action"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Next Action"].exists)
         XCTAssertTrue(app.staticTexts[title].waitForExistence(timeout: 5))
     }
@@ -736,6 +752,20 @@ final class WorkspaceUITests: XCTestCase {
         XCTAssertTrue(app.buttons["workspace-filter-completed"].exists)
     }
 
+    func testEmptyProjectsCreateActionIsReachableAboveTabBar() throws {
+        let projectsTab = app.tabBars.buttons["Projects"]
+        XCTAssertTrue(projectsTab.waitForExistence(timeout: 10))
+        projectsTab.tap()
+
+        let createProject = app.buttons["empty-add-project"]
+        XCTAssertTrue(createProject.waitForExistence(timeout: 10))
+        XCTAssertTrue(createProject.isHittable, "The create-project action must remain tappable.")
+        XCTAssertFalse(
+            createProject.frame.intersects(app.tabBars.firstMatch.frame),
+            "The create-project action must remain visually clear of the floating tab bar."
+        )
+    }
+
     func testProjectDetailShowsOnlyItsLinkedActionsAndProgress() throws {
         relaunchWithProjectAndAreaFixtures()
         app.tabBars.buttons["Projects"].tap()
@@ -839,8 +869,11 @@ final class WorkspaceUITests: XCTestCase {
         app.tabBars.buttons["Today"].tap()
         app.buttons["area-filter-uncategorized"].tap()
         // Home's task row is a NavigationLink whose text children collapse into
-        // a single accessibility element exposed as a button, not a static text.
-        XCTAssertTrue(app.buttons["UI Test Other Area Action"].waitForExistence(timeout: 10))
+        // a single accessibility element that also announces capture metadata.
+        let uncategorizedTask = app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "UI Test Other Area Action")
+        ).firstMatch
+        XCTAssertTrue(uncategorizedTask.waitForExistence(timeout: 10))
     }
 
     func testWorkspaceUsesFiveWorkflowTabsWithFocusLastAndPreservesTimerSurface() throws {
