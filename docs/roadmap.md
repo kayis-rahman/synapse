@@ -85,7 +85,7 @@ Expected after v1.0 launch; gated on TestFlight feedback requesting
 portability and migration, or reliability gaps.
 
 - Apple Reminders import.
-- JSON and CSV export and restore.
+- JSON and CSV export and restore (shipped in v1.0).
 - Robust recurring tasks.
 - Guided onboarding.
 - Conflict-aware sync UI.

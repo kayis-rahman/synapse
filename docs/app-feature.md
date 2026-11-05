@@ -166,7 +166,7 @@ task identity.
 
 Settings provides Focus duration controls, Sound & Haptics, Appearance
 (system/light/dark), Integrations, Account & Sync, Support & About, and Data &
-Privacy. Sign in with Apple is available for account-backed synchronization;
+Privacy. Data & Privacy also includes exporting all data as JSON or tasks as CSV and restoring from a JSON backup. Sign in with Apple is available for account-backed synchronization;
 signing out leaves local data on the device. Debug builds can expose a Feature
 Flags screen. Known remote flags are namespaced, default to disabled, cached
 with version metadata, and take effect on the next launch.
